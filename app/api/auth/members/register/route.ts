@@ -7,17 +7,12 @@ import { users } from "@/lib/db/schema";
 import { createSession } from "@/lib/server/auth";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
 import { hashPassword } from "@/lib/server/passwords";
+import { fourDigitPinSchema } from "@/lib/server/pins";
 
 const bodySchema = z.object({
   firstName: z.string().trim().min(1).max(80),
   email: z.string().trim().email().transform((value) => value.toLowerCase()),
-  password: z
-    .string()
-    .min(10, "Password must be at least 10 characters")
-    .max(128)
-    .regex(/[A-Z]/, "Password must include an uppercase letter")
-    .regex(/[a-z]/, "Password must include a lowercase letter")
-    .regex(/\d/, "Password must include a number"),
+  password: fourDigitPinSchema,
 });
 
 export const runtime = "nodejs";
@@ -56,3 +51,4 @@ export async function POST(request: Request) {
     return json({ user, session }, { status: 201 });
   });
 }
+

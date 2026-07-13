@@ -1,4 +1,4 @@
-import { count, eq, inArray } from "drizzle-orm";
+﻿import { count, eq, inArray } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import {
@@ -74,7 +74,7 @@ export async function seedDatabase() {
     .select({ value: count() })
     .from(users);
   if (userCount > 0) {
-    const demoPasswordHash = await hashPassword("DemoPassword123!");
+    const demoPasswordHash = await hashPassword("2468");
     const refreshed = await db
       .update(users)
       .set({ passwordHash: demoPasswordHash, updatedAt: new Date() })
@@ -104,7 +104,7 @@ export async function seedDatabase() {
     .where(eq(membershipPlans.code, "three_month"))
     .limit(1);
 
-  const demoPasswordHash = await hashPassword("DemoPassword123!");
+  const demoPasswordHash = await hashPassword("2468");
 
   const [member, owner, admin] = await db
     .insert(users)
@@ -231,3 +231,4 @@ export async function seedDatabase() {
 
   return { demoSeeded: true };
 }
+

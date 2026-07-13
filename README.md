@@ -1,6 +1,6 @@
 ﻿# Orit Tej backend
 
-Next.js API backend for the Orit Tej member app. It uses Neon Postgres, Drizzle ORM, Stripe, password authentication, persistent device sessions, automatic membership renewal, pickup orders, read-only notifications, inventory status, and complimentary-bottle benefits.
+Next.js API backend for the Orit Tej member app. It uses Neon Postgres, Drizzle ORM, Stripe, four-digit PIN authentication, persistent device sessions, automatic membership renewal, pickup orders, read-only notifications, inventory status, and complimentary-bottle benefits.
 
 ## Initial setup
 
@@ -18,10 +18,10 @@ npm run dev
 
 db:seed is safe to rerun. Reference plans and Leyou Ethiopian are upserted, and demo users/orders are only inserted when the users table is empty.
 
-Demo password for the seeded member, store owner, and admin:
+Demo PIN for the seeded member, store owner, and admin:
 
 ~~~text
-DemoPassword123!
+2468
 ~~~
 
 The optional demo bearer tokens come from .env.local.
@@ -63,7 +63,7 @@ It expires unused complimentary offers, renews due memberships automatically usi
 
 ## Authentication
 
-Members register with first name, email, and password. Passwords are scrypt-hashed with PASSWORD_PEPPER. The server returns an opaque one-year device session; only its SHA-256 hash is stored in Neon. The Flutter app stores the raw session in Android Keystore/iOS Keychain through flutter_secure_storage, so users remain signed in between launches.
+Members register with first name, email, and a four-digit numeric PIN. PINs are scrypt-hashed with PASSWORD_PEPPER. Incorrect sign-in attempts are limited per email and device for 15 minutes. The server returns an opaque one-year device session; only its SHA-256 hash is stored in Neon. The Flutter app stores the raw session in Android Keystore/iOS Keychain through flutter_secure_storage, so users remain signed in between launches.
 
 Main auth endpoints:
 
@@ -129,3 +129,5 @@ npm run build
 ~~~
 
 The generated SQL migration is in drizzle/. Do not run db:generate again unless the schema changes; deploy with npm run db:migrate.
+
+

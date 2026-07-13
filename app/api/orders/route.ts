@@ -23,6 +23,8 @@ const bodySchema = z.object({
   quantity: z.number().int().min(1).max(12),
 });
 
+const orderStatusSchema = z.enum(["pending"]).optional();
+
 const safeOrderFields = {
   id: orders.id,
   locationId: orders.locationId,
@@ -46,11 +48,21 @@ export async function GET(request: Request) {
   return handleRoute(async () => {
     await prepareDatabase();
     const member = await requireAuth(request, ["member"]);
+    const requestedStatus = orderStatusSchema.parse(
+      new URL(request.url).searchParams.get("status") ?? undefined,
+    );
     const result = await getDb()
       .select(memberOrderFields)
       .from(orders)
       .innerJoin(locations, eq(locations.id, orders.locationId))
-      .where(eq(orders.memberId, member.id))
+      .where(
+        requestedStatus
+          ? and(
+              eq(orders.memberId, member.id),
+              eq(orders.status, requestedStatus),
+            )
+          : eq(orders.memberId, member.id),
+      )
       .orderBy(desc(orders.createdAt));
     return json({ orders: result });
   });

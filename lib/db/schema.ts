@@ -319,3 +319,28 @@ export const pickupAccessAttempts = pgTable(
     ),
   ],
 );
+
+
+export const authAccessAttempts = pgTable(
+  "auth_access_attempts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    emailHash: text("email_hash").notNull(),
+    ipHash: text("ip_hash").notNull(),
+    succeeded: boolean("succeeded").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("auth_attempts_email_created_idx").on(
+      table.emailHash,
+      table.createdAt,
+    ),
+    index("auth_attempts_email_ip_created_idx").on(
+      table.emailHash,
+      table.ipHash,
+      table.createdAt,
+    ),
+  ],
+);

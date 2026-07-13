@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import { FormEvent, useState } from "react";
@@ -13,10 +13,7 @@ type PickupOrder = {
   status: string;
 };
 
-async function postJson(
-  path: string,
-  body: Record<string, string>,
-) {
+async function postJson(path: string, body: Record<string, string>) {
   const response = await fetch(path, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -45,7 +42,7 @@ export function PickupClient({ token }: { token: string }) {
   async function verify(event: FormEvent) {
     event.preventDefault();
     if (!/^\d{4}$/.test(serviceCode)) {
-      setError("Enter the four-digit location service code.");
+      setError("Enter the service code.");
       return;
     }
 
@@ -80,28 +77,27 @@ export function PickupClient({ token }: { token: string }) {
     }
   }
 
+  const enteringCode = state === "code" || state === "verifying";
+  const viewingOrder = state === "ready" || state === "completing";
+
   return (
     <main className="pickup-shell">
       <section className="pickup-card" aria-live="polite">
-        <Image
-          className="pickup-logo"
-          src="/orit-tej-icon.png"
-          alt="Orit Tej wine bottle and honey jar"
-          width={112}
-          height={112}
-          priority
-        />
-        <p className="eyebrow">Orit Tej</p>
-        <h1>Pickup verification</h1>
-
-        {state === "code" || state === "verifying" ? (
+        {enteringCode ? (
           <>
-            <p className="intro">
-              Enter this location&apos;s four-digit service code to view the
-              paid order.
-            </p>
+            <Image
+              className="pickup-logo"
+              src="/app-icon.png"
+              alt="Orit Tej wine bottle and honey jar"
+              width={112}
+              height={112}
+              priority
+            />
+            <p className="eyebrow">Orit Tej</p>
+            <h1>Pickup verification</h1>
+            <p className="intro">Enter service code to view the paid order.</p>
             <form onSubmit={verify} className="code-form">
-              <label htmlFor="service-code">Location service code</label>
+              <label htmlFor="service-code">Service code</label>
               <input
                 id="service-code"
                 name="service-code"
@@ -130,8 +126,9 @@ export function PickupClient({ token }: { token: string }) {
           </>
         ) : null}
 
-        {order && (state === "ready" || state === "completing") ? (
+        {order && viewingOrder ? (
           <>
+            <h1>Pickup verification</h1>
             <div className="paid-pill">Paid order</div>
             <dl className="order-details">
               <div>
@@ -159,19 +156,14 @@ export function PickupClient({ token }: { token: string }) {
               {state === "completing" ? "Completing..." : "Complete"}
             </button>
             <p className="complete-note">
-              Press only after the customer has received the bottles. This QR
-              code will stop working immediately.
+              This QR code will deactivate immediately.
             </p>
           </>
         ) : null}
 
         {state === "completed" ? (
           <div className="success-panel">
-            <div className="success-mark" aria-hidden="true">
-              ✓
-            </div>
             <h2>Pickup complete</h2>
-            <p>The order is complete and this QR code is now inactive.</p>
           </div>
         ) : null}
 
@@ -180,5 +172,3 @@ export function PickupClient({ token }: { token: string }) {
     </main>
   );
 }
-
-
