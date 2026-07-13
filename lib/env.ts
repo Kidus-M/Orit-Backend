@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
@@ -9,7 +9,7 @@ const envSchema = z.object({
   PICKUP_SECURITY_PEPPER: z.string().min(16),
   PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   PICKUP_QR_TTL_DAYS: z.coerce.number().int().min(1).max(90).default(30),
-  DEMO_LOCATION_SERVICE_CODE: z.string().regex(/^\d{4}$/).default("1100"),
+  LEYOU_SERVICE_CODE: z.string().regex(/^\d{4}$/).default("1100"),
   DEMO_PICKUP_TOKEN: z.string().min(24).optional(),
   SEED_IF_EMPTY: z
     .enum(["true", "false"])
@@ -33,4 +33,3 @@ export function getEnv(): AppEnv {
   if (!cached) cached = envSchema.parse(process.env);
   return cached;
 }
-

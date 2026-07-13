@@ -1,4 +1,4 @@
-﻿import { and, desc, eq, gt, isNull } from "drizzle-orm";
+import { and, desc, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
@@ -35,6 +35,11 @@ const safeOrderFields = {
   createdAt: orders.createdAt,
 };
 
+const memberOrderFields = {
+  ...safeOrderFields,
+  locationName: locations.name,
+};
+
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
@@ -42,8 +47,9 @@ export async function GET(request: Request) {
     await prepareDatabase();
     const member = await requireAuth(request, ["member"]);
     const result = await getDb()
-      .select(safeOrderFields)
+      .select(memberOrderFields)
       .from(orders)
+      .innerJoin(locations, eq(locations.id, orders.locationId))
       .where(eq(orders.memberId, member.id))
       .orderBy(desc(orders.createdAt));
     return json({ orders: result });

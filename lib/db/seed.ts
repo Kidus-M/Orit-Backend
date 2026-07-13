@@ -1,4 +1,4 @@
-﻿import { count, eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import {
@@ -25,7 +25,7 @@ export async function seedDatabase() {
   const db = getDb();
   const env = getEnv();
   const serviceCodeHash = hashServiceCode(
-    env.DEMO_LOCATION_SERVICE_CODE,
+    env.LEYOU_SERVICE_CODE,
   );
 
   await db
@@ -213,7 +213,3 @@ export async function seedDatabase() {
 
   return { demoSeeded: true };
 }
-
-
-
-

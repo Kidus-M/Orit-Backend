@@ -1,4 +1,4 @@
-﻿# Orit Tej backend
+# Orit Tej backend
 
 Next.js API backend for the Orit Tej member app. It uses Neon Postgres, Drizzle ORM, Stripe, password authentication, persistent device sessions, automatic membership renewal, pickup orders, read-only notifications, inventory status, and complimentary-bottle benefits.
 
@@ -6,7 +6,7 @@ Next.js API backend for the Orit Tej member app. It uses Neon Postgres, Drizzle 
 
 1. Copy .env.example to .env.local and fill every required value.
 2. In Neon, copy the pooled URL to DATABASE_URL and the direct URL to DATABASE_URL_UNPOOLED.
-3. Generate long random values for PASSWORD_PEPPER, SESSION_TOKEN_PEPPER, ADMIN_API_KEY, and CRON_SECRET.
+3. Generate long random values for PASSWORD_PEPPER, SESSION_TOKEN_PEPPER, PICKUP_SECURITY_PEPPER, ADMIN_API_KEY, and CRON_SECRET. Set PUBLIC_APP_URL to the deployed HTTPS site and choose Leyou Ethiopian's four-digit LEYOU_SERVICE_CODE.
 4. Run:
 
 ~~~powershell
@@ -82,6 +82,9 @@ Authenticated endpoints use Authorization: Bearer <session-token>.
 - Confirm membership purchase: POST /api/memberships/purchase
 - Pickup locations and stock: GET /api/locations
 - Member orders: GET/POST /api/orders
+- Regenerate a pending order QR: POST /api/orders/:id/pickup
+- Verify pickup service code: POST /api/pickup/verify
+- Complete one-time pickup: POST /api/pickup/complete
 - Read-only inbox: GET /api/messages
 - Mark message read: POST /api/messages/:id/read
 - Complimentary benefit: GET /api/member-benefit
@@ -91,6 +94,16 @@ Authenticated endpoints use Authorization: Bearer <session-token>.
 - Scan complimentary code: POST /api/admin/benefits/scan
 
 Completing an order keeps it in the queue with status=completed, so the store UI can render it unhighlighted and disable the Complete action. Out-of-stock updates broadcast a read-only message to all active member accounts.
+
+## Customer pickup QR website
+
+Each paid order receives a cryptographically random one-time URL at `/pickup/<token>`. A phone camera can open that URL, but customer details remain hidden until the employee enters the pickup location's four-digit service code. The page then shows the member name, email, quantity, and a large green Complete button.
+
+The root website, invalid tokens, expired tokens, and completed tokens return 404. Only an active QR URL can reach the page. Tokens are stored only as keyed hashes, service codes are keyed hashes, and incorrect service-code attempts are limited to five per order and IP in 15 minutes.
+
+The Flutter My orders page calls `POST /api/orders/:id/pickup` when a member reopens a pending purchase. This rotates the token, invalidates any older QR copy, and returns a new QR URL. Completed orders remain visible in history without a QR.
+
+For local testing, the seeded Leyou code defaults to `1100`. Change `LEYOU_SERVICE_CODE` before seeding a real environment. `PUBLIC_APP_URL` must be the reachable HTTPS address of this Next.js deployment; `localhost` QR links will not work from an employee's phone.
 
 ## Flutter development
 
