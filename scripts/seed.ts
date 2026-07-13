@@ -1,6 +1,9 @@
-﻿import "dotenv/config";
+import { config } from "dotenv";
 
 import { seedDatabase } from "../lib/db/seed";
+
+config({ path: ".env.local" });
+config();
 
 seedDatabase()
   .then((result) => {
@@ -11,4 +14,3 @@ seedDatabase()
     console.error(error);
     process.exit(1);
   });
-
