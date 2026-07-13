@@ -29,11 +29,14 @@ export const users = pgTable(
     firstName: text("first_name").notNull(),
     email: text("email").notNull(),
     storeName: text("store_name"),
+    passwordHash: text("password_hash"),
+    stripeCustomerId: text("stripe_customer_id"),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
     ...timestamps,
   },
   (table) => [
     uniqueIndex("users_email_unique").on(table.email),
+    uniqueIndex("users_stripe_customer_unique").on(table.stripeCustomerId),
     index("users_role_idx").on(table.role),
   ],
 );
@@ -212,6 +215,9 @@ export const payments = pgTable(
   (table) => [
     index("payments_member_idx").on(table.memberId),
     index("payments_order_idx").on(table.orderId),
+    uniqueIndex("payments_provider_reference_unique").on(
+      table.providerReference,
+    ),
   ],
 );
 
@@ -281,6 +287,7 @@ export const inventoryEvents = pgTable("inventory_events", {
     .notNull()
     .defaultNow(),
 });
+
 
 
 

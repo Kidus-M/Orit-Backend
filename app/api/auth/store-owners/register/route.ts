@@ -6,10 +6,18 @@ import { prepareDatabase } from "@/lib/db/prepare";
 import { locationStaff, locations, users } from "@/lib/db/schema";
 import { createSession } from "@/lib/server/auth";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
+import { hashPassword } from "@/lib/server/passwords";
 
 const bodySchema = z.object({
   firstName: z.string().trim().min(1).max(80),
   email: z.string().trim().email().transform((value) => value.toLowerCase()),
+  password: z
+    .string()
+    .min(10, "Password must be at least 10 characters")
+    .max(128)
+    .regex(/[A-Z]/)
+    .regex(/[a-z]/)
+    .regex(/\d/),
   storeName: z.string().trim().min(2).max(160),
   locationId: z.string().uuid(),
 });
@@ -36,15 +44,23 @@ export async function POST(request: Request) {
       .limit(1);
     if (!location) throw new ApiError(404, "Pickup location not found");
 
+    const passwordHash = await hashPassword(input.password);
     const [user] = await db
       .insert(users)
       .values({
         role: "store_owner",
         firstName: input.firstName,
         email: input.email,
+        passwordHash,
         storeName: input.storeName,
       })
-      .returning();
+      .returning({
+        id: users.id,
+        role: users.role,
+        firstName: users.firstName,
+        email: users.email,
+        storeName: users.storeName,
+      });
     await db.insert(locationStaff).values({
       locationId: location.id,
       userId: user.id,
@@ -54,4 +70,3 @@ export async function POST(request: Request) {
     return json({ user, session }, { status: 201 });
   });
 }
-

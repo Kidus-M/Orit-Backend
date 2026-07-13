@@ -15,6 +15,7 @@ import {
 import { getEnv } from "@/lib/env";
 import { hashSessionToken } from "@/lib/server/auth";
 import { addMonthsClamped } from "@/lib/server/dates";
+import { hashPassword } from "@/lib/server/passwords";
 
 export async function seedDatabase() {
   const db = getDb();
@@ -73,6 +74,8 @@ export async function seedDatabase() {
     .where(eq(membershipPlans.code, "three_month"))
     .limit(1);
 
+  const demoPasswordHash = await hashPassword("DemoPassword123!");
+
   const [member, owner, admin] = await db
     .insert(users)
     .values([
@@ -80,17 +83,20 @@ export async function seedDatabase() {
         role: "member",
         firstName: "Maya",
         email: "maya.member@example.com",
+        passwordHash: demoPasswordHash,
       },
       {
         role: "store_owner",
         firstName: "Daniel",
         email: "owner@leyou.example.com",
         storeName: "Leyou Ethiopian",
+        passwordHash: demoPasswordHash,
       },
       {
         role: "admin",
         firstName: "Orit Admin",
         email: "admin@orit-tej.example.com",
+        passwordHash: demoPasswordHash,
       },
     ])
     .returning();
@@ -192,4 +198,5 @@ export async function seedDatabase() {
 
   return { demoSeeded: true };
 }
+
 
