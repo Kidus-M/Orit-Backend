@@ -1,4 +1,6 @@
-﻿import {
+﻿import { sql } from "drizzle-orm";
+
+import {
   boolean,
   index,
   integer,
@@ -119,7 +121,7 @@ export const memberships = pgTable(
   (table) => [
     uniqueIndex("memberships_active_user_unique")
       .on(table.userId)
-      .where(text("ended_at IS NULL")),
+      .where(sql`ended_at IS NULL`),
     index("memberships_renewal_idx").on(
       table.status,
       table.autoRenew,
@@ -279,4 +281,6 @@ export const inventoryEvents = pgTable("inventory_events", {
     .notNull()
     .defaultNow(),
 });
+
+
 

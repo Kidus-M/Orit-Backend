@@ -12,6 +12,7 @@ import {
 import { requireAuth } from "@/lib/server/auth";
 import { addMonthsClamped } from "@/lib/server/dates";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
+import { chargeSavedPaymentMethod } from "@/lib/server/payments";
 
 const paymentMethodSchema = z.object({
   providerCustomerId: z.string().max(200).optional(),
@@ -67,6 +68,20 @@ export async function POST(request: Request) {
       )
       .limit(1);
 
+    if (
+      existing &&
+      existing.status === "active" &&
+      existing.currentPeriodEnd > now
+    ) {
+      throw new ApiError(409, "Membership is already active");
+    }
+
+    const charge = await chargeSavedPaymentMethod({
+      amountCents: plan.priceCents,
+      memberId: user.id,
+      kind: "membership",
+    });
+
     const [membership] = existing
       ? await db
           .update(memberships)
@@ -97,17 +112,19 @@ export async function POST(request: Request) {
       membershipId: membership.id,
       kind: "membership",
       amountCents: plan.priceCents,
-      status: "succeeded_demo",
+      status: charge.status,
+      providerReference: charge.providerReference,
     });
 
     return json(
       {
         membership,
         autoRenew: true,
-        paymentMode: "demo",
+        paymentMode: charge.status === "succeeded_demo" ? "mock" : "provider",
       },
       { status: 201 },
     );
   });
 }
+
 

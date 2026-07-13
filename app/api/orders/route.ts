@@ -1,4 +1,4 @@
-﻿import { and, desc, eq, inArray, isNull } from "drizzle-orm";
+﻿import { and, desc, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
@@ -15,6 +15,7 @@ import {
 } from "@/lib/db/schema";
 import { requireAuth } from "@/lib/server/auth";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
+import { chargeSavedPaymentMethod } from "@/lib/server/payments";
 
 const bodySchema = z.object({
   locationId: z.string().uuid(),
@@ -51,6 +52,7 @@ export async function POST(request: Request) {
           eq(memberships.userId, member.id),
           eq(memberships.status, "active"),
           isNull(memberships.endedAt),
+          gt(memberships.currentPeriodEnd, new Date()),
         ),
       )
       .limit(1);
@@ -76,6 +78,11 @@ export async function POST(request: Request) {
     }
 
     const totalCents = location.bottlePriceCents * input.quantity;
+    const charge = await chargeSavedPaymentMethod({
+      amountCents: totalCents,
+      memberId: member.id,
+      kind: "order",
+    });
     const [order] = await db
       .insert(orders)
       .values({
@@ -93,7 +100,8 @@ export async function POST(request: Request) {
       orderId: order.id,
       kind: "order",
       amountCents: totalCents,
-      status: "succeeded_demo",
+      status: charge.status,
+      providerReference: charge.providerReference,
     });
 
     const staff = await db
@@ -131,10 +139,12 @@ export async function POST(request: Request) {
       {
         order,
         notificationRecipients: recipientIds.length,
-        paymentMode: "demo",
+        paymentMode: charge.status === "succeeded_demo" ? "mock" : "provider",
       },
       { status: 201 },
     );
   });
 }
+
+
 
