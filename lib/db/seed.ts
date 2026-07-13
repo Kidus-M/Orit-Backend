@@ -16,9 +16,17 @@ import { getEnv } from "@/lib/env";
 import { hashSessionToken } from "@/lib/server/auth";
 import { addMonthsClamped } from "@/lib/server/dates";
 import { hashPassword } from "@/lib/server/passwords";
+import {
+  createPickupCredential,
+  hashServiceCode,
+} from "@/lib/server/pickup";
 
 export async function seedDatabase() {
   const db = getDb();
+  const env = getEnv();
+  const serviceCodeHash = hashServiceCode(
+    env.DEMO_LOCATION_SERVICE_CODE,
+  );
 
   await db
     .insert(membershipPlans)
@@ -55,8 +63,12 @@ export async function seedDatabase() {
       hoursText: "Monday-Sunday, 5:30 PM-9:00 PM",
       bottlePriceCents: 1898,
       inStock: true,
+      serviceCodeHash,
     })
-    .onConflictDoNothing();
+    .onConflictDoUpdate({
+      target: locations.name,
+      set: { serviceCodeHash, updatedAt: new Date() },
+    });
 
   const [{ value: userCount }] = await db
     .select({ value: count() })
@@ -130,6 +142,7 @@ export async function seedDatabase() {
     billingZip: "95112",
   });
 
+  const demoPickup = createPickupCredential(env.DEMO_PICKUP_TOKEN);
   const [order] = await db
     .insert(orders)
     .values({
@@ -140,6 +153,8 @@ export async function seedDatabase() {
       totalCents: location.bottlePriceCents * 2,
       paid: true,
       status: "pending",
+      pickupTokenHash: demoPickup.tokenHash,
+      pickupTokenExpiresAt: demoPickup.expiresAt,
     })
     .returning();
 
@@ -150,6 +165,7 @@ export async function seedDatabase() {
     quantity: order.quantity,
     paid: order.paid,
     membershipId: membership.id,
+    pickupUrl: demoPickup.pickupUrl,
   };
 
   await db.insert(messages).values([
@@ -175,7 +191,6 @@ export async function seedDatabase() {
     },
   ]);
 
-  const env = getEnv();
   const demoSessions = [
     [member.id, env.DEMO_MEMBER_TOKEN],
     [owner.id, env.DEMO_STORE_OWNER_TOKEN],
@@ -198,5 +213,7 @@ export async function seedDatabase() {
 
   return { demoSeeded: true };
 }
+
+
 
 

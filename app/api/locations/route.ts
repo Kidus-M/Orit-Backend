@@ -9,11 +9,20 @@ export async function GET() {
   return handleRoute(async () => {
     await prepareDatabase();
     const result = await getDb()
-      .select()
+      .select({
+        id: locations.id,
+        name: locations.name,
+        addressLine1: locations.addressLine1,
+        city: locations.city,
+        state: locations.state,
+        postalCode: locations.postalCode,
+        hoursText: locations.hoursText,
+        bottlePriceCents: locations.bottlePriceCents,
+        inStock: locations.inStock,
+      })
       .from(locations)
       .where(eq(locations.active, true))
       .orderBy(asc(locations.name));
     return json({ locations: result });
   });
 }
-

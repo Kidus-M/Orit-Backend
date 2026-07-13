@@ -16,11 +16,24 @@ import {
 import { requireAuth } from "@/lib/server/auth";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
 import { chargeSavedPaymentMethod } from "@/lib/server/payments";
+import { createPickupCredential } from "@/lib/server/pickup";
 
 const bodySchema = z.object({
   locationId: z.string().uuid(),
   quantity: z.number().int().min(1).max(12),
 });
+
+const safeOrderFields = {
+  id: orders.id,
+  locationId: orders.locationId,
+  quantity: orders.quantity,
+  unitPriceCents: orders.unitPriceCents,
+  totalCents: orders.totalCents,
+  paid: orders.paid,
+  status: orders.status,
+  completedAt: orders.completedAt,
+  createdAt: orders.createdAt,
+};
 
 export const runtime = "nodejs";
 
@@ -29,7 +42,7 @@ export async function GET(request: Request) {
     await prepareDatabase();
     const member = await requireAuth(request, ["member"]);
     const result = await getDb()
-      .select()
+      .select(safeOrderFields)
       .from(orders)
       .where(eq(orders.memberId, member.id))
       .orderBy(desc(orders.createdAt));
@@ -83,6 +96,8 @@ export async function POST(request: Request) {
       memberId: member.id,
       kind: "order",
     });
+    const pickup = createPickupCredential();
+
     const [order] = await db
       .insert(orders)
       .values({
@@ -92,8 +107,10 @@ export async function POST(request: Request) {
         unitPriceCents: location.bottlePriceCents,
         totalCents,
         paid: true,
+        pickupTokenHash: pickup.tokenHash,
+        pickupTokenExpiresAt: pickup.expiresAt,
       })
-      .returning();
+      .returning(safeOrderFields);
 
     await db.insert(payments).values({
       memberId: member.id,
@@ -113,7 +130,10 @@ export async function POST(request: Request) {
       .from(users)
       .where(and(eq(users.role, "admin"), isNull(users.deletedAt)));
     const recipientIds = [
-      ...new Set([...staff.map((item) => item.userId), ...admins.map((item) => item.id)]),
+      ...new Set([
+        ...staff.map((item) => item.userId),
+        ...admins.map((item) => item.id),
+      ]),
     ];
 
     if (recipientIds.length > 0) {
@@ -139,12 +159,11 @@ export async function POST(request: Request) {
       {
         order,
         notificationRecipients: recipientIds.length,
-        paymentMode: charge.status === "succeeded_demo" ? "mock" : "provider",
+        pickupUrl: pickup.pickupUrl,
+        pickupExpiresAt: pickup.expiresAt,
+        paymentMode: charge.status === "succeeded_demo" ? "mock" : "stripe",
       },
       { status: 201 },
     );
   });
 }
-
-
-

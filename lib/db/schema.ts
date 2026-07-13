@@ -146,6 +146,7 @@ export const locations = pgTable(
     bottlePriceCents: integer("bottle_price_cents").notNull().default(1898),
     inStock: boolean("in_stock").notNull().default(true),
     active: boolean("active").notNull().default(true),
+    serviceCodeHash: text("service_code_hash"),
     ...timestamps,
   },
   (table) => [uniqueIndex("locations_name_unique").on(table.name)],
@@ -185,6 +186,10 @@ export const orders = pgTable(
     totalCents: integer("total_cents").notNull(),
     paid: boolean("paid").notNull().default(false),
     status: text("status").notNull().default("pending"),
+    pickupTokenHash: text("pickup_token_hash"),
+    pickupTokenExpiresAt: timestamp("pickup_token_expires_at", {
+      withTimezone: true,
+    }),
     completedAt: timestamp("completed_at", { withTimezone: true }),
     completedByUserId: uuid("completed_by_user_id").references(() => users.id),
     ...timestamps,
@@ -192,6 +197,7 @@ export const orders = pgTable(
   (table) => [
     index("orders_location_status_idx").on(table.locationId, table.status),
     index("orders_member_idx").on(table.memberId),
+    uniqueIndex("orders_pickup_token_unique").on(table.pickupTokenHash),
   ],
 );
 
@@ -291,3 +297,25 @@ export const inventoryEvents = pgTable("inventory_events", {
 
 
 
+
+export const pickupAccessAttempts = pgTable(
+  "pickup_access_attempts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    ipHash: text("ip_hash").notNull(),
+    succeeded: boolean("succeeded").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("pickup_attempts_order_ip_created_idx").on(
+      table.orderId,
+      table.ipHash,
+      table.createdAt,
+    ),
+  ],
+);
