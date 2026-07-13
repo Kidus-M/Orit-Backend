@@ -1,33 +1,52 @@
-﻿import { randomBytes, scrypt as nodeScrypt, timingSafeEqual } from "node:crypto";
-import { promisify } from "node:util";
+﻿import {
+  randomBytes,
+  scrypt as nodeScrypt,
+  timingSafeEqual,
+  type ScryptOptions,
+} from "node:crypto";
 
 import { getEnv } from "@/lib/env";
 
-const scrypt = promisify(nodeScrypt);
 const keyLength = 64;
-const cost = 32768;
-const blockSize = 8;
-const parallelization = 1;
-const maxmem = 64 * 1024 * 1024;
+const options: ScryptOptions = {
+  N: 32768,
+  r: 8,
+  p: 1,
+  maxmem: 64 * 1024 * 1024,
+};
 
 function passwordInput(password: string) {
   return `${password}:${getEnv().PASSWORD_PEPPER}`;
 }
 
+function deriveKey(
+  input: string,
+  salt: Buffer,
+  length: number,
+  deriveOptions: ScryptOptions,
+) {
+  return new Promise<Buffer>((resolve, reject) => {
+    nodeScrypt(input, salt, length, deriveOptions, (error, key) => {
+      if (error) reject(error);
+      else resolve(key);
+    });
+  });
+}
+
 export async function hashPassword(password: string) {
   const salt = randomBytes(16);
-  const derived = (await scrypt(passwordInput(password), salt, keyLength, {
-    N: cost,
-    r: blockSize,
-    p: parallelization,
-    maxmem,
-  })) as Buffer;
+  const derived = await deriveKey(
+    passwordInput(password),
+    salt,
+    keyLength,
+    options,
+  );
 
   return [
     "scrypt",
-    cost,
-    blockSize,
-    parallelization,
+    options.N,
+    options.r,
+    options.p,
     salt.toString("base64url"),
     derived.toString("base64url"),
   ].join("$");
@@ -47,7 +66,7 @@ export async function verifyPassword(password: string, encoded: string) {
   }
 
   const expected = Buffer.from(hashText, "base64url");
-  const actual = (await scrypt(
+  const actual = await deriveKey(
     passwordInput(password),
     Buffer.from(saltText, "base64url"),
     expected.length,
@@ -55,9 +74,9 @@ export async function verifyPassword(password: string, encoded: string) {
       N: Number(n),
       r: Number(r),
       p: Number(p),
-      maxmem,
+      maxmem: options.maxmem,
     },
-  )) as Buffer;
+  );
 
   return actual.length === expected.length && timingSafeEqual(actual, expected);
 }

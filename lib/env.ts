@@ -14,8 +14,10 @@ const envSchema = z.object({
   DEMO_STORE_OWNER_TOKEN: z.string().min(16).optional(),
   DEMO_ADMIN_TOKEN: z.string().min(16).optional(),
   PAYMENT_MODE: z.enum(["mock", "stripe"]).default("mock"),
-  PAYMENT_PROVIDER_SECRET_KEY: z.string().optional(),
-  PAYMENT_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_SECRET_KEY: z.string().startsWith("sk_").optional(),
+  STRIPE_PUBLISHABLE_KEY: z.string().startsWith("pk_").optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_").optional(),
+  STRIPE_CURRENCY: z.string().length(3).default("usd"),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;
@@ -26,6 +28,3 @@ export function getEnv(): AppEnv {
   if (!cached) cached = envSchema.parse(process.env);
   return cached;
 }
-
-
-

@@ -1,5 +1,4 @@
-﻿import { eq } from "drizzle-orm";
-import { z } from "zod";
+﻿import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
@@ -37,4 +36,6 @@ export async function PATCH(request: Request) {
     return json({ paymentMethod });
   });
 }
+
+
 
