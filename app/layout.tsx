@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+﻿import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     images: ["/hero-honey-wine.png"],
   },
   icons: {
-    icon: "/orit-tej-icon.png",
+    icon: "/app-icon.png",
     apple: "/app-icon.png",
   },
 };
@@ -65,3 +65,4 @@ export default function RootLayout({
     </html>
   );
 }
+

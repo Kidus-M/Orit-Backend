@@ -40,8 +40,8 @@ export default function Home() {
                 <Link className="button button--wine" href="/about">
                   Discover our story <span aria-hidden="true">-&gt;</span>
                 </Link>
-                <Link className="text-link" href="/gallery">
-                  See the craft <span aria-hidden="true">-&gt;</span>
+                <Link className="text-link" href="/download">
+                  Get the app <span aria-hidden="true">-&gt;</span>
                 </Link>
               </div>
             </div>

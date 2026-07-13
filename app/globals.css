@@ -586,3 +586,71 @@ button:disabled { cursor: wait; opacity: .65; }
     animation-duration: .01ms !important;
   }
 }
+
+/* The navigation remains readable across cream, honey, and wine hero sections. */
+.site-header {
+  position: fixed;
+  top: 12px;
+  right: 0;
+  left: 0;
+  padding: 0 clamp(12px, 3vw, 42px);
+}
+.site-header__inner {
+  min-height: 68px;
+  border: 1px solid rgba(104, 29, 49, 0.11);
+  border-radius: 20px;
+  background: rgba(251, 246, 234, 0.88);
+  padding: 8px 14px 8px 10px;
+  box-shadow: 0 10px 34px rgba(59, 16, 29, 0.07);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.company-logo {
+  display: block;
+  width: 50px;
+  height: 50px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(104, 29, 49, 0.12);
+  border-radius: 15px;
+  box-shadow: 0 5px 14px rgba(59, 16, 29, 0.12);
+  object-fit: cover;
+}
+.company-logo--footer {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  box-shadow: none;
+}
+@media (max-width: 900px) {
+  .site-header {
+    top: 10px;
+    padding: 0 12px;
+  }
+  .site-header__inner {
+    min-height: 64px;
+  }
+  .site-nav {
+    top: 74px;
+    right: 12px;
+    left: 12px;
+  }
+}
+@media (max-width: 620px) {
+  .company-logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+  }
+}
+
+.site-header {
+  will-change: transform, opacity;
+  transition:
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease;
+}
+.site-header--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(calc(-100% - 24px));
+}
