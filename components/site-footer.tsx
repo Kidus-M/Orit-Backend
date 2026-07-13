@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export function SiteFooter() {
@@ -16,9 +17,13 @@ export function SiteFooter() {
 
       <div className="site-footer__grid">
         <div className="footer-brand">
-          <span className="brand-mark brand-mark--footer" aria-hidden="true">
-            OT
-          </span>
+          <Image
+            className="company-logo company-logo--footer"
+            src="/app-icon.png"
+            alt="Orit Tej"
+            width={72}
+            height={72}
+          />
           <p>
             Handcrafted Ethiopian honey wine, made by a family who believes
             quality is always worth the time.
@@ -43,7 +48,7 @@ export function SiteFooter() {
       </div>
 
       <div className="site-footer__bottom">
-        <p>(c) {new Date().getFullYear()} Orit Tej. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Orit Tej. All rights reserved.</p>
         <p>Please enjoy responsibly. 21+ only.</p>
       </div>
     </footer>

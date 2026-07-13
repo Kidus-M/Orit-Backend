@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 
@@ -8,12 +8,52 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Orit Tej",
-  description: "Orit Tej secure pickup verification",
-  robots: {
-    index: false,
-    follow: false,
+  metadataBase: new URL("https://orit-backend.vercel.app"),
+  title: {
+    default: "Orit Tej | Ethiopian Honey Wine",
+    template: "%s | Orit Tej",
   },
+  description:
+    "Handcrafted Ethiopian honey wine made in California from natural ingredients and a family recipe shared since 1987.",
+  applicationName: "Orit Tej",
+  keywords: [
+    "Orit Tej",
+    "Ethiopian honey wine",
+    "Tej",
+    "California honey wine",
+    "Ethiopian wine",
+  ],
+  openGraph: {
+    type: "website",
+    siteName: "Orit Tej",
+    title: "Orit Tej | Ethiopian Honey Wine",
+    description:
+      "A golden Ethiopian honey wine handcrafted in California and made to be shared.",
+    images: [
+      {
+        url: "/hero-honey-wine.png",
+        width: 1536,
+        height: 1024,
+        alt: "Orit Tej honey wine, honeycomb, and a golden glass",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Orit Tej | Ethiopian Honey Wine",
+    description:
+      "A golden Ethiopian honey wine handcrafted in California and made to be shared.",
+    images: ["/hero-honey-wine.png"],
+  },
+  icons: {
+    icon: "/orit-tej-icon.png",
+    apple: "/app-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#ffcc20",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
