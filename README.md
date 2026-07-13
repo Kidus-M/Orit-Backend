@@ -1,4 +1,4 @@
-# Orit Tej backend
+﻿# Orit Tej backend
 
 Next.js API backend for the Orit Tej member app. It uses Neon Postgres, Drizzle ORM, Stripe, password authentication, persistent device sessions, automatic membership renewal, pickup orders, read-only notifications, inventory status, and complimentary-bottle benefits.
 
@@ -110,16 +110,16 @@ For local testing, the seeded Leyou code defaults to `1100`. Change `LEYOU_SERVI
 Android emulator:
 
 ~~~powershell
-flutter run --dart-define=ORIT_API_BASE_URL=http://10.0.2.2:3000 --dart-define=ORIT_PAYMENT_MODE=mock
+flutter run --dart-define=ORIT_API_BASE_URL=https://orit-backend.vercel.app --dart-define=ORIT_PAYMENT_MODE=mock
 ~~~
 
 Stripe test mode:
 
 ~~~powershell
-flutter run --dart-define=ORIT_API_BASE_URL=http://10.0.2.2:3000 --dart-define=ORIT_PAYMENT_MODE=stripe
+flutter run --dart-define=ORIT_API_BASE_URL=https://orit-backend.vercel.app --dart-define=ORIT_PAYMENT_MODE=stripe
 ~~~
 
-For a physical phone, replace 10.0.2.2 with an HTTPS development URL or the computer's reachable LAN address.
+The deployed backend is the default API. Override ORIT_API_BASE_URL only when intentionally testing another backend.
 
 ## Checks
 

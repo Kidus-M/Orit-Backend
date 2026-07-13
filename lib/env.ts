@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 
 const optionalString = (schema: z.ZodString) =>
   z.preprocess(
@@ -14,7 +14,7 @@ const envSchema = z.object({
   ADMIN_API_KEY: z.string().min(16),
   CRON_SECRET: z.string().min(16),
   PICKUP_SECURITY_PEPPER: z.string().min(16),
-  PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+  PUBLIC_APP_URL: z.string().url().default("https://orit-backend.vercel.app"),
   PICKUP_QR_TTL_DAYS: z.coerce.number().int().min(1).max(90).default(30),
   LEYOU_SERVICE_CODE: z.string().regex(/^\d{4}$/).default("1100"),
   DEMO_PICKUP_TOKEN: optionalString(z.string().min(24)),
