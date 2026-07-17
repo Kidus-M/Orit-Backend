@@ -520,7 +520,7 @@ button:disabled { cursor: wait; opacity: .65; }
   .hero__content { width: 100%; }
   .hero h1 { font-size: clamp(3.6rem,13vw,6.8rem); }
   .hero__note { display: none; }
-  .intro-grid, .story-feature, .gallery-preview, .app-feature,
+  .intro-grid, .tej-definition, .story-feature, .gallery-preview, .app-feature,
   .story-collage, .download-intro, .contact-layout { grid-template-columns: 1fr; }
   .story-feature__image { min-height: 600px; }
   .gallery-preview__images { min-height: 630px; padding: 0 24px 55px; }
