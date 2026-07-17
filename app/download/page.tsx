@@ -3,6 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { ArrowRightIcon } from "@/components/arrow-right-icon";
+import {
+  AndroidLogoIcon,
+  AppleLogoIcon,
+} from "@/components/device-platform-icons";
 import { MarketingShell } from "@/components/marketing-shell";
 import { PageTransition } from "@/components/page-transition";
 
@@ -87,11 +91,14 @@ export default function DownloadPage() {
                 </p>
               </div>
               <div className="store-grid" data-stagger>
-                <article className="store-card">
-                  <div className="store-card__icon" aria-hidden="true">
-                    A
+                <article className="store-card store-card--android">
+                  <div className="store-card__top">
+                    <div className="store-card__icon">
+                      <AndroidLogoIcon />
+                    </div>
+                    <span className="status-pill">Coming soon</span>
                   </div>
-                  <div>
+                  <div className="store-card__copy">
                     <p className="eyebrow">Android</p>
                     <h3>Download the APK</h3>
                     <p>
@@ -99,20 +106,29 @@ export default function DownloadPage() {
                       release testing.
                     </p>
                   </div>
-                  <span className="status-pill">Coming soon</span>
-                </article>
-                <article className="store-card">
-                  <div className="store-card__icon" aria-hidden="true">
-                    i
+                  <div className="store-card__footer">
+                    <span>Release channel</span>
+                    <strong>Direct download</strong>
                   </div>
-                  <div>
+                </article>
+                <article className="store-card store-card--ios">
+                  <div className="store-card__top">
+                    <div className="store-card__icon">
+                      <AppleLogoIcon />
+                    </div>
+                    <span className="status-pill">Planned</span>
+                  </div>
+                  <div className="store-card__copy">
                     <p className="eyebrow">iPhone</p>
                     <h3>Download for iOS</h3>
                     <p>
                       The App Store version is planned for a later release.
                     </p>
                   </div>
-                  <span className="status-pill">Planned</span>
+                  <div className="store-card__footer">
+                    <span>Release channel</span>
+                    <strong>Apple App Store</strong>
+                  </div>
                 </article>
               </div>
             </div>
