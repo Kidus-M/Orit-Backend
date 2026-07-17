@@ -138,3 +138,18 @@ npm run build
 The generated SQL migration is in drizzle/. Do not run db:generate again unless the schema changes; deploy with npm run db:migrate.
 
 
+
+
+## Android tester releases
+
+The app checks `/downloads/android-update.json` at startup. A required release blocks the old app, downloads the versioned APK inside the app, verifies its SHA-256 checksum natively, and opens Android's installer.
+
+Build each release from the Flutter project after increasing both the version name and build number. Then publish it from this project:
+
+~~~powershell
+npm run release:android -- --apk "..\orit_tej_app\build\app\outputs\flutter-apk\app-release.apk" --version 0.0.2 --build 2 --note "What changed"
+npm run check
+npm run build
+~~~
+
+The publisher copies the APK into `public/downloads`, calculates its checksum and size, and updates the manifest and website download button. By default, the published build is required for every older build. Android build numbers must always increase, and every APK must use the same signing key as the first tester release.

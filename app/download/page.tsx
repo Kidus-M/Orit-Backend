@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import androidRelease from "@/public/downloads/android-update.json";
 import { ArrowRightIcon } from "@/components/arrow-right-icon";
 import {
   AndroidLogoIcon,
@@ -13,7 +14,7 @@ import { PageTransition } from "@/components/page-transition";
 export const metadata: Metadata = {
   title: "Get the App",
   description:
-    "Preview the upcoming Orit Tej wine club app for Android and iPhone.",
+    "Download the Orit Tej wine club app for Android and preview the planned iPhone release.",
 };
 
 const features = [
@@ -23,6 +24,10 @@ const features = [
 ];
 
 export default function DownloadPage() {
+  const androidReady =
+    androidRelease.enabled &&
+    androidRelease.apkUrl.toLowerCase().endsWith(".apk");
+
   return (
     <MarketingShell>
       <PageTransition>
@@ -35,7 +40,7 @@ export default function DownloadPage() {
               <h1 data-page-intro>Your wine club, close at hand.</h1>
               <p data-page-intro>
                 Membership, ordering, pickup, and your QR codes in one simple
-                place. Android and iPhone releases are on the way.
+                place.
               </p>
             </div>
           </section>
@@ -70,7 +75,7 @@ export default function DownloadPage() {
               <ul className="feature-list">
                 {features.map((feature) => (
                   <li key={feature}>
-                    <span aria-hidden="true">✓</span>
+                    <span aria-hidden="true">{"\u2713"}</span>
                     {feature}
                   </li>
                 ))}
@@ -82,12 +87,14 @@ export default function DownloadPage() {
             <div className="section">
               <div className="section-heading" data-reveal>
                 <div>
-                  <p className="kicker kicker--light">Coming soon</p>
+                  <p className="kicker kicker--light">
+                    {androidReady ? "Available now" : "Coming soon"}
+                  </p>
                   <h2 className="display-heading">Choose your device.</h2>
                 </div>
                 <p>
-                  Download links will appear here as soon as the public builds
-                  are ready.
+                  Android testers can install the latest APK here. The iPhone
+                  app is planned for a later release.
                 </p>
               </div>
               <div className="store-grid" data-stagger>
@@ -96,15 +103,28 @@ export default function DownloadPage() {
                     <div className="store-card__icon">
                       <AndroidLogoIcon />
                     </div>
-                    <span className="status-pill">Coming soon</span>
+                    <span className="status-pill">
+                      {androidReady ? "Ready" : "Coming soon"}
+                    </span>
                   </div>
                   <div className="store-card__copy">
                     <p className="eyebrow">Android</p>
                     <h3>Download the APK</h3>
                     <p>
-                      A direct Android download will be available here after
-                      release testing.
+                      {androidReady
+                        ? "Install the latest Orit Tej tester release directly on your Android phone."
+                        : "The direct Android download will appear here after the first tester release."}
                     </p>
+                    {androidReady && (
+                      <a
+                        className="button button--wine store-card__download"
+                        href={androidRelease.apkUrl}
+                        download
+                      >
+                        Download version {androidRelease.versionName}
+                        <ArrowRightIcon />
+                      </a>
+                    )}
                   </div>
                   <div className="store-card__footer">
                     <span>Release channel</span>
@@ -135,8 +155,8 @@ export default function DownloadPage() {
           </section>
 
           <section className="closing-cta" data-reveal>
-            <p className="kicker">Want an update?</p>
-            <h2>We will let you know when the app is ready.</h2>
+            <p className="kicker">Need help?</p>
+            <h2>Contact us if you need help installing the app.</h2>
             <Link className="button button--wine" href="/contact">
               Contact us <ArrowRightIcon />
             </Link>

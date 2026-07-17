@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "versionCode": 1,
+  "versionName": "0.0.1",
+  "minimumSupportedVersionCode": 1,
+  "apkUrl": "/downloads/orit-tej-android-0.0.1-1.apk",
+  "sha256": "c8b65b4a3652051ef07a124ae0435da3fc22282dfc0ab0dd9809950aa6f10254",
+  "sizeBytes": 65069392,
+  "releaseNotes": [
+    "In-app update support for tester releases",
+    "Latest Orit Tej member experience"
+  ],
+  "publishedAt": "2026-07-17T13:14:50.573Z"
+}

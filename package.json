@@ -12,7 +12,8 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:seed-member": "tsx scripts/seed-member.ts",
     "db:studio": "drizzle-kit studio",
-    "check": "npm run lint && tsc --noEmit"
+    "check": "npm run lint && tsc --noEmit",
+    "release:android": "tsx scripts/release-android.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

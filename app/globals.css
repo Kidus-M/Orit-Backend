@@ -1212,3 +1212,5 @@ button:disabled { cursor: wait; opacity: .65; }
     flex-direction: column;
   }
 }
+
+.store-card__download { margin-top: 26px; }
