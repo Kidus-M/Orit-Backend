@@ -8,7 +8,7 @@ import { requireAuth } from "@/lib/server/auth";
 import { handleRoute, json } from "@/lib/server/http";
 
 const bodySchema = z.object({
-  message: z.string().trim().min(10).max(500),
+  message: z.string().trim().min(10).max(50),
 });
 
 export const runtime = "nodejs";
