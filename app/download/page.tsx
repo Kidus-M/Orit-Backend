@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { ArrowRightIcon } from "@/components/arrow-right-icon";
 import { MarketingShell } from "@/components/marketing-shell";
 import { PageTransition } from "@/components/page-transition";
 
@@ -121,7 +122,7 @@ export default function DownloadPage() {
             <p className="kicker">Want an update?</p>
             <h2>We will let you know when the app is ready.</h2>
             <Link className="button button--wine" href="/contact">
-              Contact us <span aria-hidden="true">-&gt;</span>
+              Contact us <ArrowRightIcon />
             </Link>
           </section>
         </main>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { ArrowRightIcon } from "@/components/arrow-right-icon";
 import { MarketingShell } from "@/components/marketing-shell";
 import { PageTransition } from "@/components/page-transition";
 
@@ -133,7 +134,7 @@ export default function AboutPage() {
             <p className="kicker">See it in the world</p>
             <h2>Tradition feels best when it is shared.</h2>
             <Link className="button button--wine" href="/gallery">
-              Visit the gallery <span aria-hidden="true">-&gt;</span>
+              Visit the gallery <ArrowRightIcon />
             </Link>
           </section>
         </main>

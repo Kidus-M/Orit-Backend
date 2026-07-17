@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 
+import { ArrowRightIcon } from "@/components/arrow-right-icon";
 import { ContactForm } from "@/components/contact-form";
 import { MarketingShell } from "@/components/marketing-shell";
 import { PageTransition } from "@/components/page-transition";
@@ -60,7 +61,7 @@ export default function ContactPage() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Open in maps <span aria-hidden="true">-&gt;</span>
+                  Open in maps <ArrowRightIcon />
                 </a>
               </div>
             </div>
@@ -79,7 +80,7 @@ export default function ContactPage() {
               className="button button--honey"
               href="mailto:orittej.comments@gmail.com?subject=Orit%20Tej%20pickup%20partnership"
             >
-              Start a conversation <span aria-hidden="true">-&gt;</span>
+              Start a conversation <ArrowRightIcon />
             </a>
           </section>
         </main>

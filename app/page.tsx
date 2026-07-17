@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { ArrowRightIcon } from "@/components/arrow-right-icon";
 import { MarketingShell } from "@/components/marketing-shell";
 import { PageTransition } from "@/components/page-transition";
 
@@ -38,10 +39,10 @@ export default function Home() {
               </p>
               <div className="hero__actions" data-page-intro>
                 <Link className="button button--wine" href="/about">
-                  Discover our story <span aria-hidden="true">-&gt;</span>
+                  Discover our story <ArrowRightIcon />
                 </Link>
                 <Link className="text-link" href="/download">
-                  Get the app <span aria-hidden="true">-&gt;</span>
+                  Get the app <ArrowRightIcon />
                 </Link>
               </div>
             </div>
@@ -69,7 +70,7 @@ export default function Home() {
                 conversation.
               </p>
               <Link className="text-link text-link--wine" href="/about">
-                Learn what makes ours special <span aria-hidden="true">-&gt;</span>
+                Learn what makes ours special <ArrowRightIcon />
               </Link>
             </div>
           </section>
@@ -94,7 +95,7 @@ export default function Home() {
                 them the courage to share it with the wider community.
               </p>
               <Link className="button button--honey" href="/about">
-                Read the full story <span aria-hidden="true">-&gt;</span>
+                Read the full story <ArrowRightIcon />
               </Link>
             </div>
           </section>
@@ -135,7 +136,7 @@ export default function Home() {
               <p className="kicker kicker--light">A seat at the table</p>
               <h2>Good wine makes room for good company.</h2>
               <Link className="button button--outline-light" href="/gallery">
-                Explore the gallery <span aria-hidden="true">-&gt;</span>
+                Explore the gallery <ArrowRightIcon />
               </Link>
             </div>
             <div className="gallery-preview__images" data-stagger>
@@ -157,7 +158,7 @@ export default function Home() {
                 The app is being prepared for Android and iPhone.
               </p>
               <Link className="button button--wine" href="/download">
-                Preview the app <span aria-hidden="true">-&gt;</span>
+                Preview the app <ArrowRightIcon />
               </Link>
             </div>
             <div className="phone-stage" data-reveal aria-label="Orit Tej app preview">

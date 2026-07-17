@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { ArrowRightIcon } from "@/components/arrow-right-icon";
+
 export function SiteFooter() {
   return (
     <footer className="site-footer">
@@ -11,7 +13,7 @@ export function SiteFooter() {
         </div>
         <Link className="button button--honey" href="/contact">
           Start a conversation
-          <span aria-hidden="true">-&gt;</span>
+          <ArrowRightIcon />
         </Link>
       </div>
 

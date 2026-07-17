@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 
+import { ArrowRightIcon } from "@/components/arrow-right-icon";
+
 export function ContactForm() {
   const [sent, setSent] = useState(false);
 
@@ -40,7 +42,7 @@ export function ContactForm() {
       <div className="contact-form__actions">
         <button className="button button--wine" type="submit">
           Write to us
-          <span aria-hidden="true">-&gt;</span>
+          <ArrowRightIcon />
         </button>
         <p aria-live="polite">
           {sent

@@ -117,6 +117,13 @@ img { object-fit: cover; }
   font-size: 0.9rem; font-weight: 700;
 }
 .text-link--wine { color: var(--wine); }
+.arrow-icon {
+  width: 1em; height: 1em; flex: 0 0 auto; overflow: visible;
+  transition: transform 220ms ease;
+}
+.button:hover .arrow-icon, .text-link:hover .arrow-icon {
+  transform: translateX(3px);
+}
 .image-frame { position: relative; overflow: hidden; }
 
 .hero {
