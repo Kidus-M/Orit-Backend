@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 
 import { prepareDatabase } from "@/lib/db/prepare";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
@@ -30,6 +30,7 @@ export async function POST(request: Request) {
         paid: order.paid,
         locationName: order.locationName,
         status: order.status,
+        isMember: order.isMember,
       },
     });
   });

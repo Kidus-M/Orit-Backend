@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: ["/", "/about", "/gallery", "/download", "/contact"],
-      disallow: ["/api/", "/pickup/"],
+      disallow: ["/api/", "/pickup/", "/admin/"],
     },
     sitemap: "https://orit-backend.vercel.app/sitemap.xml",
   };

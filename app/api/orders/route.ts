@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
@@ -6,7 +6,6 @@ import { prepareDatabase } from "@/lib/db/prepare";
 import {
   locationStaff,
   locations,
-  memberships,
   messages,
   orders,
   paymentMethods,
@@ -75,19 +74,6 @@ export async function POST(request: Request) {
     const input = bodySchema.parse(await request.json());
     const db = getDb();
 
-    const [membership] = await db
-      .select({ id: memberships.id })
-      .from(memberships)
-      .where(
-        and(
-          eq(memberships.userId, member.id),
-          eq(memberships.status, "active"),
-          isNull(memberships.endedAt),
-          gt(memberships.currentPeriodEnd, new Date()),
-        ),
-      )
-      .limit(1);
-    if (!membership) throw new ApiError(403, "Active membership required");
 
     const [paymentMethod] = await db
       .select({ id: paymentMethods.id })

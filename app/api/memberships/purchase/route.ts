@@ -1,4 +1,4 @@
-﻿import { and, eq, isNull, or } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
@@ -8,6 +8,7 @@ import {
   memberships,
   paymentMethods,
   payments,
+  users,
 } from "@/lib/db/schema";
 import { getEnv } from "@/lib/env";
 import { requireAuth } from "@/lib/server/auth";
@@ -202,6 +203,10 @@ export async function POST(request: Request) {
       providerReference,
     });
 
+    await db
+      .update(users)
+      .set({ membershipOptOut: false, updatedAt: now })
+      .where(eq(users.id, user.id));
     return json(
       {
         membership,

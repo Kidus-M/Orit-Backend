@@ -11,6 +11,7 @@ type PickupOrder = {
   paid: boolean;
   locationName: string;
   status: string;
+  isMember: boolean;
 };
 
 async function postJson(path: string, body: Record<string, string>) {
@@ -112,7 +113,7 @@ export function PickupClient({ token }: { token: string }) {
                     event.target.value.replace(/\D/g, "").slice(0, 4),
                   )
                 }
-                placeholder="••••"
+                placeholder="0000"
                 autoFocus
               />
               <button
@@ -158,6 +159,12 @@ export function PickupClient({ token }: { token: string }) {
             <p className="complete-note">
               This QR code will deactivate immediately.
             </p>
+            {order.isMember ? (
+              <div className="member-bee" aria-label="Active Orit Tej member">
+                <span aria-hidden="true">{"\u{1F41D}"}</span>
+                <strong>Active member</strong>
+              </div>
+            ) : null}
           </>
         ) : null}
 

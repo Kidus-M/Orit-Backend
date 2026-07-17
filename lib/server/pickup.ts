@@ -1,10 +1,11 @@
-﻿import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
-import { and, count, eq, gte } from "drizzle-orm";
+import { and, count, eq, gt, gte, isNull } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import {
   locations,
+  memberships,
   orders,
   pickupAccessAttempts,
   users,
@@ -168,7 +169,20 @@ export async function authorizePickup(
     throw new ApiError(409, "This order has not been paid");
   }
 
-  return result;
+  const [activeMembership] = await db
+    .select({ id: memberships.id })
+    .from(memberships)
+    .where(
+      and(
+        eq(memberships.userId, result.memberId),
+        eq(memberships.status, "active"),
+        isNull(memberships.endedAt),
+        gt(memberships.currentPeriodEnd, new Date()),
+      ),
+    )
+    .limit(1);
+
+  return { ...result, isMember: Boolean(activeMembership) };
 }
 
 

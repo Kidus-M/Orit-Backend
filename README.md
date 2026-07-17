@@ -1,4 +1,4 @@
-﻿# Orit Tej backend
+# Orit Tej backend
 
 Next.js API backend for the Orit Tej member app. It uses Neon Postgres, Drizzle ORM, Stripe, four-digit PIN authentication, persistent device sessions, automatic membership renewal, pickup orders, read-only notifications, inventory status, and complimentary-bottle benefits.
 
@@ -80,11 +80,13 @@ Authenticated endpoints use Authorization: Bearer <session-token>.
 - Membership plans: GET /api/membership/plans
 - Stripe membership PaymentSheet: POST /api/stripe/payment-sheet/membership
 - Confirm membership purchase: POST /api/memberships/purchase
+- Read or change membership status: GET/PATCH /api/membership
 - Pickup locations and stock: GET /api/locations
 - Member orders: GET/POST /api/orders
 - Regenerate a pending order QR: POST /api/orders/:id/pickup
 - Verify pickup service code: POST /api/pickup/verify
 - Complete one-time pickup: POST /api/pickup/complete
+- Submit a concern (signed-in session, no extra PIN): POST /api/concerns
 - Read-only inbox: GET /api/messages
 - Mark message read: POST /api/messages/:id/read
 - Complimentary benefit: GET /api/member-benefit
@@ -105,6 +107,11 @@ The Flutter My orders page calls `POST /api/orders/:id/pickup` when a member reo
 
 For local testing, the seeded Leyou code defaults to `1100`. Change `LEYOU_SERVICE_CODE` before seeding a real environment. `PUBLIC_APP_URL` must be the reachable HTTPS address of this Next.js deployment; `localhost` QR links will not work from an employee's phone.
 
+## Admin dashboard
+
+Open `/admin` and sign in with an account whose role is `admin`. The dashboard uses a secure HttpOnly cookie and is blocked from search indexing. Its tabs are ordered as Concerns, Product Orders, and Membership Programs. New concerns show a notification count and support New, In progress, and Resolved to-do states. Admins can review orders and update membership-program prices and availability.
+
+Members submit concerns from the app while signed in; the concern form does not ask for their PIN again.
 ## Flutter development
 
 Android emulator:

@@ -1,4 +1,4 @@
-﻿import { sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 import {
   boolean,
@@ -31,6 +31,7 @@ export const users = pgTable(
     storeName: text("store_name"),
     passwordHash: text("password_hash"),
     stripeCustomerId: text("stripe_customer_id"),
+    membershipOptOut: boolean("membership_opt_out").notNull().default(false),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
     ...timestamps,
   },
@@ -342,5 +343,25 @@ export const authAccessAttempts = pgTable(
       table.ipHash,
       table.createdAt,
     ),
+  ],
+);
+
+
+export const concerns = pgTable(
+  "concerns",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    memberId: uuid("member_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    message: text("message").notNull(),
+    status: text("status").notNull().default("new"),
+    adminNotes: text("admin_notes"),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (table) => [
+    index("concerns_status_created_idx").on(table.status, table.createdAt),
+    index("concerns_member_created_idx").on(table.memberId, table.createdAt),
   ],
 );
