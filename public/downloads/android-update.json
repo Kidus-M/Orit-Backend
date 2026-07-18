@@ -1,14 +1,15 @@
 {
   "enabled": true,
-  "versionCode": 1,
-  "versionName": "0.0.1",
-  "minimumSupportedVersionCode": 1,
-  "apkUrl": "/downloads/orit-tej-android-0.0.1-1.apk",
-  "sha256": "c8b65b4a3652051ef07a124ae0435da3fc22282dfc0ab0dd9809950aa6f10254",
-  "sizeBytes": 65069392,
+  "versionCode": 2,
+  "versionName": "0.0.2",
+  "minimumSupportedVersionCode": 2,
+  "apkUrl": "/downloads/orit-tej-android-0.0.2-2.apk",
+  "sha256": "2df5f864655545a2359123e8c5e1a2f44b42619b908c080e852153a9b4539141",
+  "sizeBytes": 65069472,
   "releaseNotes": [
-    "In-app update support for tester releases",
-    "Latest Orit Tej member experience"
+    "Fixed tester credit-card entry and checkout",
+    "Added one-tap tester card details",
+    "Improved card field spacing on phones"
   ],
-  "publishedAt": "2026-07-17T13:14:50.573Z"
+  "publishedAt": "2026-07-18T07:19:30.680Z"
 }

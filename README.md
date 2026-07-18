@@ -147,7 +147,7 @@ The app checks `/downloads/android-update.json` at startup. A required release b
 Build each release from the Flutter project after increasing both the version name and build number. Then publish it from this project:
 
 ~~~powershell
-npm run release:android -- --apk "..\orit_tej_app\build\app\outputs\flutter-apk\app-release.apk" --version 0.0.2 --build 2 --note "What changed"
+npm run release:android -- --apk "..\orit_tej_app\build\app\outputs\flutter-apk\app-release.apk" --version 0.0.3 --build 3 --note "What changed"
 npm run check
 npm run build
 ~~~
