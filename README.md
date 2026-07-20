@@ -153,3 +153,13 @@ npm run build
 ~~~
 
 The publisher copies the APK into `public/downloads`, calculates its checksum and size, and updates the manifest and website download button. By default, the published build is required for every older build. Android build numbers must always increase, and every APK must use the same signing key as the first tester release.
+
+## Permanent Wolf Den menu QR
+
+The printable QR in `public/qr/wolf-den-menu-qr.png` and its vector equivalent in `public/qr/wolf-den-menu-qr.svg` both encode:
+
+~~~text
+https://orit-backend.vercel.app/wolf-den-menu
+~~~
+
+That server route permanently redirects to `https://www.wolfdenaddis.com/menu`. Keeping the printed code pointed at the Orit Tej route allows the final destination to be changed later without reprinting the QR. Regenerate both print assets with `npm run generate:menu-qr`.
