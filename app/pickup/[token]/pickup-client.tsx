@@ -156,9 +156,7 @@ export function PickupClient({ token }: { token: string }) {
             >
               {state === "completing" ? "Completing..." : "Complete"}
             </button>
-            <p className="complete-note">
-              This QR code will deactivate immediately.
-            </p>
+
             {order.isMember ? (
               <div className="member-bee" aria-label="Active Orit Tej member">
                 <span aria-hidden="true">{"\u{1F41D}"}</span>

@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "versionCode": 2,
-  "versionName": "0.0.2",
-  "minimumSupportedVersionCode": 2,
-  "apkUrl": "/downloads/orit-tej-android-0.0.2-2.apk",
-  "sha256": "2df5f864655545a2359123e8c5e1a2f44b42619b908c080e852153a9b4539141",
+  "versionCode": 3,
+  "versionName": "0.0.3",
+  "minimumSupportedVersionCode": 3,
+  "apkUrl": "/downloads/orit-tej-android-0.0.3-3.apk",
+  "sha256": "bbe3b8f1da5f3c5f7f230cdad9ff2518a75a2d1ffa8c1c292840e020ceaca06b",
   "sizeBytes": 65069472,
   "releaseNotes": [
-    "Fixed tester credit-card entry and checkout",
-    "Added one-tap tester card details",
-    "Improved card field spacing on phones"
+    "Updated membership benefits and wording",
+    "Simplified benefits, confirmation, and settings screens",
+    "Improved pickup verification member indicator"
   ],
-  "publishedAt": "2026-07-18T07:19:30.680Z"
+  "publishedAt": "2026-07-21T12:28:23.355Z"
 }
