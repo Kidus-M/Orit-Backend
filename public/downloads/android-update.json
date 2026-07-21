@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "versionCode": 3,
-  "versionName": "0.0.3",
-  "minimumSupportedVersionCode": 3,
-  "apkUrl": "/downloads/orit-tej-android-0.0.3-3.apk",
-  "sha256": "bbe3b8f1da5f3c5f7f230cdad9ff2518a75a2d1ffa8c1c292840e020ceaca06b",
-  "sizeBytes": 65069472,
+  "versionCode": 4,
+  "versionName": "0.0.4",
+  "minimumSupportedVersionCode": 4,
+  "apkUrl": "/downloads/orit-tej-android-0.0.4-4.apk",
+  "sha256": "44e173c610afc87e3ab9debe504190bbc75cc87056c33bcc0f0d2caac433b994",
+  "sizeBytes": 65135060,
   "releaseNotes": [
+    "Added Back navigation to Home and settings subpages",
     "Updated membership benefits and wording",
-    "Simplified benefits, confirmation, and settings screens",
-    "Improved pickup verification member indicator"
+    "Simplified confirmation and pickup verification screens"
   ],
-  "publishedAt": "2026-07-21T12:28:23.355Z"
+  "publishedAt": "2026-07-21T12:47:40.791Z"
 }
