@@ -15,6 +15,17 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        source: "/vendor-order/:path*",
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow, noarchive, nosnippet",
+          },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "Cache-Control", value: "no-store, max-age=0" },
+        ],
+      },
+      {
         source: "/downloads/android-update.json",
         headers: [
           { key: "Cache-Control", value: "no-store, max-age=0" },

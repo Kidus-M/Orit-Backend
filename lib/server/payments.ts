@@ -1,4 +1,4 @@
-﻿import { eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import { paymentMethods } from "@/lib/db/schema";
@@ -14,7 +14,7 @@ export type PaymentCharge = {
 export async function chargeSavedPaymentMethod(input: {
   amountCents: number;
   memberId: string;
-  kind: "membership" | "order";
+  kind: "membership" | "order" | "vendor_order";
 }): Promise<PaymentCharge> {
   const env = getEnv();
 

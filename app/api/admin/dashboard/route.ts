@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     const db = getDb();
     const now = new Date();
 
-    const [concernItems, orderItems, planItems] = await Promise.all([
+    const [concernItems, orderItems, planItems, userItems] = await Promise.all([
       db
         .select({
           id: concerns.id,
@@ -76,6 +76,19 @@ export async function GET(request: Request) {
         )
         .groupBy(membershipPlans.id)
         .orderBy(membershipPlans.durationMonths),
+      db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          email: users.email,
+          isVendor: users.isVendor,
+          createdAt: users.createdAt,
+        })
+        .from(users)
+        .where(
+          and(eq(users.role, "member"), isNull(users.deletedAt)),
+        )
+        .orderBy(users.firstName),
     ]);
 
     const newConcernCount = concernItems.filter(
@@ -95,6 +108,7 @@ export async function GET(request: Request) {
       concerns: concernItems,
       orders: orderItems,
       plans: planItems,
+      users: userItems,
     });
   });
 }

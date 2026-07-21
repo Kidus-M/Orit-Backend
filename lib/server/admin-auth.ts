@@ -46,6 +46,7 @@ export async function requireAdminCookie(
       firstName: users.firstName,
       email: users.email,
       storeName: users.storeName,
+      isVendor: users.isVendor,
     })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))

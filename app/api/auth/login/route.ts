@@ -50,6 +50,7 @@ export async function POST(request: Request) {
         firstName: user.firstName,
         email: user.email,
         storeName: user.storeName,
+        isVendor: user.isVendor,
       },
       session,
     });

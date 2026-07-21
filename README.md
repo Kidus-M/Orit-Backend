@@ -94,6 +94,9 @@ Authenticated endpoints use Authorization: Bearer <session-token>.
 - Complete pickup: POST /api/store/orders/:id/complete
 - Stock status/broadcast: PATCH /api/store/inventory
 - Scan complimentary code: POST /api/admin/benefits/scan
+- Read vendor access and case pricing: GET /api/vendor-orders
+- Place a paid vendor case order: POST /api/vendor-orders
+- Confirm an emailed vendor order link: POST /api/vendor-orders/confirm
 
 Completing an order keeps it in the queue with status=completed, so the store UI can render it unhighlighted and disable the Complete action. Out-of-stock updates broadcast a read-only message to all active member accounts.
 
@@ -109,9 +112,16 @@ For local testing, the seeded Leyou code defaults to `1100`. Change `LEYOU_SERVI
 
 ## Admin dashboard
 
-Open `/admin` and sign in with an account whose role is `admin`. The dashboard uses a secure HttpOnly cookie and is blocked from search indexing. Its tabs are ordered as Concerns, Product Orders, and Membership Programs. New concerns show a notification count and support New, In progress, and Resolved to-do states. Admins can review orders and update membership-program prices and availability.
+Open `/admin` and sign in with an account whose role is `admin`. The dashboard uses a secure HttpOnly cookie and is blocked from search indexing. New concerns show a notification count and support New, In progress, and Resolved to-do states. Admins can review orders, update membership-program prices and availability, search member accounts, and grant or remove vendor access.
 
 Members submit concerns from the app while signed in; the concern form does not ask for their PIN again.
+## Vendor client services
+
+Every member sees Client Services in the app. Accounts without vendor access receive the reserved-page message. An admin grants access from Admin Dashboard > User Access. Approved vendors can order cases at the active location's server-managed case price and transportation fee. The initial Leyou values are $85 per case and a $50 transportation fee.
+
+Each successful paid case order is stored in vendor_orders and emailed only to orittej@gmail.com through Resend. The message contains a cryptographically random /vendor-order/<token> link with the vendor name, email, quantity, fees, and total. The recipient presses Confirm once the order has been accepted.
+
+Set RESEND_API_KEY and VENDOR_ORDER_FROM_EMAIL in Vercel. The sender must use a domain verified in Resend. If email is not configured or Resend is unavailable, payment and order creation still complete, and the server logs that notification delivery failed.
 ## Flutter development
 
 Android emulator:

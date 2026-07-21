@@ -1,4 +1,4 @@
-﻿import { eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
@@ -45,6 +45,7 @@ export async function POST(request: Request) {
         firstName: users.firstName,
         email: users.email,
         storeName: users.storeName,
+        isVendor: users.isVendor,
       });
     const session = await createSession(user.id);
 

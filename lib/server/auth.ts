@@ -1,4 +1,4 @@
-﻿import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 
 import { and, eq, gt, isNull } from "drizzle-orm";
 
@@ -15,6 +15,7 @@ export type AuthenticatedUser = {
   firstName: string;
   email: string;
   storeName: string | null;
+  isVendor: boolean;
 };
 
 export function hashSessionToken(token: string) {
@@ -54,6 +55,7 @@ export async function requireAuth(
       firstName: users.firstName,
       email: users.email,
       storeName: users.storeName,
+      isVendor: users.isVendor,
     })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))

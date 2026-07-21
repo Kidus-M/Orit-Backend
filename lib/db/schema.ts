@@ -32,6 +32,7 @@ export const users = pgTable(
     passwordHash: text("password_hash"),
     stripeCustomerId: text("stripe_customer_id"),
     membershipOptOut: boolean("membership_opt_out").notNull().default(false),
+    isVendor: boolean("is_vendor").notNull().default(false),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
     ...timestamps,
   },
@@ -145,6 +146,10 @@ export const locations = pgTable(
     postalCode: text("postal_code").notNull(),
     hoursText: text("hours_text").notNull(),
     bottlePriceCents: integer("bottle_price_cents").notNull().default(1898),
+    casePriceCents: integer("case_price_cents").notNull().default(8500),
+    transportationFeeCents: integer("transportation_fee_cents")
+      .notNull()
+      .default(5000),
     inStock: boolean("in_stock").notNull().default(true),
     active: boolean("active").notNull().default(true),
     serviceCodeHash: text("service_code_hash"),
@@ -202,6 +207,38 @@ export const orders = pgTable(
   ],
 );
 
+export const vendorOrders = pgTable(
+  "vendor_orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    vendorId: uuid("vendor_id")
+      .notNull()
+      .references(() => users.id),
+    locationId: uuid("location_id")
+      .notNull()
+      .references(() => locations.id),
+    quantity: integer("quantity").notNull(),
+    casePriceCents: integer("case_price_cents").notNull(),
+    transportationFeeCents: integer("transportation_fee_cents").notNull(),
+    totalCents: integer("total_cents").notNull(),
+    paid: boolean("paid").notNull().default(false),
+    status: text("status").notNull().default("pending"),
+    confirmationTokenHash: text("confirmation_token_hash").notNull(),
+    confirmationExpiresAt: timestamp("confirmation_expires_at", {
+      withTimezone: true,
+    }).notNull(),
+    confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (table) => [
+    index("vendor_orders_vendor_idx").on(table.vendorId),
+    index("vendor_orders_status_created_idx").on(table.status, table.createdAt),
+    uniqueIndex("vendor_orders_confirmation_token_unique").on(
+      table.confirmationTokenHash,
+    ),
+  ],
+);
+
 export const payments = pgTable(
   "payments",
   {
@@ -211,6 +248,7 @@ export const payments = pgTable(
       .references(() => users.id),
     membershipId: uuid("membership_id").references(() => memberships.id),
     orderId: uuid("order_id").references(() => orders.id),
+    vendorOrderId: uuid("vendor_order_id").references(() => vendorOrders.id),
     kind: text("kind").notNull(),
     amountCents: integer("amount_cents").notNull(),
     status: text("status").notNull(),
@@ -222,6 +260,7 @@ export const payments = pgTable(
   (table) => [
     index("payments_member_idx").on(table.memberId),
     index("payments_order_idx").on(table.orderId),
+    index("payments_vendor_order_idx").on(table.vendorOrderId),
     uniqueIndex("payments_provider_reference_unique").on(
       table.providerReference,
     ),

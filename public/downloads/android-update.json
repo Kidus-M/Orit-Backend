@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "versionCode": 4,
-  "versionName": "0.0.4",
-  "minimumSupportedVersionCode": 4,
-  "apkUrl": "/downloads/orit-tej-android-0.0.4-4.apk",
-  "sha256": "44e173c610afc87e3ab9debe504190bbc75cc87056c33bcc0f0d2caac433b994",
-  "sizeBytes": 65135060,
+  "versionCode": 5,
+  "versionName": "0.0.5",
+  "minimumSupportedVersionCode": 5,
+  "apkUrl": "/downloads/orit-tej-android-0.0.5-5.apk",
+  "sha256": "bb69f8966ddc917b3945c0fdd17ab3269a6a74d84db3e4318d6c178b3a88dbee",
+  "sizeBytes": 65135172,
   "releaseNotes": [
-    "Added Back navigation to Home and settings subpages",
-    "Updated membership benefits and wording",
-    "Simplified confirmation and pickup verification screens"
+    "Added Client Services and vendor case ordering",
+    "Added admin vendor access controls",
+    "Added secure vendor order confirmation"
   ],
-  "publishedAt": "2026-07-21T12:47:40.791Z"
+  "publishedAt": "2026-07-21T14:38:11.728Z"
 }

@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 
 const optionalString = (schema: z.ZodString) =>
   z.preprocess(
@@ -30,6 +30,9 @@ const envSchema = z.object({
   STRIPE_PUBLISHABLE_KEY: optionalString(z.string().startsWith("pk_")),
   STRIPE_WEBHOOK_SECRET: optionalString(z.string().startsWith("whsec_")),
   STRIPE_CURRENCY: z.string().length(3).default("usd"),
+  RESEND_API_KEY: optionalString(z.string().startsWith("re_")),
+  VENDOR_ORDER_FROM_EMAIL: optionalString(z.string().min(3)),
+
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

@@ -38,6 +38,13 @@ type Plan = {
   isActive: boolean;
   activeMembers: number;
 };
+type MemberUser = {
+  id: string;
+  firstName: string;
+  email: string;
+  isVendor: boolean;
+  createdAt: string;
+};
 type DashboardData = {
   summary: {
     newConcernCount: number;
@@ -47,8 +54,9 @@ type DashboardData = {
   concerns: Concern[];
   orders: Order[];
   plans: Plan[];
+  users: MemberUser[];
 };
-type Tab = "concerns" | "orders" | "memberships";
+type Tab = "concerns" | "orders" | "memberships" | "users";
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -88,6 +96,7 @@ export function AdminDashboard() {
   const [adminName, setAdminName] = useState("Admin");
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [userSearch, setUserSearch] = useState("");
 
   const loadDashboard = useCallback(async () => {
     const dashboard = await api<DashboardData>("/api/admin/dashboard");
@@ -183,6 +192,22 @@ export function AdminDashboard() {
     }
   }
 
+  async function updateVendor(user: MemberUser) {
+    setBusyId(user.id);
+    setError(null);
+    try {
+      await api("/api/admin/users/" + user.id + "/vendor", {
+        method: "PATCH",
+        body: JSON.stringify({ isVendor: !user.isVendor }),
+      });
+      await loadDashboard();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Update failed.");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   if (view === "loading") {
     return (
       <main className="admin-shell admin-shell--center">
@@ -247,7 +272,15 @@ export function AdminDashboard() {
     },
     { id: "orders", label: "Product Orders" },
     { id: "memberships", label: "Membership Programs" },
+    { id: "users", label: "User Access" },
   ];
+  const normalizedSearch = userSearch.trim().toLowerCase();
+  const filteredUsers = data.users.filter(
+    (user) =>
+      normalizedSearch.length === 0 ||
+      user.firstName.toLowerCase().includes(normalizedSearch) ||
+      user.email.toLowerCase().includes(normalizedSearch),
+  );
 
   return (
     <main className="admin-shell">
@@ -376,6 +409,76 @@ export function AdminDashboard() {
               </table>
               {data.orders.length === 0 ? (
                 <p className="admin-empty">No product orders yet.</p>
+              ) : null}
+            </div>
+          </section>
+        ) : null}
+
+        {tab === "users" ? (
+          <section className="admin-panel">
+            <div className="admin-panel-heading">
+              <div>
+                <p className="eyebrow">Access control</p>
+                <h2>Members and vendors</h2>
+              </div>
+              <span>{filteredUsers.length} shown</span>
+            </div>
+            <label className="admin-user-search">
+              Search users
+              <input
+                type="search"
+                value={userSearch}
+                onChange={(event) => setUserSearch(event.target.value)}
+                placeholder="Search by name or email"
+              />
+            </label>
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Access</th>
+                    <th>Joined</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.map((user) => (
+                    <tr key={user.id}>
+                      <td>
+                        <strong>{user.firstName}</strong>
+                        <small>{user.email}</small>
+                      </td>
+                      <td>
+                        <span className="status-chip">
+                          {user.isVendor ? "Vendor" : "Customer"}
+                        </span>
+                      </td>
+                      <td>{formatDate(user.createdAt)}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className={
+                            user.isVendor
+                              ? "admin-secondary-action"
+                              : "admin-primary-action"
+                          }
+                          disabled={busyId === user.id}
+                          onClick={() => updateVendor(user)}
+                        >
+                          {busyId === user.id
+                            ? "Saving..."
+                            : user.isVendor
+                              ? "Remove vendor access"
+                              : "Make vendor"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {filteredUsers.length === 0 ? (
+                <p className="admin-empty">No users match this search.</p>
               ) : null}
             </div>
           </section>

@@ -1214,3 +1214,30 @@ button:disabled { cursor: wait; opacity: .65; }
 }
 
 .store-card__download { margin-top: 26px; }
+
+.admin-user-search {
+  display: grid;
+  max-width: 520px;
+  gap: 8px;
+  margin: 28px 0 18px;
+  color: var(--wine);
+  font-size: 0.74rem;
+  font-weight: 780;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.admin-user-search input {
+  width: 100%;
+  border: 1px solid #cfc4b6;
+  border-radius: 12px;
+  outline: none;
+  background: white;
+  color: var(--ink);
+  padding: 13px 14px;
+  font-size: 0.95rem;
+  text-transform: none;
+}
+.admin-user-search input:focus {
+  border-color: var(--wine);
+  box-shadow: 0 0 0 3px rgba(104, 29, 49, 0.1);
+}
