@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "versionCode": 5,
-  "versionName": "0.0.5",
-  "minimumSupportedVersionCode": 5,
-  "apkUrl": "/downloads/orit-tej-android-0.0.5-5.apk",
-  "sha256": "bb69f8966ddc917b3945c0fdd17ab3269a6a74d84db3e4318d6c178b3a88dbee",
-  "sizeBytes": 65135172,
+  "versionCode": 6,
+  "versionName": "0.0.6",
+  "minimumSupportedVersionCode": 6,
+  "apkUrl": "/downloads/orit-tej-android-0.0.6-6.apk",
+  "sha256": "50217b69162ae0fce9a0b0c9875ec47310606b726e42d3dce2c01664045fb3bd",
+  "sizeBytes": 65151552,
   "releaseNotes": [
-    "Added Client Services and vendor case ordering",
-    "Added admin vendor access controls",
-    "Added secure vendor order confirmation"
+    "Corrected the vendor case product details",
+    "Renamed the case product to Orit Tej Cases",
+    "Added a Done button after vendor order submission"
   ],
-  "publishedAt": "2026-07-21T14:38:11.728Z"
+  "publishedAt": "2026-07-21T15:03:48.151Z"
 }
