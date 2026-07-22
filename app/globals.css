@@ -1276,3 +1276,22 @@ button:disabled { cursor: wait; opacity: .65; }
     grid-template-columns: 1fr;
   }
 }
+.admin-vendor-code .admin-vendor-code-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.admin-vendor-code-field button {
+  min-width: 64px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  color: var(--wine);
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.admin-vendor-code-field button:hover {
+  background: rgba(104, 29, 49, 0.06);
+}

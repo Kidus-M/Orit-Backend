@@ -114,6 +114,7 @@ export function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [userSearch, setUserSearch] = useState("");
+  const [vendorCodeVisible, setVendorCodeVisible] = useState(false);
 
   const loadDashboard = useCallback(async () => {
     const dashboard = await api<DashboardData>("/api/admin/dashboard");
@@ -211,7 +212,8 @@ export function AdminDashboard() {
 
   async function updateVendorCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     setBusyId("vendor-code");
     setError(null);
     try {
@@ -219,7 +221,8 @@ export function AdminDashboard() {
         method: "PATCH",
         body: JSON.stringify({ code: String(form.get("code") ?? "") }),
       });
-      event.currentTarget.reset();
+      formElement.reset();
+      setVendorCodeVisible(false);
       await loadDashboard();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Update failed.");
@@ -474,16 +477,25 @@ export function AdminDashboard() {
                   {data.vendorCodeConfigured ? "Configured" : "Not configured"}
                 </span>
               </div>
-              <input
-                name="code"
-                type="password"
-                inputMode="numeric"
-                pattern="[0-9]{4}"
-                maxLength={4}
-                placeholder="4-digit code"
-                aria-label="New universal vendor code"
-                required
-              />
+              <div className="admin-vendor-code-field">
+                <input
+                  name="code"
+                  type={vendorCodeVisible ? "text" : "password"}
+                  inputMode="numeric"
+                  pattern="[0-9]{4}"
+                  maxLength={4}
+                  placeholder="4-digit code"
+                  aria-label="New universal vendor code"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setVendorCodeVisible((visible) => !visible)}
+                  aria-label={vendorCodeVisible ? "Hide vendor code" : "Show vendor code"}
+                >
+                  {vendorCodeVisible ? "Hide" : "Show"}
+                </button>
+              </div>
               <button
                 type="submit"
                 className="admin-primary-action"
