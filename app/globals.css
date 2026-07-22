@@ -1241,3 +1241,38 @@ button:disabled { cursor: wait; opacity: .65; }
   border-color: var(--wine);
   box-shadow: 0 0 0 3px rgba(104, 29, 49, 0.1);
 }
+.admin-vendor-code {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(150px, 220px) auto;
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 28px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--cream);
+}
+
+.admin-vendor-code div {
+  display: grid;
+  gap: 4px;
+}
+
+.admin-vendor-code span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.admin-vendor-code input {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0 14px;
+  background: white;
+}
+
+@media (max-width: 720px) {
+  .admin-vendor-code {
+    grid-template-columns: 1fr;
+  }
+}

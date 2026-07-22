@@ -62,6 +62,13 @@ export const sessions = pgTable(
   ],
 );
 
+export const appSettings = pgTable("app_settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedByUserId: uuid("updated_by_user_id").references(() => users.id),
+  ...timestamps,
+});
+
 export const membershipPlans = pgTable(
   "membership_plans",
   {
@@ -385,6 +392,24 @@ export const authAccessAttempts = pgTable(
   ],
 );
 
+
+export const vendorCodeAccessAttempts = pgTable(
+  "vendor_code_access_attempts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    ipHash: text("ip_hash").notNull(),
+    succeeded: boolean("succeeded").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("vendor_code_attempts_ip_created_idx").on(
+      table.ipHash,
+      table.createdAt,
+    ),
+  ],
+);
 
 export const concerns = pgTable(
   "concerns",

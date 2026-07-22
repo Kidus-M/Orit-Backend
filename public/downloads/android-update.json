@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "versionCode": 6,
-  "versionName": "0.0.6",
-  "minimumSupportedVersionCode": 6,
-  "apkUrl": "/downloads/orit-tej-android-0.0.6-6.apk",
-  "sha256": "50217b69162ae0fce9a0b0c9875ec47310606b726e42d3dce2c01664045fb3bd",
-  "sizeBytes": 65151552,
+  "versionCode": 7,
+  "versionName": "0.0.7",
+  "minimumSupportedVersionCode": 7,
+  "apkUrl": "/downloads/orit-tej-android-0.0.7-7.apk",
+  "sha256": "c8af0eac83822b43a935f71a006efa4e976420a75d30c00121ac85de15bee77f",
+  "sizeBytes": 69467360,
   "releaseNotes": [
-    "Corrected the vendor case product details",
-    "Renamed the case product to Orit Tej Cases",
-    "Added a Done button after vendor order submission"
+    "Separated customer and vendor onboarding",
+    "Added vendor code registration and case ordering",
+    "Added accurate honey wine product images"
   ],
-  "publishedAt": "2026-07-21T15:03:48.151Z"
+  "publishedAt": "2026-07-22T03:28:32.953Z"
 }

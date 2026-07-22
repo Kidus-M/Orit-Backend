@@ -29,6 +29,20 @@ type Order = {
   status: string;
   createdAt: string;
 };
+type VendorOrder = {
+  id: string;
+  businessName: string;
+  businessEmail: string;
+  locationName: string;
+  quantity: number;
+  casePriceCents: number;
+  transportationFeeCents: number;
+  totalCents: number;
+  paid: boolean;
+  status: string;
+  createdAt: string;
+  confirmedAt: string | null;
+};
 type Plan = {
   id: string;
   code: string;
@@ -49,14 +63,17 @@ type DashboardData = {
   summary: {
     newConcernCount: number;
     pendingOrderCount: number;
+    pendingVendorOrderCount: number;
     activeMemberCount: number;
   };
   concerns: Concern[];
   orders: Order[];
+  vendorOrders: VendorOrder[];
+  vendorCodeConfigured: boolean;
   plans: Plan[];
   users: MemberUser[];
 };
-type Tab = "concerns" | "orders" | "memberships" | "users";
+type Tab = "concerns" | "orders" | "vendor_orders" | "memberships" | "users";
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -192,6 +209,25 @@ export function AdminDashboard() {
     }
   }
 
+  async function updateVendorCode(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    setBusyId("vendor-code");
+    setError(null);
+    try {
+      await api("/api/admin/vendor-code", {
+        method: "PATCH",
+        body: JSON.stringify({ code: String(form.get("code") ?? "") }),
+      });
+      event.currentTarget.reset();
+      await loadDashboard();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Update failed.");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   async function updateVendor(user: MemberUser) {
     setBusyId(user.id);
     setError(null);
@@ -271,6 +307,11 @@ export function AdminDashboard() {
       count: data.summary.newConcernCount,
     },
     { id: "orders", label: "Product Orders" },
+    {
+      id: "vendor_orders",
+      label: "Vendor Orders",
+      count: data.summary.pendingVendorOrderCount,
+    },
     { id: "memberships", label: "Membership Programs" },
     { id: "users", label: "User Access" },
   ];
@@ -312,7 +353,10 @@ export function AdminDashboard() {
               <span>New concerns</span>
             </article>
             <article>
-              <strong>{data.summary.pendingOrderCount}</strong>
+              <strong>
+                {data.summary.pendingOrderCount +
+                  data.summary.pendingVendorOrderCount}
+              </strong>
               <span>Pending orders</span>
             </article>
             <article>
@@ -409,6 +453,81 @@ export function AdminDashboard() {
               </table>
               {data.orders.length === 0 ? (
                 <p className="admin-empty">No product orders yet.</p>
+              ) : null}
+            </div>
+          </section>
+        ) : null}
+
+        {tab === "vendor_orders" ? (
+          <section className="admin-panel">
+            <div className="admin-panel-heading">
+              <div>
+                <p className="eyebrow">Vendor access</p>
+                <h2>Vendor orders</h2>
+              </div>
+              <span>{data.vendorOrders.length} total</span>
+            </div>
+            <form className="admin-vendor-code" onSubmit={updateVendorCode}>
+              <div>
+                <strong>Universal vendor code</strong>
+                <span>
+                  {data.vendorCodeConfigured ? "Configured" : "Not configured"}
+                </span>
+              </div>
+              <input
+                name="code"
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]{4}"
+                maxLength={4}
+                placeholder="4-digit code"
+                aria-label="New universal vendor code"
+                required
+              />
+              <button
+                type="submit"
+                className="admin-primary-action"
+                disabled={busyId === "vendor-code"}
+              >
+                {busyId === "vendor-code" ? "Saving..." : "Update Code"}
+              </button>
+            </form>
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Business</th>
+                    <th>Cases</th>
+                    <th>Transportation</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Placed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.vendorOrders.map((order) => (
+                    <tr key={order.id}>
+                      <td>
+                        <strong>{order.businessName}</strong>
+                        <small>{order.businessEmail}</small>
+                      </td>
+                      <td>{order.quantity}</td>
+                      <td>
+                        ${(order.transportationFeeCents / 100).toFixed(2)}
+                      </td>
+                      <td>${(order.totalCents / 100).toFixed(2)}</td>
+                      <td>
+                        <span className={`status-chip status-chip--${order.status}`}>
+                          {order.status}
+                        </span>
+                      </td>
+                      <td>{formatDate(order.createdAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {data.vendorOrders.length === 0 ? (
+                <p className="admin-empty">No vendor orders yet.</p>
               ) : null}
             </div>
           </section>

@@ -94,6 +94,9 @@ Authenticated endpoints use Authorization: Bearer <session-token>.
 - Complete pickup: POST /api/store/orders/:id/complete
 - Stock status/broadcast: PATCH /api/store/inventory
 - Scan complimentary code: POST /api/admin/benefits/scan
+- Verify universal vendor code: POST /api/auth/vendors/code/verify
+- Register a passwordless vendor business: POST /api/auth/vendors/register
+- Save a vendor card: POST /api/stripe/payment-sheet/vendor-card and POST /api/account/payment-method/vendor
 - Read vendor access and case pricing: GET /api/vendor-orders
 - Place a paid vendor case order: POST /api/vendor-orders
 - Confirm an emailed vendor order link: POST /api/vendor-orders/confirm
@@ -112,12 +115,12 @@ For local testing, the seeded Leyou code defaults to `1100`. Change `LEYOU_SERVI
 
 ## Admin dashboard
 
-Open `/admin` and sign in with an account whose role is `admin`. The dashboard uses a secure HttpOnly cookie and is blocked from search indexing. New concerns show a notification count and support New, In progress, and Resolved to-do states. Admins can review orders, update membership-program prices and availability, search member accounts, and grant or remove vendor access.
+Open `/admin` and sign in with an account whose role is `admin`. The dashboard uses a secure HttpOnly cookie and is blocked from search indexing. Admins can review customer and vendor orders, update the universal four-digit vendor code, manage concerns, update membership programs, and search accounts.
 
 Members submit concerns from the app while signed in; the concern form does not ask for their PIN again.
-## Vendor client services
+## Vendor ordering
 
-Every member sees Client Services in the app. Accounts without vendor access receive the reserved-page message. An admin grants access from Admin Dashboard > User Access. Approved vendors can order cases at the active location's server-managed case price and transportation fee. The initial Leyou values are $85 per case and a $50 transportation fee.
+Customer and vendor onboarding are separate. The admin sets one universal four-digit code under Admin Dashboard > Vendor Orders. A new vendor verifies that code, registers with only a business name and business email, saves a card, and orders cases. Returning vendors keep a persistent device session and go from Welcome directly to case ordering. Incorrect vendor-code attempts are limited to five per IP every 15 minutes. The initial case price is $85 with a $50 transportation fee.
 
 Each successful paid case order is stored in vendor_orders and emailed only to orittej@gmail.com through Resend. The message contains a cryptographically random /vendor-order/<token> link with the vendor name, email, quantity, fees, and total. The recipient presses Confirm once the order has been accepted.
 
@@ -172,4 +175,5 @@ The printable QR in `public/qr/wolf-den-menu-qr.png` and its vector equivalent i
 https://orit-backend.vercel.app/wolf-den-menu
 ~~~
 
-That server route permanently redirects to `https://www.wolfdenaddis.com/menu`. Keeping the printed code pointed at the Orit Tej route allows the final destination to be changed later without reprinting the QR. Regenerate both print assets with `npm run generate:menu-qr`.
+That server route permanently redirects to `https://www.wolfdenaddis.com/menu`. Keeping the printed code pointed at the Orit Tej route allows the final destination to be changed later without reprinting the QR. Regenerate both print assets with
+pm run generate:menu-qr`.

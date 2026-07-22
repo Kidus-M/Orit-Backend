@@ -47,9 +47,15 @@ export async function GET(request: Request) {
       .from(locations)
       .where(eq(locations.active, true))
       .limit(1);
+    const [savedPaymentMethod] = await getDb()
+      .select({ id: paymentMethods.id })
+      .from(paymentMethods)
+      .where(eq(paymentMethods.userId, member.id))
+      .limit(1);
 
     return json({
       isVendor: member.isVendor,
+      hasPaymentMethod: Boolean(savedPaymentMethod),
       location: location ?? null,
     });
   });

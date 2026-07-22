@@ -3,15 +3,18 @@ import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
 import {
+  appSettings,
   concerns,
   locations,
   membershipPlans,
   memberships,
   orders,
   users,
+  vendorOrders,
 } from "@/lib/db/schema";
 import { requireAdminCookie } from "@/lib/server/admin-auth";
 import { handleRoute, json } from "@/lib/server/http";
+import { vendorCodeSettingKey } from "@/lib/server/vendor-code";
 
 export const runtime = "nodejs";
 
@@ -22,7 +25,14 @@ export async function GET(request: Request) {
     const db = getDb();
     const now = new Date();
 
-    const [concernItems, orderItems, planItems, userItems] = await Promise.all([
+    const [
+      concernItems,
+      orderItems,
+      vendorOrderItems,
+      planItems,
+      userItems,
+      vendorCodeItems,
+    ] = await Promise.all([
       db
         .select({
           id: concerns.id,
@@ -56,6 +66,25 @@ export async function GET(request: Request) {
         .orderBy(desc(orders.createdAt)),
       db
         .select({
+          id: vendorOrders.id,
+          businessName: users.firstName,
+          businessEmail: users.email,
+          locationName: locations.name,
+          quantity: vendorOrders.quantity,
+          casePriceCents: vendorOrders.casePriceCents,
+          transportationFeeCents: vendorOrders.transportationFeeCents,
+          totalCents: vendorOrders.totalCents,
+          paid: vendorOrders.paid,
+          status: vendorOrders.status,
+          createdAt: vendorOrders.createdAt,
+          confirmedAt: vendorOrders.confirmedAt,
+        })
+        .from(vendorOrders)
+        .innerJoin(users, eq(users.id, vendorOrders.vendorId))
+        .innerJoin(locations, eq(locations.id, vendorOrders.locationId))
+        .orderBy(desc(vendorOrders.createdAt)),
+      db
+        .select({
           id: membershipPlans.id,
           code: membershipPlans.code,
           name: membershipPlans.name,
@@ -85,10 +114,13 @@ export async function GET(request: Request) {
           createdAt: users.createdAt,
         })
         .from(users)
-        .where(
-          and(eq(users.role, "member"), isNull(users.deletedAt)),
-        )
+        .where(and(eq(users.role, "member"), isNull(users.deletedAt)))
         .orderBy(users.firstName),
+      db
+        .select({ key: appSettings.key })
+        .from(appSettings)
+        .where(eq(appSettings.key, vendorCodeSettingKey))
+        .limit(1),
     ]);
 
     const newConcernCount = concernItems.filter(
@@ -100,6 +132,9 @@ export async function GET(request: Request) {
         pendingOrderCount: orderItems.filter(
           (order) => order.status === "pending",
         ).length,
+        pendingVendorOrderCount: vendorOrderItems.filter(
+          (order) => order.status === "pending",
+        ).length,
         activeMemberCount: planItems.reduce(
           (total, plan) => total + Number(plan.activeMembers),
           0,
@@ -107,6 +142,8 @@ export async function GET(request: Request) {
       },
       concerns: concernItems,
       orders: orderItems,
+      vendorOrders: vendorOrderItems,
+      vendorCodeConfigured: vendorCodeItems.length > 0,
       plans: planItems,
       users: userItems,
     });
