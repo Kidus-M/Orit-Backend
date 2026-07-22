@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "versionCode": 7,
-  "versionName": "0.0.7",
-  "minimumSupportedVersionCode": 7,
-  "apkUrl": "/downloads/orit-tej-android-0.0.7-7.apk",
-  "sha256": "c8af0eac83822b43a935f71a006efa4e976420a75d30c00121ac85de15bee77f",
-  "sizeBytes": 69467360,
+  "versionCode": 8,
+  "versionName": "0.0.8",
+  "minimumSupportedVersionCode": 8,
+  "apkUrl": "/downloads/orit-tej-android-0.0.8-8.apk",
+  "sha256": "7adb855a58644648ff425a7459de0159bbdd43aa86ec7f98167d8c017562d543",
+  "sizeBytes": 69532964,
   "releaseNotes": [
-    "Separated customer and vendor onboarding",
-    "Added vendor code registration and case ordering",
-    "Added accurate honey wine product images"
+    "Improved vendor access screens",
+    "Added vendor-specific settings and Back navigation",
+    "Added Resend testing email fallback"
   ],
-  "publishedAt": "2026-07-22T03:28:32.953Z"
+  "publishedAt": "2026-07-22T14:21:30.990Z"
 }
