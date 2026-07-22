@@ -70,6 +70,7 @@ type DashboardData = {
   orders: Order[];
   vendorOrders: VendorOrder[];
   vendorCodeConfigured: boolean;
+  vendorCode: string | null;
   plans: Plan[];
   users: MemberUser[];
 };
@@ -115,10 +116,12 @@ export function AdminDashboard() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [userSearch, setUserSearch] = useState("");
   const [vendorCodeVisible, setVendorCodeVisible] = useState(false);
+  const [vendorCode, setVendorCode] = useState("");
 
   const loadDashboard = useCallback(async () => {
     const dashboard = await api<DashboardData>("/api/admin/dashboard");
     setData(dashboard);
+    setVendorCode(dashboard.vendorCode ?? "");
   }, []);
 
   useEffect(() => {
@@ -212,17 +215,14 @@ export function AdminDashboard() {
 
   async function updateVendorCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formElement = event.currentTarget;
-    const form = new FormData(formElement);
     setBusyId("vendor-code");
     setError(null);
     try {
       await api("/api/admin/vendor-code", {
         method: "PATCH",
-        body: JSON.stringify({ code: String(form.get("code") ?? "") }),
+        body: JSON.stringify({ code: vendorCode }),
       });
-      formElement.reset();
-      setVendorCodeVisible(false);
+      setVendorCodeVisible(true);
       await loadDashboard();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Update failed.");
@@ -481,6 +481,10 @@ export function AdminDashboard() {
                 <input
                   name="code"
                   type={vendorCodeVisible ? "text" : "password"}
+                  value={vendorCode}
+                  onChange={(event) =>
+                    setVendorCode(event.target.value.replace(/\D/g, ""))
+                  }
                   inputMode="numeric"
                   pattern="[0-9]{4}"
                   maxLength={4}

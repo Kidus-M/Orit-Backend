@@ -1,4 +1,11 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  createHmac,
+  randomBytes,
+  timingSafeEqual,
+} from "node:crypto";
 
 import { and, eq, gte } from "drizzle-orm";
 
@@ -8,6 +15,7 @@ import { getEnv } from "@/lib/env";
 import { ApiError } from "@/lib/server/http";
 
 export const vendorCodeSettingKey = "vendor_access_code_hash";
+const vendorCodeEncryptedSettingKey = "vendor_access_code_encrypted";
 const attemptWindowMinutes = 15;
 const attemptLimit = 5;
 
@@ -15,6 +23,40 @@ function hmac(value: string) {
   return createHmac("sha256", getEnv().PASSWORD_PEPPER)
     .update(value)
     .digest("hex");
+}
+
+function encryptionKey() {
+  return createHash("sha256")
+    .update(`vendor-code-encryption:${getEnv().PASSWORD_PEPPER}`)
+    .digest();
+}
+
+function encryptVendorCode(code: string) {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", encryptionKey(), iv);
+  const encrypted = Buffer.concat([cipher.update(code, "utf8"), cipher.final()]);
+  return [iv, cipher.getAuthTag(), encrypted]
+    .map((part) => part.toString("base64url"))
+    .join(".");
+}
+
+function decryptVendorCode(value: string) {
+  try {
+    const [ivValue, tagValue, encryptedValue] = value.split(".");
+    if (!ivValue || !tagValue || !encryptedValue) return null;
+    const decipher = createDecipheriv(
+      "aes-256-gcm",
+      encryptionKey(),
+      Buffer.from(ivValue, "base64url"),
+    );
+    decipher.setAuthTag(Buffer.from(tagValue, "base64url"));
+    return Buffer.concat([
+      decipher.update(Buffer.from(encryptedValue, "base64url")),
+      decipher.final(),
+    ]).toString("utf8");
+  } catch {
+    return null;
+  }
 }
 
 export function hashVendorCode(code: string) {
@@ -36,6 +78,15 @@ export async function hasVendorCode() {
     .where(eq(appSettings.key, vendorCodeSettingKey))
     .limit(1);
   return Boolean(setting);
+}
+
+export async function getVendorCodeForAdmin() {
+  const [setting] = await getDb()
+    .select({ value: appSettings.value })
+    .from(appSettings)
+    .where(eq(appSettings.key, vendorCodeEncryptedSettingKey))
+    .limit(1);
+  return setting ? decryptVendorCode(setting.value) : null;
 }
 
 export async function verifyVendorCode(code: string) {
@@ -84,21 +135,30 @@ export async function verifyVendorCodeRequest(request: Request, code: string) {
   return valid;
 }
 
-export async function setVendorCode(code: string, adminId: string) {
-  const now = new Date();
+async function upsertSetting(
+  key: string,
+  value: string,
+  adminId: string,
+  now: Date,
+) {
   await getDb()
     .insert(appSettings)
-    .values({
-      key: vendorCodeSettingKey,
-      value: hashVendorCode(code),
-      updatedByUserId: adminId,
-    })
+    .values({ key, value, updatedByUserId: adminId })
     .onConflictDoUpdate({
       target: appSettings.key,
-      set: {
-        value: hashVendorCode(code),
-        updatedByUserId: adminId,
-        updatedAt: now,
-      },
+      set: { value, updatedByUserId: adminId, updatedAt: now },
     });
+}
+
+export async function setVendorCode(code: string, adminId: string) {
+  const now = new Date();
+  await Promise.all([
+    upsertSetting(vendorCodeSettingKey, hashVendorCode(code), adminId, now),
+    upsertSetting(
+      vendorCodeEncryptedSettingKey,
+      encryptVendorCode(code),
+      adminId,
+      now,
+    ),
+  ]);
 }

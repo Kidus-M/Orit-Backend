@@ -3,7 +3,6 @@ import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
 import {
-  appSettings,
   concerns,
   locations,
   membershipPlans,
@@ -14,7 +13,10 @@ import {
 } from "@/lib/db/schema";
 import { requireAdminCookie } from "@/lib/server/admin-auth";
 import { handleRoute, json } from "@/lib/server/http";
-import { vendorCodeSettingKey } from "@/lib/server/vendor-code";
+import {
+  getVendorCodeForAdmin,
+  hasVendorCode,
+} from "@/lib/server/vendor-code";
 
 export const runtime = "nodejs";
 
@@ -31,7 +33,8 @@ export async function GET(request: Request) {
       vendorOrderItems,
       planItems,
       userItems,
-      vendorCodeItems,
+      vendorCodeConfigured,
+      vendorCode,
     ] = await Promise.all([
       db
         .select({
@@ -116,11 +119,8 @@ export async function GET(request: Request) {
         .from(users)
         .where(and(eq(users.role, "member"), isNull(users.deletedAt)))
         .orderBy(users.firstName),
-      db
-        .select({ key: appSettings.key })
-        .from(appSettings)
-        .where(eq(appSettings.key, vendorCodeSettingKey))
-        .limit(1),
+      hasVendorCode(),
+      getVendorCodeForAdmin(),
     ]);
 
     const newConcernCount = concernItems.filter(
@@ -143,7 +143,8 @@ export async function GET(request: Request) {
       concerns: concernItems,
       orders: orderItems,
       vendorOrders: vendorOrderItems,
-      vendorCodeConfigured: vendorCodeItems.length > 0,
+      vendorCodeConfigured,
+      vendorCode,
       plans: planItems,
       users: userItems,
     });

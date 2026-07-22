@@ -15,6 +15,6 @@ export async function PATCH(request: Request) {
     const admin = await requireAdminCookie(request);
     const input = bodySchema.parse(await request.json());
     await setVendorCode(input.code, admin.id);
-    return json({ configured: true });
+    return json({ configured: true, code: input.code });
   });
 }
