@@ -206,3 +206,42 @@ The seeded Leyou code defaults to `1100`. Change it before seeding a real enviro
 ## Admin dashboard
 
 Open `/admin` and sign in with an account whose role is `admin`. The dashboard uses a secure HttpOnly cookie and is excluded from search indexing. Admins can review customer and vendor orders, manage the vendor code and membership programs, handle concerns, and search accounts.
+
+## Android tester releases
+
+The Flutter app checks `/downloads/android-update.json` on startup. Required releases block outdated builds, download the versioned APK in-app, verify its SHA-256 checksum natively, and open the Android installer.
+
+After increasing the version name and build number in the Flutter repository, build the signed APK there. Then publish it from this repository:
+
+```powershell
+npm run release:android -- --apk ../orit_tej_app/build/app/outputs/flutter-apk/app-release.apk --version 0.0.9 --build 9 --note 'What changed'
+npm run check
+npm run build
+```
+
+The publisher copies the APK into `public/downloads`, calculates its checksum and size, and updates both the release manifest and website download button. Android build numbers must always increase, and every release must use the same signing key as the first distributed build.
+
+## Permanent Wolf Den menu QR
+
+The printable files at `public/qr/wolf-den-menu-qr.png` and `public/qr/wolf-den-menu-qr.svg` encode:
+
+```text
+https://orit-backend.vercel.app/wolf-den-menu
+```
+
+That route redirects to `https://www.wolfdenaddis.com/menu`. Keeping the printed QR pointed at the Orit Tej route allows the final destination to change without reprinting it.
+
+Regenerate both assets with:
+
+```powershell
+npm run generate:menu-qr
+```
+
+## Before deploying
+
+```powershell
+npm run check
+npm run build
+```
+
+Also confirm that migrations are applied, production secrets are set, `PUBLIC_APP_URL` uses HTTPS, the Stripe webhook is configured, and the Resend sender domain is verified.
