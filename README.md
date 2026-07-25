@@ -237,6 +237,22 @@ Regenerate both assets with:
 npm run generate:menu-qr
 ```
 
+## Permanent Wolf Den events QR
+
+The high-resolution printable files at `public/qr/wolf-den-events-qr.png` and `public/qr/wolf-den-events-qr.svg` encode:
+
+```text
+https://orit-backend.vercel.app/wolf-den-events
+```
+
+That route redirects to `https://www.wolfdenaddis.com/events`, so the destination can be changed later without reprinting the QR.
+
+Regenerate both assets with:
+
+```powershell
+npm run generate:events-qr
+```
+
 ## Before deploying
 
 ```powershell

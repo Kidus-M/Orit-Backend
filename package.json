@@ -14,7 +14,8 @@
     "db:studio": "drizzle-kit studio",
     "check": "npm run lint && tsc --noEmit",
     "release:android": "tsx scripts/release-android.ts",
-    "generate:menu-qr": "tsx scripts/generate-menu-qr.ts"
+    "generate:menu-qr": "tsx scripts/generate-menu-qr.ts",
+    "generate:events-qr": "tsx scripts/generate-events-qr.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
