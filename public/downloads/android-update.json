@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "versionCode": 8,
-  "versionName": "0.0.8",
-  "minimumSupportedVersionCode": 8,
-  "apkUrl": "/downloads/orit-tej-android-0.0.8-8.apk",
-  "sha256": "7adb855a58644648ff425a7459de0159bbdd43aa86ec7f98167d8c017562d543",
-  "sizeBytes": 69532964,
+  "versionCode": 9,
+  "versionName": "0.0.9",
+  "minimumSupportedVersionCode": 9,
+  "apkUrl": "/downloads/orit-tej-android-0.0.9-9.apk",
+  "sha256": "f54c53acd175ad11ace25123cd3017cb727a174194859596779d127260f9a6df",
+  "sizeBytes": 69647656,
   "releaseNotes": [
-    "Improved vendor access screens",
-    "Added vendor-specific settings and Back navigation",
-    "Added Resend testing email fallback"
+    "Enabled Stripe sandbox payments for tester purchases",
+    "Added secure saved-card updates for customers and vendors",
+    "Improved Stripe configuration and webhook validation"
   ],
-  "publishedAt": "2026-07-22T14:21:30.990Z"
+  "publishedAt": "2026-07-29T10:43:58.007Z"
 }
