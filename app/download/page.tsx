@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 
 import androidRelease from "@/public/downloads/android-update.json";
 import { ArrowRightIcon } from "@/components/arrow-right-icon";
@@ -32,13 +31,13 @@ export default function DownloadPage() {
     <MarketingShell>
       <PageTransition>
         <main id="main-content">
-          <section className="page-hero page-hero--honey">
+          <section className="page-hero page-hero--honey download-hero">
             <div>
-              <p className="kicker" data-page-intro>
+              <p className="kicker download-hero__kicker" data-page-intro>
                 The Orit Tej app
               </p>
-              <h1 data-page-intro>Your wine club, close at hand.</h1>
-              <p data-page-intro>
+              <h1 data-page-intro>Your wine club is close at hand.</h1>
+              <p className="download-hero__summary" data-page-intro>
                 Membership, ordering, pickup, and your QR codes in one simple
                 place.
               </p>
@@ -64,13 +63,9 @@ export default function DownloadPage() {
               <div className="honey-orbit honey-orbit--two" />
             </div>
             <div className="download-intro__copy" data-reveal>
-              <p className="kicker">Made for members</p>
-              <h2 className="display-heading">
-                Less waiting. More time around the table.
-              </h2>
+              <p className="kicker download-intro__kicker">Made for members</p>
               <p className="lead">
-                The app makes each step from membership to pickup clear and
-                quick, without losing the personal feeling behind Orit Tej.
+                The app makes each step from membership to ordering quick.
               </p>
               <ul className="feature-list">
                 {features.map((feature) => (
@@ -92,10 +87,10 @@ export default function DownloadPage() {
                   </p>
                   <h2 className="display-heading">Choose your device.</h2>
                 </div>
-                <p>
+                {/* <p>
                   Android testers can install the latest APK here. The iPhone
                   app is planned for a later release.
-                </p>
+                </p> */}
               </div>
               <div className="store-grid" data-stagger>
                 <article className="store-card store-card--android">
@@ -154,13 +149,6 @@ export default function DownloadPage() {
             </div>
           </section>
 
-          <section className="closing-cta" data-reveal>
-            <p className="kicker">Need help?</p>
-            <h2>Contact us if you need help installing the app.</h2>
-            <Link className="button button--wine" href="/contact">
-              Contact us <ArrowRightIcon />
-            </Link>
-          </section>
         </main>
       </PageTransition>
     </MarketingShell>

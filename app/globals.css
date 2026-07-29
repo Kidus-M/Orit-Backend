@@ -312,6 +312,16 @@ img { object-fit: cover; }
 .download-intro {
   display: grid; grid-template-columns: .9fr 1fr; gap: 9vw; align-items: center;
 }
+.download-hero__kicker {
+  width: min(940px, 100%);
+  text-align: center;
+}
+.page-hero > div > .download-hero__summary {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+.download-intro__kicker { text-align: center; }
 .phone-stage--large { min-height: 740px; }
 .feature-list {
   display: grid; gap: 18px; margin: 35px 0 0; padding: 0; list-style: none;
