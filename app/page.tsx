@@ -7,7 +7,7 @@ import { PageTransition } from "@/components/page-transition";
 export const metadata: Metadata = {
   title: "Orit Tej | Handcrafted Ethiopian Honey Wine",
   description:
-    "Discover Orit Tej, a family-made Ethiopian honey wine handcrafted in California with natural ingredients and a recipe carried across generations.",
+    "Discover Orit Tej, a family-made Ethiopian honey wine handcrafted in California with natural ingredients and a recipe carried through generations.",
 };
 
 export default function Home() {

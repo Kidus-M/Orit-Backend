@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 
-import { ArrowRightIcon } from "@/components/arrow-right-icon";
 import { MarketingShell } from "@/components/marketing-shell";
 import { PageTransition } from "@/components/page-transition";
 
@@ -20,11 +18,11 @@ const milestones = [
   },
   {
     year: "1987",
-    title: "Orit Tej is shared",
-    text: "After years of making Tej for family and friends, an enthusiastic response inspired them to offer it to the wider community.",
+    title: "Orit Tej is brought to life",
+    text: "Making Tej for family and friends was a labor of love. The enthusiastic response inspired them to offer it to a wider community.",
   },
   {
-    year: "Today",
+    year: "2015",
     title: "The tradition continues",
     text: "The next chapter stays grounded in the same idea: make with care, choose quality over quantity, and always leave room at the table.",
   },
@@ -37,10 +35,13 @@ export default function AboutPage() {
         <main id="main-content">
           <section className="page-hero page-hero--wine">
             <div>
-              <p className="kicker kicker--light" data-page-intro>
+              <p
+                className="kicker kicker--light story-hero__kicker"
+                data-page-intro
+              >
                 Our story
               </p>
-              <h1 data-page-intro>A recipe carried across generations.</h1>
+              <h1 data-page-intro>A recipe carried to a generation.</h1>
               <p data-page-intro>
                 Orit Tej began with memory, hospitality, and a family recipe
                 brought from Ethiopia to California.
@@ -58,22 +59,24 @@ export default function AboutPage() {
               />
             </div>
             <div className="story-collage__copy" data-reveal>
-              <p className="kicker">Made to gather around</p>
-              <h2 className="display-heading">It started at the family table.</h2>
+              <div className="story-collage__heading">
+                <p className="kicker">Made to gather around</p>
+                <h2 className="display-heading">
+                  It started at the family table.
+                </h2>
+              </div>
               <p className="lead">
                 In 1983, Sam and Fi came to California from Ethiopia. Soon
                 after, they opened a family-owned Ethiopian restaurant in San
-                Francisco and began making Tej from a recipe passed down at
-                home.
+                Francisco and began making Tej from a recipe born from culture
+                and dedication.
               </p>
-              <p>
+              <p className="lead">
                 The wine was first shared with relatives and friends. When it
                 was introduced publicly in 1987, the response made one thing
                 clear: this tradition deserved a wider table.
               </p>
-              <blockquote>
-                “We continue to make for quality, not quantity.”
-              </blockquote>
+              <blockquote>“Made for quality, not quantity.”</blockquote>
             </div>
             <div className="story-collage__secondary image-frame" data-reveal>
               <Image
@@ -87,7 +90,10 @@ export default function AboutPage() {
 
           <section className="timeline-section">
             <div className="section timeline-section__inner">
-              <div className="section-heading" data-reveal>
+              <div
+                className="section-heading timeline-section__heading"
+                data-reveal
+              >
                 <div>
                   <p className="kicker kicker--light">A living tradition</p>
                   <h2 className="display-heading">From then to now.</h2>
@@ -109,33 +115,6 @@ export default function AboutPage() {
                 ))}
               </div>
             </div>
-          </section>
-
-          <section className="section tej-definition">
-            <div data-reveal>
-              <p className="kicker">What is Tej?</p>
-              <h2 className="display-heading">Honey, transformed.</h2>
-            </div>
-            <div data-reveal>
-              <p className="lead">
-                Pronounced “tejj,” Tej is a traditional Ethiopian wine whose
-                character comes from honey instead of grapes.
-              </p>
-              <p>
-                Smooth, aromatic, and softly sweet, it carries enough warmth
-                for a celebration and enough ease for an ordinary evening. We
-                handcraft ours with natural ingredients in California, guided
-                by the recipe that began this story.
-              </p>
-            </div>
-          </section>
-
-          <section className="closing-cta" data-reveal>
-            <p className="kicker">See it in the world</p>
-            <h2>Tradition feels best when it is shared.</h2>
-            <Link className="button button--wine" href="/gallery">
-              Visit the gallery <ArrowRightIcon />
-            </Link>
           </section>
         </main>
       </PageTransition>

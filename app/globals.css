@@ -260,6 +260,11 @@ img { object-fit: cover; }
 }
 .story-collage__primary { min-height: 690px; }
 .story-collage__copy p { color: var(--muted); line-height: 1.7; }
+.story-hero__kicker {
+  width: min(940px, 100%);
+  text-align: center;
+}
+.story-collage__heading { text-align: center; }
 .story-collage blockquote {
   margin: 38px 0 0; border-left: 2px solid var(--honey);
   padding-left: 24px; color: var(--wine); font-family: Georgia,serif;
@@ -267,6 +272,15 @@ img { object-fit: cover; }
 }
 .story-collage__secondary { min-height: 410px; grid-column: 2; }
 .timeline-section { background: var(--wine); color: white; }
+.timeline-section__heading {
+  display: flex;
+  max-width: 850px;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  margin: 0 auto;
+  text-align: center;
+}
 .timeline-section .section-heading > p,
 .download-options .section-heading > p { color: rgba(255,255,255,.66); }
 .timeline { margin-top: 75px; border-top: 1px solid rgba(255,255,255,.2); }

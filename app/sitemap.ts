@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://orit-backend.vercel.app";
-  const routes = ["", "/about", "/gallery", "/download", "/contact"];
+  const routes = ["", "/about", "/download", "/contact"];
 
   return routes.map((route) => ({
     url: baseUrl + route,
