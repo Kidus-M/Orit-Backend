@@ -133,6 +133,7 @@ img { object-fit: cover; }
   background: linear-gradient(90deg, rgba(251,246,234,.98) 0%, rgba(251,246,234,.91) 31%, rgba(251,246,234,.12) 66%, transparent 100%);
 }
 .hero__content { position: relative; z-index: 2; width: min(680px, 58vw); }
+.hero__content > .kicker { text-align: center; }
 .hero h1 { font-size: clamp(3.7rem, 7.7vw, 8.6rem); }
 .hero__lede {
   width: min(570px,100%); margin: 32px 0 0; color: #574e46;
@@ -151,6 +152,7 @@ img { object-fit: cover; }
   display: grid; grid-template-columns: 1.1fr .7fr;
   gap: clamp(50px,10vw,150px); align-items: start;
 }
+.intro-heading { text-align: center; }
 .intro-copy p, .tej-definition p { color: var(--muted); line-height: 1.7; }
 .intro-copy .text-link { margin-top: 22px; }
 
@@ -172,6 +174,7 @@ img { object-fit: cover; }
   gap: 70px; align-items: end;
 }
 .section-heading > p { margin: 0; color: var(--muted); line-height: 1.7; }
+.quality-heading { display: block; text-align: center; }
 .quality-grid {
   display: grid; grid-template-columns: repeat(3,1fr);
   margin-top: 70px; border-top: 1px solid var(--line);
@@ -430,31 +433,18 @@ img { object-fit: cover; }
 
 .site-footer {
   background: var(--ink); color: white;
-  padding: clamp(80px,9vw,125px) clamp(22px,6vw,90px) 25px;
+  padding: clamp(55px,7vw,85px) clamp(22px,6vw,90px) 25px;
 }
-.site-footer__top, .site-footer__grid, .site-footer__bottom {
+.site-footer__grid, .site-footer__bottom {
   width: min(1220px,100%); margin: 0 auto;
 }
-.site-footer__top {
-  display: flex; align-items: end; justify-content: space-between;
-  gap: 45px; border-bottom: 1px solid rgba(255,255,255,.14); padding-bottom: 70px;
-}
-.site-footer h2 { max-width: 760px; font-size: clamp(3rem,6vw,6rem); }
 .site-footer__grid {
-  display: grid; grid-template-columns: 1.3fr .5fr .8fr;
-  gap: 70px; padding: 70px 0;
+  padding-bottom: 42px;
 }
-.site-footer__grid > div:not(.footer-brand) {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
-}
-.site-footer__grid h3 {
-  margin: 0 0 10px; color: var(--honey); font-size: .7rem;
-  letter-spacing: .15em; text-transform: uppercase;
-}
-.site-footer__grid a, .site-footer__grid p {
+.site-footer__grid p {
   color: rgba(255,255,255,.65); line-height: 1.6;
 }
-.footer-brand p { max-width: 410px; }
+.footer-brand p { max-width: 480px; margin: 0; }
 .brand-mark--footer { background: var(--honey); color: var(--ink); }
 .site-footer__bottom {
   display: flex; justify-content: space-between;

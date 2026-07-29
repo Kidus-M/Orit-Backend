@@ -1,56 +1,17 @@
-import Image from "next/image";
-import Link from "next/link";
-
-import { ArrowRightIcon } from "@/components/arrow-right-icon";
-
 export function SiteFooter() {
   return (
     <footer className="site-footer">
-      <div className="site-footer__top">
-        <div>
-          <p className="kicker kicker--light">Made to be shared</p>
-          <h2>Honey, heritage, and a little California light.</h2>
-        </div>
-        <Link className="button button--honey" href="/contact">
-          Start a conversation
-          <ArrowRightIcon />
-        </Link>
-      </div>
-
       <div className="site-footer__grid">
         <div className="footer-brand">
-          <Image
-            className="company-logo company-logo--footer"
-            src="/app-icon.png"
-            alt="Orit Tej"
-            width={72}
-            height={72}
-          />
           <p>
-            Handcrafted Ethiopian honey wine, made by a family who believes
+            Handcrafted Ethiopian honey wine made by a family who believes
             quality is always worth the time.
           </p>
-        </div>
-
-        <div>
-          <h3>Explore</h3>
-          <Link href="/about">Our story</Link>
-          <Link href="/gallery">Gallery</Link>
-          <Link href="/download">Get the app</Link>
-        </div>
-
-        <div>
-          <h3>Visit & contact</h3>
-          <a href="mailto:orittej@gmail.com">
-            orittej@gmail.com
-          </a>
-          <a href="tel:+15102700840">(510) 270-0840</a>
-          <p>Bay Area</p>
         </div>
       </div>
 
       <div className="site-footer__bottom">
-        <p>© {new Date().getFullYear()} Orit Tej. All rights reserved.</p>
+        <p>© 2015 Orit Tej. All rights reserved.</p>
         <p>Please enjoy responsibly. 21+ only.</p>
       </div>
     </footer>
