@@ -12,6 +12,7 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:seed-member": "tsx scripts/seed-member.ts",
     "db:studio": "drizzle-kit studio",
+    "stripe:check": "tsx scripts/check-stripe.ts",
     "check": "npm run lint && tsc --noEmit",
     "release:android": "tsx scripts/release-android.ts",
     "generate:menu-qr": "tsx scripts/generate-menu-qr.ts",

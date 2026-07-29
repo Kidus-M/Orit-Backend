@@ -14,8 +14,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   return handleRoute(async () => {
     await prepareDatabase();
-    const vendor = await requireAuth(request, ["member"]);
-    if (!vendor.isVendor) throw new ApiError(403, "Vendor access required.");
+    const member = await requireAuth(request, ["member"]);
     const input = bodySchema.parse(await request.json());
 
     const intent = await getStripe().setupIntents.retrieve(input.setupIntentId, {
@@ -23,10 +22,10 @@ export async function POST(request: Request) {
     });
     if (
       intent.status !== "succeeded" ||
-      intent.metadata?.kind !== "vendor_card" ||
-      intent.metadata?.vendorId !== vendor.id
+      intent.metadata?.kind !== "saved_card" ||
+      intent.metadata?.userId !== member.id
     ) {
-      throw new ApiError(409, "Stripe card setup is not valid for this vendor.");
+      throw new ApiError(409, "Stripe card setup is not valid for this account.");
     }
 
     const method =
@@ -43,7 +42,7 @@ export async function POST(request: Request) {
     const [paymentMethod] = await getDb()
       .insert(paymentMethods)
       .values({
-        userId: vendor.id,
+        userId: member.id,
         providerCustomerId: customerId,
         providerPaymentMethodId: method.id,
         brand: method.card.brand,

@@ -14,8 +14,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   return handleRoute(async () => {
     await prepareDatabase();
-    const vendor = await requireAuth(request, ["member"]);
-    if (!vendor.isVendor) throw new ApiError(403, "Vendor access required.");
+    const member = await requireAuth(request, ["member"]);
 
     const env = getEnv();
     if (env.PAYMENT_MODE !== "stripe") {
@@ -29,16 +28,16 @@ export async function POST(request: Request) {
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.id, vendor.id))
+      .where(eq(users.id, member.id))
       .limit(1);
-    if (!user) throw new ApiError(404, "Vendor not found.");
+    if (!user) throw new ApiError(404, "Account not found.");
 
     const customerId = await ensureStripeCustomer(user);
     if (!user.stripeCustomerId) {
       await db
         .update(users)
         .set({ stripeCustomerId: customerId, updatedAt: new Date() })
-        .where(eq(users.id, vendor.id));
+        .where(eq(users.id, member.id));
     }
 
     const stripe = getStripe();
@@ -47,7 +46,7 @@ export async function POST(request: Request) {
         customer: customerId,
         usage: "off_session",
         automatic_payment_methods: { enabled: true },
-        metadata: { kind: "vendor_card", vendorId: vendor.id },
+        metadata: { kind: "saved_card", userId: member.id },
       }),
       stripe.ephemeralKeys.create(
         { customer: customerId },

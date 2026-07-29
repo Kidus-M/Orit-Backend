@@ -26,13 +26,46 @@ const envSchema = z.object({
   DEMO_STORE_OWNER_TOKEN: optionalString(z.string().min(16)),
   DEMO_ADMIN_TOKEN: optionalString(z.string().min(16)),
   PAYMENT_MODE: z.enum(["mock", "stripe"]).default("mock"),
-  STRIPE_SECRET_KEY: optionalString(z.string().startsWith("sk_")),
-  STRIPE_PUBLISHABLE_KEY: optionalString(z.string().startsWith("pk_")),
+  STRIPE_SECRET_KEY: optionalString(
+    z.string().regex(/^(sk|rk)_(test|live)_/, "Invalid Stripe secret key"),
+  ),
+  STRIPE_PUBLISHABLE_KEY: optionalString(
+    z.string().regex(/^pk_(test|live)_/, "Invalid Stripe publishable key"),
+  ),
   STRIPE_WEBHOOK_SECRET: optionalString(z.string().startsWith("whsec_")),
-  STRIPE_CURRENCY: z.string().length(3).default("usd"),
+  STRIPE_CURRENCY: z.string().regex(/^[a-zA-Z]{3}$/).default("usd"),
   RESEND_API_KEY: optionalString(z.string().startsWith("re_")),
   VENDOR_ORDER_FROM_EMAIL: optionalString(z.string().min(3)),
 
+}).superRefine((env, context) => {
+  if (env.PAYMENT_MODE !== "stripe") return;
+
+  for (const key of [
+    "STRIPE_SECRET_KEY",
+    "STRIPE_PUBLISHABLE_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+  ] as const) {
+    if (!env[key]) {
+      context.addIssue({
+        code: "custom",
+        path: [key],
+        message: `${key} is required when PAYMENT_MODE=stripe`,
+      });
+    }
+  }
+
+  const secretMode = env.STRIPE_SECRET_KEY?.match(
+    /^(?:sk|rk)_(test|live)_/,
+  )?.[1];
+  const publishableMode =
+    env.STRIPE_PUBLISHABLE_KEY?.match(/^pk_(test|live)_/)?.[1];
+  if (secretMode && publishableMode && secretMode !== publishableMode) {
+    context.addIssue({
+      code: "custom",
+      path: ["STRIPE_PUBLISHABLE_KEY"],
+      message: "Stripe secret and publishable keys must use the same mode",
+    });
+  }
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

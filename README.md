@@ -178,7 +178,15 @@ For local webhook testing:
 stripe listen --forward-to localhost:3000/api/stripe/webhook
 ```
 
-Copy the signing secret printed by Stripe CLI into `STRIPE_WEBHOOK_SECRET`. Configure the production webhook to receive at least `payment_intent.payment_failed`.
+Copy the signing secret printed by Stripe CLI into `STRIPE_WEBHOOK_SECRET`. For the deployed sandbox, add an Account webhook destination in Stripe Workbench using `https://orit-backend.vercel.app/api/stripe/webhook`, subscribe to `payment_intent.payment_failed`, and copy that destination's `whsec_...` signing secret into Vercel. Webhook signing secrets are different for the CLI and the deployed endpoint.
+
+After filling `.env.local`, verify the key pair and account without printing either secret:
+
+```bash
+npm run stripe:check
+```
+
+The Flutter app fetches the publishable key from this backend. Never add `STRIPE_SECRET_KEY` or `STRIPE_WEBHOOK_SECRET` to Flutter, Dart defines, or Git.
 
 Use `PAYMENT_MODE=mock` for UI-only development. Mock mode exercises server-side membership and ordering rules without charging a card.
 
