@@ -410,6 +410,10 @@ img { object-fit: cover; }
 .contact-layout {
   display: grid; grid-template-columns: .75fr 1fr; gap: 10vw;
 }
+.contact-hero__kicker {
+  width: min(940px, 100%);
+  text-align: center;
+}
 .contact-list { display: grid; gap: 28px; margin-top: 48px; }
 .contact-list p, .contact-list a { margin: 0; }
 .contact-list a { font-size: clamp(1.05rem,1.5vw,1.3rem); }
