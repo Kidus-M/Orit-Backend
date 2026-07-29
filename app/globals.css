@@ -318,8 +318,16 @@ img { object-fit: cover; }
 .download-intro {
   display: grid; grid-template-columns: .9fr 1fr; gap: 9vw; align-items: center;
 }
+.download-hero > div {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+.download-hero h1 { margin-right: auto; margin-left: auto; }
 .download-hero__kicker {
   width: min(940px, 100%);
+  margin-right: auto;
+  margin-left: auto;
   text-align: center;
 }
 .page-hero > div > .download-hero__summary {
