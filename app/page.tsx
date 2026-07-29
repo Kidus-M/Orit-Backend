@@ -28,7 +28,7 @@ export default function Home() {
             </div>
             <div className="hero__veil" />
             <div className="hero__content">
-              <p className="kicker" data-page-intro>Handcrafted in California</p>
+              {/* <p className="kicker" data-page-intro>Handcrafted in California</p> */}
               <h1 data-page-intro>A golden tradition<br />made to be shared.</h1>
               <p className="hero__lede" data-page-intro>
                 Orit Tej is an Ethiopian wine made with patience, natural

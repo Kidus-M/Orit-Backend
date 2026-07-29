@@ -33,7 +33,7 @@ export default function AboutPage() {
     <MarketingShell>
       <PageTransition>
         <main id="main-content">
-          <section className="page-hero page-hero--wine">
+          <section className="page-hero page-hero--wine page-hero--centered">
             <div>
               <p
                 className="kicker kicker--light story-hero__kicker"

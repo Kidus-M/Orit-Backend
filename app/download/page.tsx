@@ -31,7 +31,7 @@ export default function DownloadPage() {
     <MarketingShell>
       <PageTransition>
         <main id="main-content">
-          <section className="page-hero page-hero--honey download-hero">
+          <section className="page-hero page-hero--honey page-hero--centered download-hero">
             <div>
               <p className="kicker download-hero__kicker" data-page-intro>
                 The Orit Tej App

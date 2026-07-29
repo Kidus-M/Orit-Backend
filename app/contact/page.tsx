@@ -14,13 +14,12 @@ export default function ContactPage() {
     <MarketingShell>
       <PageTransition>
         <main id="main-content">
-          <section className="page-hero page-hero--honey contact-hero">
+          <section className="page-hero page-hero--honey page-hero--centered contact-hero">
             <div>
               <p className="kicker contact-hero__kicker" data-page-intro>
                 Contact
               </p>
-              <h1 data-page-intro>There is always room at our table.</h1>
-              <p data-page-intro>We would love to hear from you.</p>
+              <h1 data-page-intro>We would love to hear from you.</h1>
             </div>
           </section>
 

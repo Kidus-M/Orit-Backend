@@ -253,6 +253,20 @@ img { object-fit: cover; }
 .page-hero--wine > div > p:last-child { color: rgba(255,255,255,.68); }
 .page-hero--honey { background: var(--honey); }
 .page-hero--cream { background: var(--cream); }
+.page-hero--centered {
+  align-items: center;
+  justify-content: center;
+}
+.page-hero--centered > div {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+.page-hero--centered h1,
+.page-hero--centered > div > p:last-child {
+  margin-right: auto;
+  margin-left: auto;
+}
 
 .story-collage {
   display: grid; grid-template-columns: .82fr 1fr;
@@ -424,8 +438,16 @@ img { object-fit: cover; }
 .contact-layout {
   display: grid; grid-template-columns: .75fr 1fr; gap: 10vw;
 }
+.contact-hero > div {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+.contact-hero h1 { margin-right: auto; margin-left: auto; }
 .contact-hero__kicker {
   width: min(940px, 100%);
+  margin-right: auto;
+  margin-left: auto;
   text-align: center;
 }
 .contact-list { display: grid; gap: 28px; margin-top: 48px; }
