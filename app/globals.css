@@ -41,10 +41,6 @@ img { object-fit: cover; }
 }
 .skip-link:focus { transform: translateY(0); }
 .page-transition { min-height: 100vh; }
-.route-wipe {
-  position: fixed; z-index: 200; inset: 0; pointer-events: none;
-  background: var(--honey); transform: scaleX(0); transform-origin: left center;
-}
 
 .site-header {
   position: absolute; z-index: 100; top: 0; right: 0; left: 0;

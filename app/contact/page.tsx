@@ -7,8 +7,7 @@ import { PageTransition } from "@/components/page-transition";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description:
-    "Contact Orit Tej or find the current pickup location in San Jose, California.",
+  description: "Contact Orit Tej in the Bay Area.",
 };
 
 export default function ContactPage() {
@@ -42,28 +41,10 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="eyebrow">Phone</p>
-                  <a href="tel:+14157243664">(415) 724-3664</a>
+                  <a href="tel:+15102700840">(510) 270-0840</a>
                 </div>
               </div>
 
-              <div className="contact-pickup-card">
-                <p className="eyebrow">Current pickup location</p>
-                <h3>Leyou Ethiopian</h3>
-                <address>
-                  1100 N First St, Suite C
-                  <br />
-                  San Jose, CA 95112
-                </address>
-                <p>Monday-Sunday Â· 5:30 PM-9:00 PM</p>
-                <a
-                  className="text-link text-link--wine"
-                  href="https://maps.google.com/?q=1100+N+First+St+Ste+C+San+Jose+CA+95112"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Open in maps <ArrowRightIcon />
-                </a>
-              </div>
             </div>
 
             <div className="contact-form-wrap" data-reveal>

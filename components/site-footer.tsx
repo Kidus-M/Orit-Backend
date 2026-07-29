@@ -44,8 +44,8 @@ export function SiteFooter() {
           <a href="mailto:orittej.comments@gmail.com">
             orittej.comments@gmail.com
           </a>
-          <a href="tel:+14157243664">(415) 724-3664</a>
-          <p>San Francisco Bay Area, California</p>
+          <a href="tel:+15102700840">(510) 270-0840</a>
+          <p>Bay Area</p>
         </div>
       </div>
 
