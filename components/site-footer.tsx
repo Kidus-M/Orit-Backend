@@ -41,8 +41,8 @@ export function SiteFooter() {
 
         <div>
           <h3>Visit & contact</h3>
-          <a href="mailto:orittej.comments@gmail.com">
-            orittej.comments@gmail.com
+          <a href="mailto:orittej@gmail.com">
+            orittej@gmail.com
           </a>
           <a href="tel:+15102700840">(510) 270-0840</a>
           <p>Bay Area</p>

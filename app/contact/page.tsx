@@ -35,8 +35,8 @@ export default function ContactPage() {
               <div className="contact-list">
                 <div>
                   <p className="eyebrow">Email</p>
-                  <a href="mailto:orittej.comments@gmail.com">
-                    orittej.comments@gmail.com
+                  <a href="mailto:orittej@gmail.com">
+                    orittej@gmail.com
                   </a>
                 </div>
                 <div>
@@ -59,7 +59,7 @@ export default function ContactPage() {
             </div>
             <a
               className="button button--honey"
-              href="mailto:orittej.comments@gmail.com?subject=Orit%20Tej%20pickup%20partnership"
+              href="mailto:orittej@gmail.com?subject=Orit%20Tej%20pickup%20partnership"
             >
               Start a conversation <ArrowRightIcon />
             </a>
