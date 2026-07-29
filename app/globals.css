@@ -262,9 +262,15 @@ img { object-fit: cover; }
 .story-collage__copy p { color: var(--muted); line-height: 1.7; }
 .story-hero__kicker {
   width: min(940px, 100%);
+  margin-right: auto;
+  margin-left: auto;
   text-align: center;
 }
 .story-collage__heading { text-align: center; }
+.story-collage__heading .kicker {
+  width: 100%;
+  text-align: center;
+}
 .story-collage blockquote {
   margin: 38px 0 0; border-left: 2px solid var(--honey);
   padding-left: 24px; color: var(--wine); font-family: Georgia,serif;

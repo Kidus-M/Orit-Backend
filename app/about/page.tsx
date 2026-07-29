@@ -14,7 +14,7 @@ const milestones = [
   {
     year: "1983",
     title: "A recipe finds a new home",
-    text: "Sam and Fi arrived in California from Ethiopia with a treasured family recipe and a spirit of generous hospitality.",
+    text: "Sam and Fi arrived with a treasured family recipe and a spirit of generous hospitality.",
   },
   {
     year: "1987",
@@ -76,7 +76,7 @@ export default function AboutPage() {
                 was introduced publicly in 1987, the response made one thing
                 clear: this tradition deserved a wider table.
               </p>
-              <blockquote>“Made for quality, not quantity.”</blockquote>
+              <blockquote>“ We continue to make for quality, not quantity.”</blockquote>
             </div>
             <div className="story-collage__secondary image-frame" data-reveal>
               <Image

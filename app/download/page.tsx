@@ -34,7 +34,7 @@ export default function DownloadPage() {
           <section className="page-hero page-hero--honey download-hero">
             <div>
               <p className="kicker download-hero__kicker" data-page-intro>
-                The Orit Tej app
+                The Orit Tej App
               </p>
               <h1 data-page-intro>Your wine club is close at hand.</h1>
               <p className="download-hero__summary" data-page-intro>
