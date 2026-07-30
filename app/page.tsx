@@ -28,21 +28,21 @@ export default function Home() {
             </div>
             <div className="hero__veil" />
             <div className="hero__content">
-              {/* <p className="kicker" data-page-intro>Handcrafted in California</p> */}
-              <h1 data-page-intro>A golden tradition<br />made to be shared.</h1>
+              <h1 data-page-intro>
+                A Golden Tradition<br />Made To Be Shared.
+              </h1>
               <p className="hero__lede" data-page-intro>
                 Orit Tej is an Ethiopian wine made with patience, natural
-                ingredients, and a family recipe with roots far deeper than the
-                bottle.
+                ingredients, and a family recipe which is far deeper than
+                what’s in the bottle.
               </p>
             </div>
           </section>
 
           <section className="section intro-heading">
             <div data-reveal>
-              <p className="kicker">Meet Tej</p>
               <h2 className="display-heading">
-                Not red. Not white.<br />Golden.
+                Not Red. Not White.<br />Golden.
               </h2>
             </div>
           </section>
@@ -62,7 +62,7 @@ export default function Home() {
               <h2>From Ethiopia, through California, to your table.</h2>
               <p>
                 Sam and Fi arrived in California in 1983. Their arrival sparked
-                something new: a family wine recipe. What began as something
+                something new, a family wine recipe. What began as something
                 made for family and friends quickly turned into a wine for
                 others.
               </p>
@@ -80,22 +80,18 @@ export default function Home() {
               <article>
                 <span className="quality-number">01</span>
                 <h3>Honey-led</h3>
-                <p>All-natural domestic honey.</p>
+                <p>All natural domestic honey.</p>
               </article>
               <article>
                 <span className="quality-number">02</span>
                 <h3>Handcrafted</h3>
-                <p>
-                  Sustainably, ethically grown and bottled with minimal machine
-                  influence.
-                </p>
+                <p>Handcrafted and bottled with minimal machine influence.</p>
               </article>
               <article>
                 <span className="quality-number">03</span>
                 <h3>Made for food</h3>
                 <p>
-                  Pairs with, excites, and complements foods that are rich in
-                  spices.
+                  Pairs with and complements foods that are rich in spices.
                 </p>
               </article>
             </div>
