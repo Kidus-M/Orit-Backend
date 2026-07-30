@@ -11,7 +11,7 @@ import { MarketingShell } from "@/components/marketing-shell";
 import { PageTransition } from "@/components/page-transition";
 
 export const metadata: Metadata = {
-  title: "Get the App",
+  title: "Wine Club",
   description:
     "Download the Orit Tej wine club app for Android and preview the planned iPhone release.",
 };
@@ -38,8 +38,7 @@ export default function DownloadPage() {
               </p>
               <h1 data-page-intro>Your wine club is close at hand.</h1>
               <p className="download-hero__summary" data-page-intro>
-                Membership, ordering, pickup, and your QR codes in one simple
-                place.
+                Membership, ordering, and pickup all in one place.
               </p>
             </div>
           </section>
@@ -56,7 +55,7 @@ export default function DownloadPage() {
                   priority
                 />
                 <p>Orit Tej</p>
-                <span>Wine club</span>
+                <span>Wine Club</span>
                 <div className="phone-mockup__button">Enter</div>
               </div>
               <div className="honey-orbit honey-orbit--one" />
@@ -65,7 +64,8 @@ export default function DownloadPage() {
             <div className="download-intro__copy" data-reveal>
               <p className="kicker download-intro__kicker">Made for members</p>
               <p className="lead">
-                The app makes each step from membership to ordering quick.
+                The app makes each step from membership to ordering quick and
+                easy.
               </p>
               <ul className="feature-list">
                 {features.map((feature) => (
@@ -80,17 +80,16 @@ export default function DownloadPage() {
 
           <section className="download-options">
             <div className="section">
-              <div className="section-heading" data-reveal>
+              <div
+                className="section-heading download-options__heading"
+                data-reveal
+              >
                 <div>
                   <p className="kicker kicker--light">
                     {androidReady ? "Available now" : "Coming soon"}
                   </p>
                   <h2 className="display-heading">Choose your device.</h2>
                 </div>
-                {/* <p>
-                  Android testers can install the latest APK here. The iPhone
-                  app is planned for a later release.
-                </p> */}
               </div>
               <div className="store-grid" data-stagger>
                 <article className="store-card store-card--android">

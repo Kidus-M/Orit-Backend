@@ -360,6 +360,10 @@ img { object-fit: cover; }
 }
 .feature-list span { color: var(--wine); font-weight: 900; }
 .download-options { background: var(--wine-deep); color: white; }
+.download-options__heading {
+  display: block;
+  text-align: center;
+}
 .store-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 65px;
 }
