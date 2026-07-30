@@ -41,7 +41,7 @@ export function ContactForm() {
       </label>
       <div className="contact-form__actions">
         <button className="button button--wine" type="submit">
-          Write to us
+          Send
           <ArrowRightIcon />
         </button>
         <p aria-live="polite">
