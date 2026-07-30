@@ -14,7 +14,7 @@ const milestones = [
   {
     year: "1983",
     title: "A recipe finds a new home",
-    text: "Sam and Fi arrived with a treasured family recipe and a spirit of generous hospitality.",
+    text: "Sam and Fi arrived with a treasured family recipe and a spirit of genuine hospitality.",
   },
   {
     year: "1987",
@@ -24,7 +24,7 @@ const milestones = [
   {
     year: "2015",
     title: "The tradition continues",
-    text: "The next chapter stays grounded in the same idea: make with care, choose quality over quantity, and always leave room at the table.",
+    text: "The next chapter stays grounded in the same idea - make with care, choose quality over quantity, and always leave room at the table.",
   },
 ];
 
@@ -67,16 +67,16 @@ export default function AboutPage() {
               </div>
               <p className="lead">
                 In 1983, Sam and Fi came to California from Ethiopia. Soon
-                after, they opened a family-owned Ethiopian restaurant in San
-                Francisco and began making Tej from a recipe born from culture
-                and dedication.
+                after, they opened a family-owned restaurant in San Francisco
+                and began making Tej from a recipe born from culture and
+                dedication.
               </p>
               <p className="lead">
                 The wine was first shared with relatives and friends. When it
                 was introduced publicly in 1987, the response made one thing
-                clear: this tradition deserved a wider table.
+                clear, this tradition deserved a wider table!
               </p>
-              <blockquote>“ We continue to make for quality, not quantity.”</blockquote>
+              <blockquote>“We continue to make quality, not quantity.”</blockquote>
             </div>
             <div className="story-collage__secondary image-frame" data-reveal>
               <Image
