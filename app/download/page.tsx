@@ -18,8 +18,9 @@ export const metadata: Metadata = {
 
 const features = [
   "Keep your membership details in one place",
-  "Order bottles for pickup at a participating location",
-  "Return to pending orders and pickup QR codes anytime",
+  "Order bottles for pickup at a participating locations",
+  "QR codes for pending orders",
+  "Additional gifts and benefits included"
 ];
 
 export default function DownloadPage() {

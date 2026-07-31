@@ -34,7 +34,7 @@ export default function Home() {
               <p className="hero__lede" data-page-intro>
                 Orit Tej is an Ethiopian wine made with patience, natural
                 ingredients, and a family recipe which is far deeper than
-                what’s in the bottle.
+                what’s inside the bottle.
               </p>
             </div>
           </section>

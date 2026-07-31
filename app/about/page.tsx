@@ -14,7 +14,7 @@ const milestones = [
   {
     year: "1983",
     title: "A recipe finds a new home",
-    text: "Sam and Fi arrived with a treasured family recipe and a spirit of genuine hospitality.",
+    text: "Sam and Fi arrived with a family recipe and a spirit of genuine hospitality.",
   },
   {
     year: "1987",
@@ -24,7 +24,7 @@ const milestones = [
   {
     year: "2015",
     title: "The tradition continues",
-    text: "The next chapter stays grounded in the same idea - make with care, choose quality over quantity, and always leave room at the table.",
+    text: "The next chapter stays grounded in the same idea - make with care, quality over quantity, and always leave room at the table.",
   },
 ];
 
@@ -35,12 +35,12 @@ export default function AboutPage() {
         <main id="main-content">
           <section className="page-hero page-hero--wine page-hero--centered">
             <div>
-              <p
+              {/* <p
                 className="kicker kicker--light story-hero__kicker"
                 data-page-intro
               >
                 Our story
-              </p>
+              </p> */}
               <h1 data-page-intro>A recipe carried to a generation.</h1>
               <p data-page-intro>
                 Orit Tej began with memory, hospitality, and a family recipe
@@ -67,7 +67,7 @@ export default function AboutPage() {
               </div>
               <p className="lead">
                 In 1983, Sam and Fi came to California from Ethiopia. Soon
-                after, they opened a family-owned restaurant in San Francisco
+                after, they opened a family owned restaurant in San Francisco
                 and began making Tej from a recipe born from culture and
                 dedication.
               </p>
@@ -99,7 +99,7 @@ export default function AboutPage() {
                   <h2 className="display-heading">From then to now.</h2>
                 </div>
                 <p>
-                  The place has changed. The care, patience, and purpose have
+                  The place has changed. The care, the patience, and the purpose has
                   not.
                 </p>
               </div>
