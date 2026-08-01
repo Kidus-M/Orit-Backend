@@ -74,6 +74,7 @@ Open `http://localhost:3000`. You can verify the API at `GET /api/health`.
 | --- | --- |
 | `npm run dev` | Start the local Next.js development server. |
 | `npm run build` | Create a production build. |
+| `npm run build:vercel` | Apply committed migrations, then create the Vercel production build. |
 | `npm start` | Run the production build. |
 | `npm run check` | Run ESLint and TypeScript checks. |
 | `npm run db:migrate` | Apply committed Drizzle migrations. |
@@ -272,4 +273,4 @@ npm run check
 npm run build
 ```
 
-Also confirm that migrations are applied, production secrets are set, `PUBLIC_APP_URL` uses HTTPS, the Stripe webhook is configured, and the Resend sender domain is verified.
+Vercel runs `npm run build:vercel`, which applies committed Drizzle migrations before compiling the deployment. Also confirm that production secrets are set, `PUBLIC_APP_URL` uses HTTPS, the Stripe webhook is configured, and the Resend sender domain is verified.
