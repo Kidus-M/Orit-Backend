@@ -7,11 +7,11 @@ The web, API, and operations service for the Orit Tej member app. This Next.js a
 - A public Orit Tej marketing website and Android download page
 - REST API routes consumed by the Flutter app
 - PIN-based member and store-owner authentication with persistent device sessions
-- Passwordless vendor onboarding through an admin-managed service code
+- Passwordless vendor onboarding through separate, one-time four-digit codes created by an admin
 - Stripe PaymentSheet flows for memberships, saved cards, bottle orders, and vendor case orders
 - One-time customer pickup links and vendor confirmation links
-- Membership renewal, expiration, and notification maintenance jobs
-- An authenticated admin dashboard for accounts, orders, concerns, programs, and vendor access
+- Membership renewal, expiration, notification, and monthly vendor-summary jobs
+- An authenticated admin dashboard for accounts, orders, concerns, programs, vendor invitations, and vendor-linked pickup locations
 - Android APK publishing and update-manifest tooling
 
 ## Technology
@@ -50,7 +50,7 @@ Important configuration groups:
 | Public URLs | `PUBLIC_APP_URL` | Set this to the deployed HTTPS origin used in pickup links. |
 | Pickup | `LEYOU_SERVICE_CODE`, `PICKUP_QR_TTL_DAYS` | Choose the location's four-digit service code before seeding production. |
 | Payments | `PAYMENT_MODE`, `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CURRENCY` | Use `mock` for UI development or `stripe` for real Stripe test/live flows. |
-| Email | `RESEND_API_KEY`, `VENDOR_ORDER_FROM_EMAIL` | The sender domain must be verified in Resend. |
+| Email | `RESEND_API_KEY`, `VENDOR_ORDER_FROM_EMAIL`, `ORDER_NOTIFICATION_EMAIL` | The sender domain must be verified in Resend. New-order and monthly-summary messages use the configured recipient. |
 | Demo data | `SEED_IF_EMPTY`, `DEMO_MEMBER_TOKEN`, `DEMO_STORE_OWNER_TOKEN`, `DEMO_ADMIN_TOKEN` | Development-only values used by the seed process. |
 
 See `.env.example` for the complete list and inline guidance.
@@ -124,7 +124,7 @@ Primary authentication routes:
 
 | Method | Route | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/locations` | List pickup locations and stock state. |
+| `GET` | `/api/locations` | List admin-published pickup locations and stock state. |
 | `GET`, `POST` | `/api/orders` | List or place member orders. |
 | `POST` | `/api/orders/:id/pickup` | Rotate and return a pending order's pickup link. |
 | `POST` | `/api/pickup/verify` | Verify a pickup-location service code. |
@@ -147,16 +147,18 @@ Completed orders remain in the queue with `status=completed`, allowing the store
 
 | Method | Route | Purpose |
 | --- | --- | --- |
-| `POST` | `/api/auth/vendors/code/verify` | Verify the universal vendor code. |
+| `POST` | `/api/auth/vendors/code/verify` | Verify an unused vendor invitation code. |
 | `POST` | `/api/auth/vendors/register` | Register a passwordless vendor business. |
 | `POST` | `/api/stripe/payment-sheet/vendor-card` | Create a vendor card-setup PaymentSheet. |
 | `POST` | `/api/account/payment-method/vendor` | Save the vendor payment method. |
 | `GET`, `POST` | `/api/vendor-orders` | Read access/pricing or place a case order. |
 | `POST` | `/api/vendor-orders/confirm` | Confirm an emailed vendor order link. |
 
-The admin manages one universal four-digit vendor code under **Admin Dashboard → Vendor Orders**. New vendors verify it, register with a business name and email, save a card, and order cases. Failed code attempts are limited to five per IP every 15 minutes.
+The admin creates a separate one-time four-digit invitation under **Admin Dashboard → Vendors & Locations** and gives it to one vendor. Signup permanently associates the vendor account with that invitation. A used code can be reassigned by creating it again; the previous invitation remains as audit history. Failed code attempts are limited to five per IP every 15 minutes.
 
-Successful paid orders are stored in `vendor_orders` and emailed to `orittej@gmail.com` through Resend. If email is not configured or delivery fails, payment and order creation still complete and the failure is logged.
+The admin also creates pickup locations, links each location to a vendor, and controls its **Visible to customers** status. Vendors cannot publish their own locations. The Flutter app receives only active, admin-published locations from `GET /api/locations`.
+
+Every paid customer bottle order and vendor case order sends a `NEW ORDERS` email to `ORDER_NOTIFICATION_EMAIL`. If email is not configured or delivery fails, payment and order creation still complete and the failure is logged.
 
 ## Payments
 
@@ -201,6 +203,8 @@ Authorization: Bearer <CRON_SECRET>
 
 The job expires unused complimentary offers, renews due memberships with saved Stripe payment methods, records payments, and sends member notifications. A failed renewal expires the membership so the plan selection screen is shown again.
 
+Vercel calls `GET /api/internal/monthly-summary` at 09:00 UTC on the 28th of every month. The protected job emails `ORDER_NOTIFICATION_EMAIL` a `SUMMARY` containing each vendor, cases confirmed during the current month, and customer bottles completed at locations linked to that vendor. Delivery state and idempotency prevent duplicate monthly emails.
+
 ## Pickup links
 
 Every paid customer order receives a cryptographically random, one-time URL at `/pickup/<token>`. The page hides customer details until an employee enters the pickup location's four-digit service code, then displays the member name, email, quantity, and completion action.
@@ -213,7 +217,7 @@ The seeded Leyou code defaults to `1100`. Change it before seeding a real enviro
 
 ## Admin dashboard
 
-Open `/admin` and sign in with an account whose role is `admin`. The dashboard uses a secure HttpOnly cookie and is excluded from search indexing. Admins can review customer and vendor orders, manage the vendor code and membership programs, handle concerns, and search accounts.
+Open `/admin` and sign in with an account whose role is `admin`. The dashboard uses a secure HttpOnly cookie and is excluded from search indexing. Admins can review customer and vendor orders, create one-time vendor invitations, add and edit pickup locations, link locations to vendors, control customer visibility, manage membership programs, handle concerns, and search accounts.
 
 ## Android tester releases
 

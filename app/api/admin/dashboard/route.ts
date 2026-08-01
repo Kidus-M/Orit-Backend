@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, isNull, sql } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
@@ -13,10 +13,7 @@ import {
 } from "@/lib/db/schema";
 import { requireAdminCookie } from "@/lib/server/admin-auth";
 import { handleRoute, json } from "@/lib/server/http";
-import {
-  getVendorCodeForAdmin,
-  hasVendorCode,
-} from "@/lib/server/vendor-code";
+import { getVendorInvitationsForAdmin } from "@/lib/server/vendor-code";
 
 export const runtime = "nodejs";
 
@@ -33,8 +30,8 @@ export async function GET(request: Request) {
       vendorOrderItems,
       planItems,
       userItems,
-      vendorCodeConfigured,
-      vendorCode,
+      locationItems,
+      vendorInvitations,
     ] = await Promise.all([
       db
         .select({
@@ -113,14 +110,36 @@ export async function GET(request: Request) {
           id: users.id,
           firstName: users.firstName,
           email: users.email,
+          storeName: users.storeName,
           isVendor: users.isVendor,
           createdAt: users.createdAt,
         })
         .from(users)
         .where(and(eq(users.role, "member"), isNull(users.deletedAt)))
         .orderBy(users.firstName),
-      hasVendorCode(),
-      getVendorCodeForAdmin(),
+      db
+        .select({
+          id: locations.id,
+          vendorId: locations.vendorId,
+          vendorName: users.firstName,
+          vendorEmail: users.email,
+          name: locations.name,
+          addressLine1: locations.addressLine1,
+          city: locations.city,
+          state: locations.state,
+          postalCode: locations.postalCode,
+          hoursText: locations.hoursText,
+          bottlePriceCents: locations.bottlePriceCents,
+          casePriceCents: locations.casePriceCents,
+          transportationFeeCents: locations.transportationFeeCents,
+          inStock: locations.inStock,
+          active: locations.active,
+          createdAt: locations.createdAt,
+        })
+        .from(locations)
+        .leftJoin(users, eq(users.id, locations.vendorId))
+        .orderBy(asc(locations.name)),
+      getVendorInvitationsForAdmin(),
     ]);
 
     const newConcernCount = concernItems.filter(
@@ -143,8 +162,8 @@ export async function GET(request: Request) {
       concerns: concernItems,
       orders: orderItems,
       vendorOrders: vendorOrderItems,
-      vendorCodeConfigured,
-      vendorCode,
+      vendorInvitations,
+      locations: locationItems,
       plans: planItems,
       users: userItems,
     });

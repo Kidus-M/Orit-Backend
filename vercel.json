@@ -1,3 +1,10 @@
 {
-  "installCommand": "npx --yes npm@10.9.4 ci"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npx --yes npm@10.9.4 ci",
+  "crons": [
+    {
+      "path": "/api/internal/monthly-summary",
+      "schedule": "0 9 28 * *"
+    }
+  ]
 }

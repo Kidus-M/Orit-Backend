@@ -1,15 +1,31 @@
 import { getEnv } from "@/lib/env";
 
-type VendorOrderEmail = {
+export type NewOrderEmail = {
   orderId: string;
-  vendorName: string;
-  vendorEmail: string;
+  orderType: "customer" | "vendor";
+  customerName: string;
+  customerEmail: string;
   quantity: number;
   totalCents: number;
-  confirmationUrl: string;
+  locationName: string;
+  confirmationUrl?: string;
 };
 
-const vendorOrderRecipient = "orittej@gmail.com";
+export type MonthlyVendorSummaryRow = {
+  vendorId: string;
+  vendorName: string;
+  vendorEmail: string;
+  casesOrdered: number;
+  customerBottlesSold: number;
+};
+
+type EmailPayload = {
+  subject: string;
+  html: string;
+  text: string;
+  idempotencyKey: string;
+};
+
 const resendTestingSender = "Orit Tej <onboarding@resend.dev>";
 
 function escapeHtml(value: string) {
@@ -26,34 +42,12 @@ function escapeHtml(value: string) {
   );
 }
 
-export async function sendVendorOrderNotification(input: VendorOrderEmail) {
+async function deliverEmail(payload: EmailPayload) {
   const env = getEnv();
   if (!env.RESEND_API_KEY) {
-    console.warn(
-      `Vendor order ${input.orderId} saved, but Resend is not configured.`,
-    );
+    console.warn(`${payload.idempotencyKey} was not sent because Resend is not configured.`);
     return false;
   }
-
-  const total = `$${(input.totalCents / 100).toFixed(2)}`;
-  const name = escapeHtml(input.vendorName);
-  const email = escapeHtml(input.vendorEmail);
-  const link = escapeHtml(input.confirmationUrl);
-  const payload = {
-    to: [vendorOrderRecipient],
-    subject: `New vendor case order from ${input.vendorName}`,
-    html: `
-      <h1>New vendor case order</h1>
-      <p>An order for <strong>${total}</strong> was placed by
-      <strong>${name}</strong> (${email}).</p>
-      <p>Quantity: <strong>${input.quantity} case${input.quantity === 1 ? "" : "s"}</strong></p>
-      <p><a href="${link}">Review and confirm this vendor order</a></p>
-    `,
-    text:
-      `An order for ${total} was placed by ${input.vendorName} ` +
-      `(${input.vendorEmail}). Quantity: ${input.quantity} case` +
-      `${input.quantity === 1 ? "" : "s"}. Confirm: ${input.confirmationUrl}`,
-  };
 
   async function send(from: string, attempt: "primary" | "testing") {
     return fetch("https://api.resend.com/emails", {
@@ -61,9 +55,16 @@ export async function sendVendorOrderNotification(input: VendorOrderEmail) {
       headers: {
         Authorization: `Bearer ${env.RESEND_API_KEY}`,
         "Content-Type": "application/json",
-        "Idempotency-Key": `vendor-order-${input.orderId}-${attempt}`,
+        "Idempotency-Key": `${payload.idempotencyKey}/${attempt}`,
+        "User-Agent": "orit-tej-backend/1.0",
       },
-      body: JSON.stringify({ from, ...payload }),
+      body: JSON.stringify({
+        from,
+        to: [env.ORDER_NOTIFICATION_EMAIL],
+        subject: payload.subject,
+        html: payload.html,
+        text: payload.text,
+      }),
     });
   }
 
@@ -72,31 +73,97 @@ export async function sendVendorOrderNotification(input: VendorOrderEmail) {
     const primaryResponse = await send(primarySender, "primary");
     if (primaryResponse.ok) return true;
 
-    const primaryError = await primaryResponse.text();
     console.error(
-      `Resend rejected vendor order ${input.orderId}: ${primaryResponse.status} ${primaryError}`,
+      `Resend rejected ${payload.idempotencyKey}: ${primaryResponse.status} ${await primaryResponse.text()}`,
     );
-
     if (primarySender === resendTestingSender) return false;
 
     const testingResponse = await send(resendTestingSender, "testing");
-    if (testingResponse.ok) {
-      console.info(
-        `Vendor order ${input.orderId} sent with the Resend testing sender.`,
-      );
-      return true;
-    }
-
+    if (testingResponse.ok) return true;
     console.error(
-      `Resend testing sender rejected vendor order ${input.orderId}: ` +
+      `Resend testing sender rejected ${payload.idempotencyKey}: ` +
         `${testingResponse.status} ${await testingResponse.text()}`,
     );
     return false;
   } catch (error) {
-    console.error(
-      `Resend request failed for vendor order ${input.orderId}`,
-      error,
-    );
+    console.error(`Resend request failed for ${payload.idempotencyKey}`, error);
     return false;
   }
+}
+
+export function sendNewOrderNotification(input: NewOrderEmail) {
+  const total = `$${(input.totalCents / 100).toFixed(2)}`;
+  const itemName = input.orderType === "vendor" ? "case" : "bottle";
+  const details = `${input.quantity} ${itemName}${input.quantity === 1 ? "" : "s"}`;
+  const confirmation = input.confirmationUrl
+    ? `<p><a href="${escapeHtml(input.confirmationUrl)}">Review and confirm this vendor order</a></p>`
+    : "";
+  const confirmationText = input.confirmationUrl
+    ? ` Confirm: ${input.confirmationUrl}`
+    : "";
+
+  return deliverEmail({
+    subject: "NEW ORDERS",
+    html: `
+      <h1><strong>NEW ORDERS</strong></h1>
+      <p><strong>${escapeHtml(input.customerName)}</strong>
+      (${escapeHtml(input.customerEmail)}) placed a paid order.</p>
+      <p>Location: <strong>${escapeHtml(input.locationName)}</strong></p>
+      <p>Quantity: <strong>${details}</strong></p>
+      <p>Total: <strong>${total}</strong></p>
+      ${confirmation}
+    `,
+    text:
+      `NEW ORDERS\n${input.customerName} (${input.customerEmail}) placed a paid order. ` +
+      `Location: ${input.locationName}. Quantity: ${details}. Total: ${total}.` +
+      confirmationText,
+    idempotencyKey: `new-order/${input.orderType}/${input.orderId}`,
+  });
+}
+
+export function sendMonthlySummaryEmail(input: {
+  reportMonth: string;
+  periodLabel: string;
+  rows: MonthlyVendorSummaryRow[];
+}) {
+  const tableRows = input.rows
+    .map(
+      (row) => `
+        <tr>
+          <td>${escapeHtml(row.vendorName)}<br><small>${escapeHtml(row.vendorEmail)}</small></td>
+          <td>${row.casesOrdered}</td>
+          <td>${row.customerBottlesSold}</td>
+        </tr>`,
+    )
+    .join("");
+  const textRows = input.rows.length
+    ? input.rows
+        .map(
+          (row) =>
+            `${row.vendorName} (${row.vendorEmail}): ` +
+            `${row.casesOrdered} cases received; ` +
+            `${row.customerBottlesSold} bottles sold to customers`,
+        )
+        .join("\n")
+    : "No vendors were active during this period.";
+
+  return deliverEmail({
+    subject: "SUMMARY",
+    html: `
+      <h1><strong>SUMMARY</strong></h1>
+      <p>${escapeHtml(input.periodLabel)}</p>
+      <table style="width:100%;border-collapse:collapse" cellpadding="10" border="1">
+        <thead>
+          <tr>
+            <th align="left">Vendor</th>
+            <th align="left">Cases received</th>
+            <th align="left">Bottles sold to customers</th>
+          </tr>
+        </thead>
+        <tbody>${tableRows || '<tr><td colspan="3">No vendor activity this month.</td></tr>'}</tbody>
+      </table>
+    `,
+    text: `SUMMARY\n${input.periodLabel}\n${textRows}`,
+    idempotencyKey: `monthly-summary/${input.reportMonth}`,
+  });
 }

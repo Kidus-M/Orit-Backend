@@ -13,6 +13,7 @@ import {
   users,
 } from "@/lib/db/schema";
 import { requireAuth } from "@/lib/server/auth";
+import { sendNewOrderNotification } from "@/lib/server/email";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
 import { chargeSavedPaymentMethod } from "@/lib/server/payments";
 import { createPickupCredential } from "@/lib/server/pickup";
@@ -159,9 +160,20 @@ export async function POST(request: Request) {
       );
     }
 
+    const emailNotificationSent = await sendNewOrderNotification({
+      orderId: order.id,
+      orderType: "customer",
+      customerName: member.firstName,
+      customerEmail: member.email,
+      quantity: order.quantity,
+      totalCents: order.totalCents,
+      locationName: location.name,
+    });
+
     return json(
       {
         order,
+        emailNotificationSent,
         notificationRecipients: recipientIds.length,
         pickupUrl: pickup.pickupUrl,
         pickupExpiresAt: pickup.expiresAt,

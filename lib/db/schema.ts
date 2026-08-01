@@ -21,6 +21,24 @@ const timestamps = {
     .defaultNow(),
 };
 
+export const vendorInvitations = pgTable(
+  "vendor_invitations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    codeHash: text("code_hash").notNull(),
+    codeEncrypted: text("code_encrypted").notNull(),
+    createdByAdminId: uuid("created_by_admin_id"),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("vendor_invitations_active_code_unique")
+      .on(table.codeHash)
+      .where(sql`revoked_at IS NULL`),
+    index("vendor_invitations_created_idx").on(table.createdAt),
+  ],
+);
+
 export const users = pgTable(
   "users",
   {
@@ -31,6 +49,9 @@ export const users = pgTable(
     storeName: text("store_name"),
     passwordHash: text("password_hash"),
     stripeCustomerId: text("stripe_customer_id"),
+    vendorInvitationId: uuid("vendor_invitation_id").references(
+      () => vendorInvitations.id,
+    ),
     membershipOptOut: boolean("membership_opt_out").notNull().default(false),
     isVendor: boolean("is_vendor").notNull().default(false),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
@@ -39,6 +60,7 @@ export const users = pgTable(
   (table) => [
     uniqueIndex("users_email_unique").on(table.email),
     uniqueIndex("users_stripe_customer_unique").on(table.stripeCustomerId),
+    uniqueIndex("users_vendor_invitation_unique").on(table.vendorInvitationId),
     index("users_role_idx").on(table.role),
   ],
 );
@@ -146,6 +168,9 @@ export const locations = pgTable(
   "locations",
   {
     id: uuid("id").primaryKey().defaultRandom(),
+    vendorId: uuid("vendor_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     name: text("name").notNull(),
     addressLine1: text("address_line_1").notNull(),
     city: text("city").notNull(),
@@ -162,7 +187,10 @@ export const locations = pgTable(
     serviceCodeHash: text("service_code_hash"),
     ...timestamps,
   },
-  (table) => [uniqueIndex("locations_name_unique").on(table.name)],
+  (table) => [
+    uniqueIndex("locations_name_unique").on(table.name),
+    index("locations_vendor_idx").on(table.vendorId),
+  ],
 );
 
 export const locationStaff = pgTable(
@@ -243,6 +271,37 @@ export const vendorOrders = pgTable(
     uniqueIndex("vendor_orders_confirmation_token_unique").on(
       table.confirmationTokenHash,
     ),
+  ],
+);
+
+export const monthlySummaryDeliveries = pgTable(
+  "monthly_summary_deliveries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reportMonth: text("report_month").notNull(),
+    periodStart: timestamp("period_start", { withTimezone: true }).notNull(),
+    periodEnd: timestamp("period_end", { withTimezone: true }).notNull(),
+    recipientEmail: text("recipient_email").notNull(),
+    status: text("status").notNull().default("pending"),
+    summaryRows: jsonb("summary_rows")
+      .$type<
+        Array<{
+          vendorId: string;
+          vendorName: string;
+          vendorEmail: string;
+          casesOrdered: number;
+          customerBottlesSold: number;
+        }>
+      >()
+      .notNull()
+      .default([]),
+    attemptCount: integer("attempt_count").notNull().default(0),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    lastError: text("last_error"),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("monthly_summary_report_month_unique").on(table.reportMonth),
   ],
 );
 

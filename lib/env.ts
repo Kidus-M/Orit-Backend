@@ -36,6 +36,10 @@ const envSchema = z.object({
   STRIPE_CURRENCY: z.string().regex(/^[a-zA-Z]{3}$/).default("usd"),
   RESEND_API_KEY: optionalString(z.string().startsWith("re_")),
   VENDOR_ORDER_FROM_EMAIL: optionalString(z.string().min(3)),
+  ORDER_NOTIFICATION_EMAIL: z
+    .string()
+    .email()
+    .default("orittej@gmail.com"),
 
 }).superRefine((env, context) => {
   if (env.PAYMENT_MODE !== "stripe") return;

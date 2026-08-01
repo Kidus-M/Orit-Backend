@@ -4,18 +4,20 @@ import {
   createHash,
   createHmac,
   randomBytes,
-  timingSafeEqual,
+  randomUUID,
 } from "node:crypto";
 
-import { and, eq, gte } from "drizzle-orm";
+import { and, desc, eq, gte, isNull } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
-import { appSettings, vendorCodeAccessAttempts } from "@/lib/db/schema";
+import {
+  users,
+  vendorCodeAccessAttempts,
+  vendorInvitations,
+} from "@/lib/db/schema";
 import { getEnv } from "@/lib/env";
 import { ApiError } from "@/lib/server/http";
 
-export const vendorCodeSettingKey = "vendor_access_code_hash";
-const vendorCodeEncryptedSettingKey = "vendor_access_code_encrypted";
 const attemptWindowMinutes = 15;
 const attemptLimit = 5;
 
@@ -71,35 +73,108 @@ function clientAddress(request: Request) {
   );
 }
 
-export async function hasVendorCode() {
-  const [setting] = await getDb()
-    .select({ key: appSettings.key })
-    .from(appSettings)
-    .where(eq(appSettings.key, vendorCodeSettingKey))
-    .limit(1);
-  return Boolean(setting);
+export async function getVendorInvitationsForAdmin() {
+  const rows = await getDb()
+    .select({
+      id: vendorInvitations.id,
+      codeEncrypted: vendorInvitations.codeEncrypted,
+      revokedAt: vendorInvitations.revokedAt,
+      createdAt: vendorInvitations.createdAt,
+      vendorId: users.id,
+      businessName: users.firstName,
+      businessEmail: users.email,
+    })
+    .from(vendorInvitations)
+    .leftJoin(users, eq(users.vendorInvitationId, vendorInvitations.id))
+    .orderBy(desc(vendorInvitations.createdAt));
+
+  return rows.map((row) => ({
+    id: row.id,
+    code: decryptVendorCode(row.codeEncrypted),
+    status: row.vendorId ? "claimed" : row.revokedAt ? "revoked" : "pending",
+    vendorId: row.vendorId,
+    businessName: row.businessName,
+    businessEmail: row.businessEmail,
+    createdAt: row.createdAt,
+  }));
 }
 
-export async function getVendorCodeForAdmin() {
-  const [setting] = await getDb()
-    .select({ value: appSettings.value })
-    .from(appSettings)
-    .where(eq(appSettings.key, vendorCodeEncryptedSettingKey))
+export async function createVendorInvitation(code: string, adminId: string) {
+  const db = getDb();
+  const now = new Date();
+  const codeHash = hashVendorCode(code);
+  const invitationId = randomUUID();
+
+  await db.batch([
+    db
+      .update(vendorInvitations)
+      .set({ revokedAt: now, updatedAt: now })
+      .where(
+        and(
+          eq(vendorInvitations.codeHash, codeHash),
+          isNull(vendorInvitations.revokedAt),
+        ),
+      ),
+    db.insert(vendorInvitations).values({
+      id: invitationId,
+      codeHash,
+      codeEncrypted: encryptVendorCode(code),
+      createdByAdminId: adminId,
+    }),
+  ]);
+
+  return { id: invitationId, code, status: "pending" as const };
+}
+
+export async function revokeVendorInvitation(invitationId: string) {
+  const db = getDb();
+  const [invitation] = await db
+    .select({ id: vendorInvitations.id, vendorId: users.id })
+    .from(vendorInvitations)
+    .leftJoin(users, eq(users.vendorInvitationId, vendorInvitations.id))
+    .where(eq(vendorInvitations.id, invitationId))
     .limit(1);
-  return setting ? decryptVendorCode(setting.value) : null;
+
+  if (!invitation) throw new ApiError(404, "Vendor invitation not found.");
+  if (invitation.vendorId) {
+    throw new ApiError(409, "A claimed vendor code cannot be revoked.");
+  }
+
+  const [revoked] = await db
+    .update(vendorInvitations)
+    .set({ revokedAt: new Date(), updatedAt: new Date() })
+    .where(
+      and(
+        eq(vendorInvitations.id, invitationId),
+        isNull(vendorInvitations.revokedAt),
+      ),
+    )
+    .returning({ id: vendorInvitations.id });
+  if (!revoked) throw new ApiError(409, "Vendor invitation is already revoked.");
 }
 
 export async function verifyVendorCode(code: string) {
-  const [setting] = await getDb()
-    .select({ value: appSettings.value })
-    .from(appSettings)
-    .where(eq(appSettings.key, vendorCodeSettingKey))
+  const [invitation] = await getDb()
+    .select({ id: vendorInvitations.id })
+    .from(vendorInvitations)
+    .leftJoin(users, eq(users.vendorInvitationId, vendorInvitations.id))
+    .where(
+      and(
+        eq(vendorInvitations.codeHash, hashVendorCode(code)),
+        isNull(vendorInvitations.revokedAt),
+        isNull(users.id),
+      ),
+    )
     .limit(1);
-  if (!setting) return null;
+  return invitation?.id ?? null;
+}
 
-  const expected = Buffer.from(setting.value, "hex");
-  const received = Buffer.from(hashVendorCode(code), "hex");
-  return expected.length === received.length && timingSafeEqual(expected, received);
+async function hasAnyVendorInvitation() {
+  const [invitation] = await getDb()
+    .select({ id: vendorInvitations.id })
+    .from(vendorInvitations)
+    .limit(1);
+  return Boolean(invitation);
 }
 
 export async function verifyVendorCodeRequest(request: Request, code: string) {
@@ -124,41 +199,14 @@ export async function verifyVendorCodeRequest(request: Request, code: string) {
     );
   }
 
-  const valid = await verifyVendorCode(code);
-  if (valid) {
+  const invitationId = await verifyVendorCode(code);
+  if (invitationId) {
     await getDb()
       .delete(vendorCodeAccessAttempts)
       .where(eq(vendorCodeAccessAttempts.ipHash, ipHash));
-  } else if (valid === false) {
-    await getDb().insert(vendorCodeAccessAttempts).values({ ipHash });
+    return invitationId;
   }
-  return valid;
-}
 
-async function upsertSetting(
-  key: string,
-  value: string,
-  adminId: string,
-  now: Date,
-) {
-  await getDb()
-    .insert(appSettings)
-    .values({ key, value, updatedByUserId: adminId })
-    .onConflictDoUpdate({
-      target: appSettings.key,
-      set: { value, updatedByUserId: adminId, updatedAt: now },
-    });
-}
-
-export async function setVendorCode(code: string, adminId: string) {
-  const now = new Date();
-  await Promise.all([
-    upsertSetting(vendorCodeSettingKey, hashVendorCode(code), adminId, now),
-    upsertSetting(
-      vendorCodeEncryptedSettingKey,
-      encryptVendorCode(code),
-      adminId,
-      now,
-    ),
-  ]);
+  await getDb().insert(vendorCodeAccessAttempts).values({ ipHash });
+  return (await hasAnyVendorInvitation()) ? false : null;
 }

@@ -10,14 +10,14 @@ import {
   vendorOrders,
 } from "@/lib/db/schema";
 import { requireAuth } from "@/lib/server/auth";
-import { sendVendorOrderNotification } from "@/lib/server/email";
+import { sendNewOrderNotification } from "@/lib/server/email";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
 import { chargeSavedPaymentMethod } from "@/lib/server/payments";
 import { createVendorOrderConfirmation } from "@/lib/server/vendor-orders";
 
 const bodySchema = z.object({
   locationId: z.string().uuid(),
-  quantity: z.number().int().min(1).max(20),
+  quantity: z.number().int().min(1).max(40),
 });
 
 const safeFields = {
@@ -45,7 +45,8 @@ export async function GET(request: Request) {
         transportationFeeCents: locations.transportationFeeCents,
       })
       .from(locations)
-      .where(eq(locations.active, true))
+      .where(eq(locations.vendorId, member.id))
+      .orderBy(locations.createdAt)
       .limit(1);
     const [savedPaymentMethod] = await getDb()
       .select({ id: paymentMethods.id })
@@ -82,10 +83,13 @@ export async function POST(request: Request) {
       .select()
       .from(locations)
       .where(
-        and(eq(locations.id, input.locationId), eq(locations.active, true)),
+        and(
+          eq(locations.id, input.locationId),
+          eq(locations.vendorId, vendor.id),
+        ),
       )
       .limit(1);
-    if (!location) throw new ApiError(404, "Service location not found");
+    if (!location) throw new ApiError(404, "Vendor location not found");
 
     const totalCents =
       location.casePriceCents * input.quantity +
@@ -121,12 +125,14 @@ export async function POST(request: Request) {
       providerReference: charge.providerReference,
     });
 
-    const emailNotificationSent = await sendVendorOrderNotification({
+    const emailNotificationSent = await sendNewOrderNotification({
       orderId: order.id,
-      vendorName: vendor.firstName,
-      vendorEmail: vendor.email,
+      orderType: "vendor",
+      customerName: vendor.firstName,
+      customerEmail: vendor.email,
       quantity: order.quantity,
       totalCents: order.totalCents,
+      locationName: location.name,
       confirmationUrl: confirmation.confirmationUrl,
     });
 

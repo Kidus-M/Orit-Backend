@@ -1,6 +1,12 @@
 "use client";
 
 import Image from "next/image";
+
+import {
+  AdminLocation,
+  AdminVendorInvitation,
+  AdminVendorManagement,
+} from "@/components/admin-vendor-management";
 import {
   FormEvent,
   useCallback,
@@ -56,6 +62,7 @@ type MemberUser = {
   id: string;
   firstName: string;
   email: string;
+  storeName: string | null;
   isVendor: boolean;
   createdAt: string;
 };
@@ -69,12 +76,18 @@ type DashboardData = {
   concerns: Concern[];
   orders: Order[];
   vendorOrders: VendorOrder[];
-  vendorCodeConfigured: boolean;
-  vendorCode: string | null;
+  vendorInvitations: AdminVendorInvitation[];
+  locations: AdminLocation[];
   plans: Plan[];
   users: MemberUser[];
 };
-type Tab = "concerns" | "orders" | "vendor_orders" | "memberships" | "users";
+type Tab =
+  | "concerns"
+  | "orders"
+  | "vendors"
+  | "vendor_orders"
+  | "memberships"
+  | "users";
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -115,13 +128,10 @@ export function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [userSearch, setUserSearch] = useState("");
-  const [vendorCodeVisible, setVendorCodeVisible] = useState(false);
-  const [vendorCode, setVendorCode] = useState("");
 
   const loadDashboard = useCallback(async () => {
     const dashboard = await api<DashboardData>("/api/admin/dashboard");
     setData(dashboard);
-    setVendorCode(dashboard.vendorCode ?? "");
   }, []);
 
   useEffect(() => {
@@ -213,24 +223,6 @@ export function AdminDashboard() {
     }
   }
 
-  async function updateVendorCode(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setBusyId("vendor-code");
-    setError(null);
-    try {
-      await api("/api/admin/vendor-code", {
-        method: "PATCH",
-        body: JSON.stringify({ code: vendorCode }),
-      });
-      setVendorCodeVisible(true);
-      await loadDashboard();
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Update failed.");
-    } finally {
-      setBusyId(null);
-    }
-  }
-
   async function updateVendor(user: MemberUser) {
     setBusyId(user.id);
     setError(null);
@@ -310,6 +302,7 @@ export function AdminDashboard() {
       count: data.summary.newConcernCount,
     },
     { id: "orders", label: "Product Orders" },
+    { id: "vendors", label: "Vendors & Locations" },
     {
       id: "vendor_orders",
       label: "Vendor Orders",
@@ -461,6 +454,25 @@ export function AdminDashboard() {
           </section>
         ) : null}
 
+        {tab === "vendors" ? (
+          <section className="admin-panel">
+            <div className="admin-panel-heading">
+              <div>
+                <p className="eyebrow">Vendor network</p>
+                <h2>Vendors and locations</h2>
+              </div>
+              <span>{data.users.filter((user) => user.isVendor).length} vendors</span>
+            </div>
+            <AdminVendorManagement
+              invitations={data.vendorInvitations}
+              vendors={data.users.filter((user) => user.isVendor)}
+              locations={data.locations}
+              onChanged={loadDashboard}
+              onError={setError}
+            />
+          </section>
+        ) : null}
+
         {tab === "vendor_orders" ? (
           <section className="admin-panel">
             <div className="admin-panel-heading">
@@ -470,44 +482,6 @@ export function AdminDashboard() {
               </div>
               <span>{data.vendorOrders.length} total</span>
             </div>
-            <form className="admin-vendor-code" onSubmit={updateVendorCode}>
-              <div>
-                <strong>Universal vendor code</strong>
-                <span>
-                  {data.vendorCodeConfigured ? "Configured" : "Not configured"}
-                </span>
-              </div>
-              <div className="admin-vendor-code-field">
-                <input
-                  name="code"
-                  type={vendorCodeVisible ? "text" : "password"}
-                  value={vendorCode}
-                  onChange={(event) =>
-                    setVendorCode(event.target.value.replace(/\D/g, ""))
-                  }
-                  inputMode="numeric"
-                  pattern="[0-9]{4}"
-                  maxLength={4}
-                  placeholder="4-digit code"
-                  aria-label="New universal vendor code"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setVendorCodeVisible((visible) => !visible)}
-                  aria-label={vendorCodeVisible ? "Hide vendor code" : "Show vendor code"}
-                >
-                  {vendorCodeVisible ? "Hide" : "Show"}
-                </button>
-              </div>
-              <button
-                type="submit"
-                className="admin-primary-action"
-                disabled={busyId === "vendor-code"}
-              >
-                {busyId === "vendor-code" ? "Saving..." : "Update Code"}
-              </button>
-            </form>
             <div className="admin-table-wrap">
               <table className="admin-table">
                 <thead>
@@ -591,22 +565,20 @@ export function AdminDashboard() {
                       </td>
                       <td>{formatDate(user.createdAt)}</td>
                       <td>
-                        <button
-                          type="button"
-                          className={
-                            user.isVendor
-                              ? "admin-secondary-action"
-                              : "admin-primary-action"
-                          }
-                          disabled={busyId === user.id}
-                          onClick={() => updateVendor(user)}
-                        >
-                          {busyId === user.id
-                            ? "Saving..."
-                            : user.isVendor
-                              ? "Remove vendor access"
-                              : "Make vendor"}
-                        </button>
+                        {user.isVendor ? (
+                          <button
+                            type="button"
+                            className="admin-secondary-action"
+                            disabled={busyId === user.id}
+                            onClick={() => updateVendor(user)}
+                          >
+                            {busyId === user.id
+                              ? "Saving..."
+                              : "Remove vendor access"}
+                          </button>
+                        ) : (
+                          <small>Create vendors with a one-time code.</small>
+                        )}
                       </td>
                     </tr>
                   ))}
