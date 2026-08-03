@@ -273,6 +273,10 @@ img { object-fit: cover; }
   gap: 55px 8vw; align-items: center;
 }
 .story-collage__primary { min-height: 690px; }
+.story-collage__primary img,
+.story-collage__secondary img {
+  object-fit: contain;
+}
 .story-collage__copy p { color: var(--muted); line-height: 1.7; }
 .story-hero__kicker {
   width: min(940px, 100%);
@@ -289,6 +293,22 @@ img { object-fit: cover; }
   margin: 38px 0 0; border-left: 2px solid var(--honey);
   padding-left: 24px; color: var(--wine); font-family: Georgia,serif;
   font-size: 1.5rem; line-height: 1.45;
+}
+.story-collage__special {
+  align-self: center;
+  max-width: 620px;
+}
+.story-collage__special h2 {
+  margin-bottom: 24px;
+  color: var(--wine);
+  font-family: Georgia,serif;
+  font-size: clamp(2.35rem,4vw,4.5rem);
+  font-weight: 400;
+  letter-spacing: -.045em;
+  line-height: .98;
+}
+.story-collage__special p {
+  margin: 0;
 }
 .story-collage__secondary { min-height: 410px; grid-column: 2; }
 .timeline-section { background: var(--wine); color: white; }

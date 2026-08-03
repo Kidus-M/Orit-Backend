@@ -83,7 +83,7 @@ export function SiteHeader() {
             priority
           />
           <span>
-            <strong>Orit Tej</strong>
+            <strong style={{ fontSize: "1.5rem", fontWeight: 600 }}>Orit Tej</strong>
             <small>Ethiopian honey wine</small>
           </span>
         </Link>

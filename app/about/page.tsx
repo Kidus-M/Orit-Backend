@@ -52,8 +52,8 @@ export default function AboutPage() {
           <section className="section story-collage">
             <div className="story-collage__primary image-frame" data-reveal>
               <Image
-                src="/craft-honey-wine.png"
-                alt="A small batch of honey wine being prepared by hand"
+                src="/family-pic.jpg"
+                alt="The Orit Tej family"
                 fill
                 sizes="(max-width: 800px) 100vw, 50vw"
               />
@@ -78,10 +78,23 @@ export default function AboutPage() {
               </p>
               <blockquote>“We continue to make quality, not quantity.”</blockquote>
             </div>
+            <div className="story-collage__special" data-reveal>
+              <h2>What Makes Our Tej Special</h2>
+              <p className="lead">
+                Many ask, &quot;what is Tej?&quot; Tej, pronounced as
+                &lsquo;Tejj&rsquo;, is a particular type of sweet wine found in
+                Ethiopia. What makes Tej unique is that it is produced from honey
+                rather than from grapes. Although slightly sweet, Tej has a very
+                smooth and aromatically calm flavor that can compliment any meal or
+                any conversation. What makes Orit Tej so unique is that every ounce
+                of Tej is carefully handcrafted with the idea of quality, not
+                quantity, in mind!
+              </p>
+            </div>
             <div className="story-collage__secondary image-frame" data-reveal>
               <Image
-                src="/hero-honey-wine.png"
-                alt="Golden honey wine, honeycomb, and an Orit Tej bottle"
+                src="/wine-bottle-ps.jpg"
+                alt="A bottle of Orit Tej honey wine"
                 fill
                 sizes="(max-width: 800px) 100vw, 35vw"
               />
