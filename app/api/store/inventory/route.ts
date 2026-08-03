@@ -38,7 +38,9 @@ export async function PATCH(request: Request) {
     const [existing] = await db
       .select({ stockQuantity: locations.stockQuantity })
       .from(locations)
-      .where(eq(locations.id, input.locationId))
+      .where(
+        and(eq(locations.id, input.locationId), isNull(locations.deletedAt)),
+      )
       .limit(1);
     if (!existing) throw new ApiError(404, "Location not found");
 
@@ -52,7 +54,9 @@ export async function PATCH(request: Request) {
         inStock: stockQuantity > 0,
         updatedAt: new Date(),
       })
-      .where(eq(locations.id, input.locationId))
+      .where(
+        and(eq(locations.id, input.locationId), isNull(locations.deletedAt)),
+      )
       .returning();
     if (!location) throw new ApiError(404, "Location not found");
 

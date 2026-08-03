@@ -141,6 +141,7 @@ export async function GET(request: Request) {
         })
         .from(locations)
         .leftJoin(users, eq(users.id, locations.vendorId))
+        .where(isNull(locations.deletedAt))
         .orderBy(asc(locations.name)),
       getVendorInvitationsForAdmin(),
     ]);

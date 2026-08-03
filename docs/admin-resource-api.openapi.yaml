@@ -1,0 +1,173 @@
+openapi: 3.1.0
+info:
+  title: Orit Tej Admin Resource API
+  version: 1.1.0
+  description: >
+    Admin-only operations for vendor invitations and pickup locations.
+    Existing /api/admin routes remain backward compatible.
+servers:
+  - url: https://orit-backend.vercel.app
+security:
+  - AdminSession: []
+paths:
+  /api/admin/vendor-code/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ResourceId"
+    patch:
+      operationId: releaseVendorInvitation
+      summary: Release a vendor invitation for reuse
+      description: >
+        Removes vendor access from the current user, unassigns that user's
+        locations, and returns the invitation to pending status.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  const: pending
+            example:
+              status: pending
+      responses:
+        "200":
+          description: Vendor invitation released
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [invitation, released]
+                properties:
+                  invitation:
+                    type: object
+                    required: [id, status]
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      status:
+                        type: string
+                        const: pending
+                  released:
+                    type: object
+                    required: [vendorId]
+                    properties:
+                      vendorId:
+                        type: string
+                        format: uuid
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+    delete:
+      operationId: revokeVendorInvitation
+      summary: Revoke an unused vendor invitation
+      responses:
+        "200":
+          description: Vendor invitation revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [revoked]
+                properties:
+                  revoked:
+                    type: boolean
+                    const: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/admin/locations/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ResourceId"
+    delete:
+      operationId: deletePickupLocation
+      summary: Safely delete a pickup location
+      description: >
+        Hides the location from customers and the admin location list while
+        preserving its row for existing orders, QR verification, and reports.
+      responses:
+        "200":
+          description: Location deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deleted, locationId]
+                properties:
+                  deleted:
+                    type: boolean
+                    const: true
+                  locationId:
+                    type: string
+                    format: uuid
+              example:
+                deleted: true
+                locationId: 0f6fd071-46c6-4f2d-8e53-3d8e0895df98
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  securitySchemes:
+    AdminSession:
+      type: apiKey
+      in: cookie
+      name: orit_admin_session
+      description: HttpOnly, SameSite=Strict admin session cookie.
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        details: {}
+  responses:
+    BadRequest:
+      description: Invalid request or resource identifier
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: Missing, invalid, or expired admin session
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Conflict:
+      description: Resource state prevents the requested change
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

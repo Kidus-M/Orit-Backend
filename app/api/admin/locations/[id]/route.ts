@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
@@ -6,6 +6,7 @@ import { prepareDatabase } from "@/lib/db/prepare";
 import { locations } from "@/lib/db/schema";
 import { requireAdminCookie } from "@/lib/server/admin-auth";
 import {
+  deleteAdminLocation,
   locationValuesSchema,
   requireVendor,
 } from "@/lib/server/admin-locations";
@@ -43,9 +44,25 @@ export async function PATCH(
           : {}),
         updatedAt: new Date(),
       })
-      .where(eq(locations.id, locationId))
+      .where(
+        and(eq(locations.id, locationId), isNull(locations.deletedAt)),
+      )
       .returning();
     if (!location) throw new ApiError(404, "Location not found.");
     return json({ location });
+  });
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  return handleRoute(async () => {
+    await prepareDatabase();
+    await requireAdminCookie(request);
+    const { id } = await params;
+    const locationId = z.string().uuid().parse(id);
+    const location = await deleteAdminLocation(locationId);
+    return json({ deleted: true, locationId: location.id });
   });
 }

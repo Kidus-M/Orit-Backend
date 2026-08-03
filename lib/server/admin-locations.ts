@@ -2,7 +2,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
-import { users } from "@/lib/db/schema";
+import { locations, users } from "@/lib/db/schema";
 import { ApiError } from "@/lib/server/http";
 
 export const locationValuesSchema = z.object({
@@ -36,4 +36,23 @@ export async function requireVendor(vendorId: string | null) {
     )
     .limit(1);
   if (!vendor) throw new ApiError(404, "Vendor account not found.");
+}
+
+export async function deleteAdminLocation(locationId: string) {
+  const now = new Date();
+  const [location] = await getDb()
+    .update(locations)
+    .set({
+      active: false,
+      inStock: false,
+      vendorId: null,
+      deletedAt: now,
+      updatedAt: now,
+    })
+    .where(
+      and(eq(locations.id, locationId), isNull(locations.deletedAt)),
+    )
+    .returning({ id: locations.id });
+  if (!location) throw new ApiError(404, "Location not found.");
+  return location;
 }

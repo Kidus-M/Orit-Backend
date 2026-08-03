@@ -11,6 +11,7 @@ import { and, desc, eq, gte, isNull } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import {
+  locations,
   users,
   vendorCodeAccessAttempts,
   vendorInvitations,
@@ -101,27 +102,39 @@ export async function getVendorInvitationsForAdmin() {
 
 export async function createVendorInvitation(code: string, adminId: string) {
   const db = getDb();
-  const now = new Date();
   const codeHash = hashVendorCode(code);
   const invitationId = randomUUID();
 
-  await db.batch([
-    db
-      .update(vendorInvitations)
-      .set({ revokedAt: now, updatedAt: now })
-      .where(
-        and(
-          eq(vendorInvitations.codeHash, codeHash),
-          isNull(vendorInvitations.revokedAt),
-        ),
+  const [existing] = await db
+    .select({
+      id: vendorInvitations.id,
+      vendorId: users.id,
+    })
+    .from(vendorInvitations)
+    .leftJoin(users, eq(users.vendorInvitationId, vendorInvitations.id))
+    .where(
+      and(
+        eq(vendorInvitations.codeHash, codeHash),
+        isNull(vendorInvitations.revokedAt),
       ),
-    db.insert(vendorInvitations).values({
-      id: invitationId,
-      codeHash,
-      codeEncrypted: encryptVendorCode(code),
-      createdByAdminId: adminId,
-    }),
-  ]);
+    )
+    .limit(1);
+  if (existing?.vendorId) {
+    throw new ApiError(
+      409,
+      "This code belongs to a vendor. Release the vendor before reusing it.",
+    );
+  }
+  if (existing) {
+    throw new ApiError(409, "This vendor code is already available.");
+  }
+
+  await db.insert(vendorInvitations).values({
+    id: invitationId,
+    codeHash,
+    codeEncrypted: encryptVendorCode(code),
+    createdByAdminId: adminId,
+  });
 
   return { id: invitationId, code, status: "pending" as const };
 }
@@ -151,6 +164,50 @@ export async function revokeVendorInvitation(invitationId: string) {
     )
     .returning({ id: vendorInvitations.id });
   if (!revoked) throw new ApiError(409, "Vendor invitation is already revoked.");
+}
+
+export async function releaseVendorInvitation(invitationId: string) {
+  const db = getDb();
+  const [invitation] = await db
+    .select({
+      id: vendorInvitations.id,
+      revokedAt: vendorInvitations.revokedAt,
+      vendorId: users.id,
+    })
+    .from(vendorInvitations)
+    .leftJoin(users, eq(users.vendorInvitationId, vendorInvitations.id))
+    .where(eq(vendorInvitations.id, invitationId))
+    .limit(1);
+
+  if (!invitation) throw new ApiError(404, "Vendor invitation not found.");
+  if (invitation.revokedAt) {
+    throw new ApiError(409, "A revoked vendor code cannot be released.");
+  }
+  if (!invitation.vendorId) {
+    throw new ApiError(409, "This vendor code is already available.");
+  }
+
+  const now = new Date();
+  await db.batch([
+    db
+      .update(users)
+      .set({
+        isVendor: false,
+        vendorInvitationId: null,
+        updatedAt: now,
+      })
+      .where(eq(users.id, invitation.vendorId)),
+    db
+      .update(locations)
+      .set({ vendorId: null, updatedAt: now })
+      .where(eq(locations.vendorId, invitation.vendorId)),
+    db
+      .update(vendorInvitations)
+      .set({ updatedAt: now })
+      .where(eq(vendorInvitations.id, invitationId)),
+  ]);
+
+  return { vendorId: invitation.vendorId };
 }
 
 export async function verifyVendorCode(code: string) {

@@ -1,4 +1,5 @@
 import { count, eq, inArray } from "drizzle-orm";
+import { and, isNull, sql } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import {
@@ -68,6 +69,7 @@ export async function seedDatabase() {
     })
     .onConflictDoUpdate({
       target: locations.name,
+      targetWhere: sql`deleted_at IS NULL`,
       set: { serviceCodeHash, updatedAt: new Date() },
     });
 
@@ -97,7 +99,12 @@ export async function seedDatabase() {
   const [location] = await db
     .select()
     .from(locations)
-    .where(eq(locations.name, "Leyou Ethiopian"))
+    .where(
+      and(
+        eq(locations.name, "Leyou Ethiopian"),
+        isNull(locations.deletedAt),
+      ),
+    )
     .limit(1);
   const [plan] = await db
     .select()
@@ -232,4 +239,3 @@ export async function seedDatabase() {
 
   return { demoSeeded: true };
 }
-

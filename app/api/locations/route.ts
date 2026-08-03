@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
@@ -23,7 +23,9 @@ export async function GET() {
         inStock: locations.inStock,
       })
       .from(locations)
-      .where(eq(locations.active, true))
+      .where(
+        and(eq(locations.active, true), isNull(locations.deletedAt)),
+      )
       .orderBy(asc(locations.name));
     return json({ locations: result });
   });

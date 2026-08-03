@@ -1,6 +1,8 @@
 ﻿import { eq } from "drizzle-orm";
 import { z } from "zod";
 
+import { and, isNull } from "drizzle-orm";
+
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
 import { locationStaff, locations, users } from "@/lib/db/schema";
@@ -35,7 +37,9 @@ export async function POST(request: Request) {
     const [location] = await db
       .select({ id: locations.id })
       .from(locations)
-      .where(eq(locations.id, input.locationId))
+      .where(
+        and(eq(locations.id, input.locationId), isNull(locations.deletedAt)),
+      )
       .limit(1);
     if (!location) throw new ApiError(404, "Pickup location not found");
 

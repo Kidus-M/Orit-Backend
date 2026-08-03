@@ -109,6 +109,32 @@ export function AdminVendorManagement({
     }
   }
 
+  async function releaseInvitation(invitation: AdminVendorInvitation) {
+    const vendorLabel =
+      invitation.businessName ?? invitation.businessEmail ?? "this vendor";
+    if (
+      !window.confirm(
+        `Remove ${vendorLabel} from this code? Their vendor access will end, linked locations will become unassigned, and the code will be available again.`,
+      )
+    ) {
+      return;
+    }
+    const busyKey = `release-${invitation.id}`;
+    setBusy(busyKey);
+    onError(null);
+    try {
+      await api(`/api/admin/vendor-code/${invitation.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "pending" }),
+      });
+      await onChanged();
+    } catch (error) {
+      onError(error instanceof Error ? error.message : "Release failed.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function saveLocation(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formElement = event.currentTarget;
@@ -151,6 +177,30 @@ export function AdminVendorManagement({
     }
   }
 
+  async function deleteLocation(location: AdminLocation) {
+    if (
+      !window.confirm(
+        `Delete ${location.name}? It will disappear from the customer app and admin location list. Existing order history will be preserved.`,
+      )
+    ) {
+      return;
+    }
+    const busyKey = `delete-${location.id}`;
+    setBusy(busyKey);
+    onError(null);
+    try {
+      await api(`/api/admin/locations/${location.id}`, {
+        method: "DELETE",
+      });
+      if (editing?.id === location.id) setEditing(null);
+      await onChanged();
+    } catch (error) {
+      onError(error instanceof Error ? error.message : "Delete failed.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   function toggleCode(id: string) {
     setVisibleCodes((current) => {
       const next = new Set(current);
@@ -173,7 +223,7 @@ export function AdminVendorManagement({
         <form className="admin-vendor-code" onSubmit={createInvitation}>
           <div>
             <strong>One-time vendor code</strong>
-            <span>Give this code to one vendor. Used codes can be reassigned.</span>
+            <span>Give this code to one vendor. Release a claimed code to reuse it.</span>
           </div>
           <input
             name="code"
@@ -246,6 +296,18 @@ export function AdminVendorManagement({
                           onClick={() => revokeInvitation(invitation)}
                         >
                           {busy === invitation.id ? "Revoking..." : "Revoke"}
+                        </button>
+                      ) : null}
+                      {invitation.status === "claimed" ? (
+                        <button
+                          type="button"
+                          className="admin-danger-action"
+                          disabled={busy === `release-${invitation.id}`}
+                          onClick={() => releaseInvitation(invitation)}
+                        >
+                          {busy === `release-${invitation.id}`
+                            ? "Releasing..."
+                            : "Release Vendor"}
                         </button>
                       ) : null}
                     </td>
@@ -437,13 +499,23 @@ export function AdminVendorManagement({
                       ? `${location.stockQuantity} bottles`
                       : "Out of stock (0 bottles)"}
                   </td>
-                  <td>
+                  <td className="admin-row-actions">
                     <button
                       type="button"
                       className="admin-secondary-action"
                       onClick={() => setEditing(location)}
                     >
                       Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-danger-action"
+                      disabled={busy === `delete-${location.id}`}
+                      onClick={() => deleteLocation(location)}
+                    >
+                      {busy === `delete-${location.id}`
+                        ? "Deleting..."
+                        : "Delete"}
                     </button>
                   </td>
                 </tr>

@@ -103,7 +103,11 @@ export async function POST(request: Request) {
       .select()
       .from(locations)
       .where(
-        and(eq(locations.id, input.locationId), eq(locations.active, true)),
+        and(
+          eq(locations.id, input.locationId),
+          eq(locations.active, true),
+          isNull(locations.deletedAt),
+        ),
       )
       .limit(1);
     if (!location) throw new ApiError(404, "Pickup location not found");
@@ -155,6 +159,7 @@ export async function POST(request: Request) {
           and(
             eq(locations.id, location.id),
             eq(locations.active, true),
+            isNull(locations.deletedAt),
             gte(locations.stockQuantity, input.quantity),
           ),
         )

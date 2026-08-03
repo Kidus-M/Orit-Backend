@@ -186,10 +186,13 @@ export const locations = pgTable(
     inStock: boolean("in_stock").notNull().default(true),
     active: boolean("active").notNull().default(true),
     serviceCodeHash: text("service_code_hash"),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
     ...timestamps,
   },
   (table) => [
-    uniqueIndex("locations_name_unique").on(table.name),
+    uniqueIndex("locations_name_unique")
+      .on(table.name)
+      .where(sql`deleted_at IS NULL`),
     index("locations_vendor_idx").on(table.vendorId),
   ],
 );
