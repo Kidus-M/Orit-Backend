@@ -18,7 +18,7 @@ export default function Home() {
           <section className="hero">
             <div className="hero__media" aria-hidden="true">
               <Image
-                src="/hero-honey-wine.png"
+                src="/hero-honey-wine-labeled.png"
                 alt=""
                 fill
                 priority

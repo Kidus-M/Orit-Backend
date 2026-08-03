@@ -618,7 +618,7 @@ button:disabled { cursor: wait; opacity: .65; }
   .site-nav--open { opacity: 1; pointer-events: auto; transform: translateY(0); }
   .site-nav a { border-bottom: 1px solid var(--line); padding: 15px 0; }
   .hero { min-height: 800px; align-items: end; padding-bottom: 75px; }
-  .hero__image { object-position: 64% center; }
+  .hero__image { object-position: 72% center; }
   .hero__veil {
     background: linear-gradient(0deg,rgba(251,246,234,.98) 0%,rgba(251,246,234,.88) 50%,rgba(251,246,234,.1) 82%);
   }
