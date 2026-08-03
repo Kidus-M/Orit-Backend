@@ -1,6 +1,6 @@
 import { createHmac, randomBytes } from "node:crypto";
 
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import { locations, users, vendorOrders } from "@/lib/db/schema";
@@ -36,7 +36,7 @@ export async function findVendorOrderByToken(token: string) {
       id: vendorOrders.id,
       vendorName: users.firstName,
       vendorEmail: users.email,
-      locationName: locations.name,
+      locationName: sql<string>`coalesce(${locations.name}, 'Vendor delivery')`, 
       quantity: vendorOrders.quantity,
       casePriceCents: vendorOrders.casePriceCents,
       transportationFeeCents: vendorOrders.transportationFeeCents,
@@ -49,7 +49,7 @@ export async function findVendorOrderByToken(token: string) {
     })
     .from(vendorOrders)
     .innerJoin(users, eq(users.id, vendorOrders.vendorId))
-    .innerJoin(locations, eq(locations.id, vendorOrders.locationId))
+    .leftJoin(locations, eq(locations.id, vendorOrders.locationId))
     .where(
       and(
         eq(vendorOrders.confirmationTokenHash, hashVendorOrderToken(token)),

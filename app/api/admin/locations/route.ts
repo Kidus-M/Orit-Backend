@@ -23,11 +23,13 @@ export async function POST(request: Request) {
     await requireAdminCookie(request);
     const input = createSchema.parse(await request.json());
     await requireVendor(input.vendorId);
-    const { serviceCode, ...values } = input;
+    const { serviceCode, stockQuantity, ...values } = input;
     const [location] = await getDb()
       .insert(locations)
       .values({
         ...values,
+        stockQuantity,
+        inStock: stockQuantity > 0,
         serviceCodeHash: hashServiceCode(serviceCode),
       })
       .returning();

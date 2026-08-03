@@ -71,7 +71,7 @@ export async function GET(request: Request) {
           id: vendorOrders.id,
           businessName: users.firstName,
           businessEmail: users.email,
-          locationName: locations.name,
+          locationName: sql<string>`coalesce(${locations.name}, 'Vendor delivery')`, 
           quantity: vendorOrders.quantity,
           casePriceCents: vendorOrders.casePriceCents,
           transportationFeeCents: vendorOrders.transportationFeeCents,
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
         })
         .from(vendorOrders)
         .innerJoin(users, eq(users.id, vendorOrders.vendorId))
-        .innerJoin(locations, eq(locations.id, vendorOrders.locationId))
+        .leftJoin(locations, eq(locations.id, vendorOrders.locationId))
         .orderBy(desc(vendorOrders.createdAt)),
       db
         .select({
@@ -132,6 +132,7 @@ export async function GET(request: Request) {
           postalCode: locations.postalCode,
           hoursText: locations.hoursText,
           bottlePriceCents: locations.bottlePriceCents,
+          stockQuantity: locations.stockQuantity,
           casePriceCents: locations.casePriceCents,
           transportationFeeCents: locations.transportationFeeCents,
           inStock: locations.inStock,

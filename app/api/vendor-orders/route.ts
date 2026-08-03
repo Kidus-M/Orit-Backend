@@ -1,22 +1,23 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
-import {
-  locations,
-  paymentMethods,
-  payments,
-  vendorOrders,
-} from "@/lib/db/schema";
+import { paymentMethods, payments, vendorOrders } from "@/lib/db/schema";
 import { requireAuth } from "@/lib/server/auth";
 import { sendNewOrderNotification } from "@/lib/server/email";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
 import { chargeSavedPaymentMethod } from "@/lib/server/payments";
 import { createVendorOrderConfirmation } from "@/lib/server/vendor-orders";
 
+const vendorCasePriceCents = 8_500;
+const vendorTransportationFeeCents = 5_000;
+const vendorDeliveryLabel = "Vendor delivery";
+
 const bodySchema = z.object({
-  locationId: z.string().uuid(),
+  // Accepted temporarily so older app builds remain compatible. Vendor orders
+  // are deliberately not authorized or priced through pickup locations.
+  locationId: z.string().uuid().optional(),
   quantity: z.number().int().min(1).max(30),
 });
 
@@ -37,17 +38,6 @@ export async function GET(request: Request) {
   return handleRoute(async () => {
     await prepareDatabase();
     const member = await requireAuth(request, ["member"]);
-    const [location] = await getDb()
-      .select({
-        id: locations.id,
-        name: locations.name,
-        casePriceCents: locations.casePriceCents,
-        transportationFeeCents: locations.transportationFeeCents,
-      })
-      .from(locations)
-      .where(eq(locations.vendorId, member.id))
-      .orderBy(locations.createdAt)
-      .limit(1);
     const [savedPaymentMethod] = await getDb()
       .select({ id: paymentMethods.id })
       .from(paymentMethods)
@@ -57,7 +47,8 @@ export async function GET(request: Request) {
     return json({
       isVendor: member.isVendor,
       hasPaymentMethod: Boolean(savedPaymentMethod),
-      location: location ?? null,
+      casePriceCents: vendorCasePriceCents,
+      transportationFeeCents: vendorTransportationFeeCents,
     });
   });
 }
@@ -79,21 +70,8 @@ export async function POST(request: Request) {
       .limit(1);
     if (!paymentMethod) throw new ApiError(409, "Saved payment method required");
 
-    const [location] = await db
-      .select()
-      .from(locations)
-      .where(
-        and(
-          eq(locations.id, input.locationId),
-          eq(locations.vendorId, vendor.id),
-        ),
-      )
-      .limit(1);
-    if (!location) throw new ApiError(404, "Vendor location not found");
-
     const totalCents =
-      location.casePriceCents * input.quantity +
-      location.transportationFeeCents;
+      vendorCasePriceCents * input.quantity + vendorTransportationFeeCents;
     const charge = await chargeSavedPaymentMethod({
       amountCents: totalCents,
       memberId: vendor.id,
@@ -105,10 +83,9 @@ export async function POST(request: Request) {
       .insert(vendorOrders)
       .values({
         vendorId: vendor.id,
-        locationId: location.id,
         quantity: input.quantity,
-        casePriceCents: location.casePriceCents,
-        transportationFeeCents: location.transportationFeeCents,
+        casePriceCents: vendorCasePriceCents,
+        transportationFeeCents: vendorTransportationFeeCents,
         totalCents,
         paid: true,
         confirmationTokenHash: confirmation.tokenHash,
@@ -132,14 +109,14 @@ export async function POST(request: Request) {
       customerEmail: vendor.email,
       quantity: order.quantity,
       totalCents: order.totalCents,
-      locationName: location.name,
+      locationName: vendorDeliveryLabel,
       confirmationUrl: confirmation.confirmationUrl,
     });
 
     return json(
       {
         order,
-        locationName: location.name,
+        locationName: vendorDeliveryLabel,
         emailNotificationSent,
         paymentMode: charge.status === "succeeded_demo" ? "mock" : "stripe",
       },

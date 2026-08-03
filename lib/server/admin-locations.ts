@@ -14,9 +14,9 @@ export const locationValuesSchema = z.object({
   postalCode: z.string().trim().min(3).max(20),
   hoursText: z.string().trim().min(1).max(240),
   bottlePriceCents: z.number().int().min(0).max(1_000_000),
+  stockQuantity: z.number().int().min(0).max(1_000_000),
   casePriceCents: z.number().int().min(0).max(10_000_000),
   transportationFeeCents: z.number().int().min(0).max(10_000_000),
-  inStock: z.boolean(),
   active: z.boolean(),
   serviceCode: z.string().regex(/^\d{4}$/).optional(),
 });

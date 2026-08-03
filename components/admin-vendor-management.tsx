@@ -31,6 +31,7 @@ export type AdminLocation = {
   postalCode: string;
   hoursText: string;
   bottlePriceCents: number;
+  stockQuantity: number;
   casePriceCents: number;
   transportationFeeCents: number;
   inStock: boolean;
@@ -122,11 +123,11 @@ export function AdminVendorManagement({
       postalCode: String(form.get("postalCode") ?? ""),
       hoursText: String(form.get("hoursText") ?? ""),
       bottlePriceCents: Math.round(Number(form.get("bottlePrice")) * 100),
+      stockQuantity: Math.round(Number(form.get("stockQuantity"))),
       casePriceCents: Math.round(Number(form.get("casePrice")) * 100),
       transportationFeeCents: Math.round(
         Number(form.get("transportationFee")) * 100,
       ),
-      inStock: form.get("inStock") === "on",
       active: form.get("active") === "on",
       ...(serviceCode ? { serviceCode } : {}),
     };
@@ -335,6 +336,17 @@ export function AdminVendorManagement({
             />
           </label>
           <label>
+            Bottle stock
+            <input
+              name="stockQuantity"
+              type="number"
+              min="0"
+              step="1"
+              defaultValue={editing?.stockQuantity ?? 24}
+              required
+            />
+          </label>
+          <label>
             Case price
             <input
               name="casePrice"
@@ -367,10 +379,7 @@ export function AdminVendorManagement({
               required={!editing}
             />
           </label>
-          <label className="admin-check-field">
-            <input name="inStock" type="checkbox" defaultChecked={editing?.inStock ?? true} />
-            In stock
-          </label>
+
           <label className="admin-check-field">
             <input name="active" type="checkbox" defaultChecked={editing?.active ?? false} />
             Visible to customers
@@ -423,7 +432,11 @@ export function AdminVendorManagement({
                       {location.active ? "Visible" : "Hidden"}
                     </span>
                   </td>
-                  <td>{location.inStock ? "In stock" : "Out of stock"}</td>
+                  <td>
+                    {location.stockQuantity > 0
+                      ? `${location.stockQuantity} bottles`
+                      : "Out of stock (0 bottles)"}
+                  </td>
                   <td>
                     <button
                       type="button"

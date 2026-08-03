@@ -18,6 +18,8 @@ export async function GET() {
         postalCode: locations.postalCode,
         hoursText: locations.hoursText,
         bottlePriceCents: locations.bottlePriceCents,
+        transportationFeeCents: locations.transportationFeeCents,
+        stockQuantity: locations.stockQuantity,
         inStock: locations.inStock,
       })
       .from(locations)

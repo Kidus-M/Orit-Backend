@@ -1,0 +1,1 @@
+ALTER TABLE "vendor_orders" ALTER COLUMN "location_id" DROP NOT NULL;

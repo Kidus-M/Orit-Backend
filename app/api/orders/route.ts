@@ -1,9 +1,10 @@
-import { and, desc, eq, gt, isNull } from "drizzle-orm";
+import { and, desc, eq, gt, gte, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
 import {
+  inventoryEvents,
   locationStaff,
   locations,
   memberships,
@@ -123,8 +124,13 @@ export async function POST(request: Request) {
       if (!membership) {
         throw new ApiError(403, "Event orders are available to active members");
       }
-    } else if (!location.inStock) {
-      throw new ApiError(409, "This location is currently out of stock");
+    } else if (location.stockQuantity < input.quantity) {
+      throw new ApiError(
+        409,
+        location.stockQuantity === 0
+          ? "This location is currently out of stock"
+          : "Not enough bottles are currently in stock",
+      );
     }
 
     const unitPriceCents = isEvent
@@ -135,11 +141,50 @@ export async function POST(request: Request) {
       : 0;
     const totalCents =
       unitPriceCents * input.quantity + transportationFeeCents;
-    const charge = await chargeSavedPaymentMethod({
-      amountCents: totalCents,
-      memberId: member.id,
-      kind: isEvent ? "event_order" : "order",
-    });
+
+    let remainingStockQuantity: number | null = null;
+    if (!isEvent) {
+      const [reservedStock] = await db
+        .update(locations)
+        .set({
+          stockQuantity: sql`${locations.stockQuantity} - ${input.quantity}`,
+          inStock: sql`${locations.stockQuantity} - ${input.quantity} > 0`,
+          updatedAt: now,
+        })
+        .where(
+          and(
+            eq(locations.id, location.id),
+            eq(locations.active, true),
+            gte(locations.stockQuantity, input.quantity),
+          ),
+        )
+        .returning({ stockQuantity: locations.stockQuantity });
+      if (!reservedStock) {
+        throw new ApiError(409, "Not enough bottles are currently in stock");
+      }
+      remainingStockQuantity = reservedStock.stockQuantity;
+    }
+
+    let charge: Awaited<ReturnType<typeof chargeSavedPaymentMethod>>;
+    try {
+      charge = await chargeSavedPaymentMethod({
+        amountCents: totalCents,
+        memberId: member.id,
+        kind: isEvent ? "event_order" : "order",
+      });
+    } catch (error) {
+      if (!isEvent) {
+        await db
+          .update(locations)
+          .set({
+            stockQuantity: sql`${locations.stockQuantity} + ${input.quantity}`,
+            inStock: true,
+            updatedAt: new Date(),
+          })
+          .where(eq(locations.id, location.id));
+      }
+      throw error;
+    }
     const pickup = createPickupCredential();
     const pickupReadyAt = isEvent
       ? new Date(now.getTime() + eventPickupDelayDays * 24 * 60 * 60 * 1000)
@@ -170,6 +215,16 @@ export async function POST(request: Request) {
       status: charge.status,
       providerReference: charge.providerReference,
     });
+
+    if (remainingStockQuantity !== null) {
+      await db.insert(inventoryEvents).values({
+        locationId: location.id,
+        changedByUserId: member.id,
+        inStock: remainingStockQuantity > 0,
+        stockQuantity: remainingStockQuantity,
+        note: `Customer order ${order.id}: ${input.quantity} bottle${input.quantity === 1 ? "" : "s"}`,
+      });
+    }
 
     const staff = await db
       .select({ userId: locationStaff.userId })

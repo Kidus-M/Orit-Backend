@@ -178,6 +178,7 @@ export const locations = pgTable(
     postalCode: text("postal_code").notNull(),
     hoursText: text("hours_text").notNull(),
     bottlePriceCents: integer("bottle_price_cents").notNull().default(1898),
+    stockQuantity: integer("stock_quantity").notNull().default(24),
     casePriceCents: integer("case_price_cents").notNull().default(8500),
     transportationFeeCents: integer("transportation_fee_cents")
       .notNull()
@@ -257,9 +258,7 @@ export const vendorOrders = pgTable(
     vendorId: uuid("vendor_id")
       .notNull()
       .references(() => users.id),
-    locationId: uuid("location_id")
-      .notNull()
-      .references(() => locations.id),
+    locationId: uuid("location_id").references(() => locations.id),
     quantity: integer("quantity").notNull(),
     casePriceCents: integer("case_price_cents").notNull(),
     transportationFeeCents: integer("transportation_fee_cents").notNull(),
@@ -402,6 +401,7 @@ export const inventoryEvents = pgTable("inventory_events", {
     .notNull()
     .references(() => users.id),
   inStock: boolean("in_stock").notNull(),
+  stockQuantity: integer("stock_quantity"),
   note: text("note"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

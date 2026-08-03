@@ -30,11 +30,14 @@ export async function PATCH(
     const locationId = z.string().uuid().parse(id);
     const input = updateSchema.parse(await request.json());
     if (input.vendorId !== undefined) await requireVendor(input.vendorId);
-    const { serviceCode, ...values } = input;
+    const { serviceCode, stockQuantity, ...values } = input;
     const [location] = await getDb()
       .update(locations)
       .set({
         ...values,
+        ...(stockQuantity !== undefined
+          ? { stockQuantity, inStock: stockQuantity > 0 }
+          : {}),
         ...(serviceCode
           ? { serviceCodeHash: hashServiceCode(serviceCode) }
           : {}),

@@ -1,4 +1,4 @@
-﻿import { count, eq, inArray } from "drizzle-orm";
+import { count, eq, inArray } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import {
@@ -62,6 +62,7 @@ export async function seedDatabase() {
       postalCode: "95112",
       hoursText: "Monday-Sunday, 5:30 PM-9:00 PM",
       bottlePriceCents: 1898,
+      stockQuantity: 24,
       inStock: true,
       serviceCodeHash,
     })
