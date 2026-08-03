@@ -720,6 +720,12 @@ button:disabled { cursor: wait; opacity: .65; }
   box-shadow: 0 5px 14px rgba(59, 16, 29, 0.12);
   object-fit: cover;
 }
+.company-logo--bee {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  object-fit: contain;
+}
 .company-logo--footer {
   width: 72px;
   height: 72px;

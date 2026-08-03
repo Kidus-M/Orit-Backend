@@ -75,8 +75,8 @@ export function SiteHeader() {
       <div className="site-header__inner">
         <Link className="brand-lockup" href="/" aria-label="Orit Tej home">
           <Image
-            className="company-logo"
-            src="/app-icon.png"
+            className="company-logo company-logo--bee"
+            src="/orit-tej-bee.png"
             alt=""
             width={52}
             height={52}
