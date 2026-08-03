@@ -14,7 +14,7 @@ export type PaymentCharge = {
 export async function chargeSavedPaymentMethod(input: {
   amountCents: number;
   memberId: string;
-  kind: "membership" | "order" | "vendor_order";
+  kind: "membership" | "order" | "event_order" | "vendor_order";
 }): Promise<PaymentCharge> {
   const env = getEnv();
 

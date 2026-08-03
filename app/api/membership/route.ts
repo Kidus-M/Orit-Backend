@@ -88,6 +88,14 @@ export async function PATCH(request: Request) {
       .limit(1);
 
     if (input.planCode === "non_member") {
+      const [savedMethod] = await db
+        .select({ id: paymentMethods.id })
+        .from(paymentMethods)
+        .where(eq(paymentMethods.userId, member.id))
+        .limit(1);
+      if (!savedMethod) {
+        throw new ApiError(409, "Add a payment method before continuing");
+      }
       if (existing) {
         await db
           .update(memberships)

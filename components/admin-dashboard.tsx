@@ -30,6 +30,10 @@ type Order = {
   memberEmail: string;
   locationName: string;
   quantity: number;
+  orderType: "personal" | "event";
+  eventType: string | null;
+  eventDate: string | null;
+  transportationFeeCents: number;
   totalCents: number;
   paid: boolean;
   status: string;
@@ -421,6 +425,7 @@ export function AdminDashboard() {
                   <tr>
                     <th>Customer</th>
                     <th>Pickup location</th>
+                    <th>Order type</th>
                     <th>Quantity</th>
                     <th>Total</th>
                     <th>Status</th>
@@ -435,7 +440,13 @@ export function AdminDashboard() {
                         <small>{order.memberEmail}</small>
                       </td>
                       <td>{order.locationName}</td>
-                      <td>{order.quantity}</td>
+                      <td>
+                        {order.orderType === "event" ? "Event" : "Personal"}
+                        {order.eventType ? <small>{order.eventType}</small> : null}
+                      </td>
+                      <td>
+                        {order.quantity} {order.orderType === "event" ? "cases" : "bottles"}
+                      </td>
                       <td>${(order.totalCents / 100).toFixed(2)}</td>
                       <td>
                         <span className={`status-chip status-chip--${order.status}`}>

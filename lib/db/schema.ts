@@ -223,7 +223,13 @@ export const orders = pgTable(
       .notNull()
       .references(() => locations.id),
     quantity: integer("quantity").notNull(),
+    orderType: text("order_type").notNull().default("personal"),
+    eventType: text("event_type"),
+    eventDate: timestamp("event_date", { withTimezone: true }),
     unitPriceCents: integer("unit_price_cents").notNull(),
+    transportationFeeCents: integer("transportation_fee_cents")
+      .notNull()
+      .default(0),
     totalCents: integer("total_cents").notNull(),
     paid: boolean("paid").notNull().default(false),
     status: text("status").notNull().default("pending"),
@@ -231,6 +237,7 @@ export const orders = pgTable(
     pickupTokenExpiresAt: timestamp("pickup_token_expires_at", {
       withTimezone: true,
     }),
+    pickupReadyAt: timestamp("pickup_ready_at", { withTimezone: true }),
     completedAt: timestamp("completed_at", { withTimezone: true }),
     completedByUserId: uuid("completed_by_user_id").references(() => users.id),
     ...timestamps,
@@ -238,6 +245,7 @@ export const orders = pgTable(
   (table) => [
     index("orders_location_status_idx").on(table.locationId, table.status),
     index("orders_member_idx").on(table.memberId),
+    index("orders_type_created_idx").on(table.orderType, table.createdAt),
     uniqueIndex("orders_pickup_token_unique").on(table.pickupTokenHash),
   ],
 );

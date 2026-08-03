@@ -1,4 +1,4 @@
-﻿import { desc, eq, inArray } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
@@ -12,6 +12,10 @@ const orderFields = {
   customerName: users.firstName,
   customerEmail: users.email,
   quantity: orders.quantity,
+  orderType: orders.orderType,
+  eventType: orders.eventType,
+  eventDate: orders.eventDate,
+  pickupReadyAt: orders.pickupReadyAt,
   paid: orders.paid,
   status: orders.status,
   totalCents: orders.totalCents,

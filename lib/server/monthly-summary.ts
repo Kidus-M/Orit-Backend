@@ -72,6 +72,7 @@ export async function buildMonthlyVendorSummary(now = new Date()) {
       .where(
         and(
           isNotNull(locations.vendorId),
+          eq(orders.orderType, "personal"),
           eq(orders.status, "completed"),
           isNotNull(orders.completedAt),
           gte(orders.completedAt, start),

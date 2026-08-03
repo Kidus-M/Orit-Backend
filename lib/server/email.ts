@@ -2,13 +2,15 @@ import { getEnv } from "@/lib/env";
 
 export type NewOrderEmail = {
   orderId: string;
-  orderType: "customer" | "vendor";
+  orderType: "customer" | "vendor" | "event";
   customerName: string;
   customerEmail: string;
   quantity: number;
   totalCents: number;
   locationName: string;
   confirmationUrl?: string;
+  eventType?: string;
+  eventDate?: Date;
 };
 
 export type MonthlyVendorSummaryRow = {
@@ -45,17 +47,24 @@ function escapeHtml(value: string) {
 async function deliverEmail(payload: EmailPayload) {
   const env = getEnv();
   if (!env.RESEND_API_KEY) {
-    console.warn(`${payload.idempotencyKey} was not sent because Resend is not configured.`);
+    console.error(
+      JSON.stringify({
+        event: "email_not_sent",
+        idempotencyKey: payload.idempotencyKey,
+        reason: "RESEND_API_KEY is not configured",
+      }),
+    );
     return false;
   }
 
-  async function send(from: string, attempt: "primary" | "testing") {
-    return fetch("https://api.resend.com/emails", {
+  const from = env.VENDOR_ORDER_FROM_EMAIL ?? resendTestingSender;
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${env.RESEND_API_KEY}`,
         "Content-Type": "application/json",
-        "Idempotency-Key": `${payload.idempotencyKey}/${attempt}`,
+        "Idempotency-Key": payload.idempotencyKey,
         "User-Agent": "orit-tej-backend/1.0",
       },
       body: JSON.stringify({
@@ -66,34 +75,51 @@ async function deliverEmail(payload: EmailPayload) {
         text: payload.text,
       }),
     });
-  }
 
-  const primarySender = env.VENDOR_ORDER_FROM_EMAIL ?? resendTestingSender;
-  try {
-    const primaryResponse = await send(primarySender, "primary");
-    if (primaryResponse.ok) return true;
+    const responseBody = await response.text();
+    if (response.ok) {
+      console.info(
+        JSON.stringify({
+          event: "email_accepted",
+          idempotencyKey: payload.idempotencyKey,
+          recipient: env.ORDER_NOTIFICATION_EMAIL,
+          providerResponse: responseBody,
+        }),
+      );
+      return true;
+    }
 
     console.error(
-      `Resend rejected ${payload.idempotencyKey}: ${primaryResponse.status} ${await primaryResponse.text()}`,
-    );
-    if (primarySender === resendTestingSender) return false;
-
-    const testingResponse = await send(resendTestingSender, "testing");
-    if (testingResponse.ok) return true;
-    console.error(
-      `Resend testing sender rejected ${payload.idempotencyKey}: ` +
-        `${testingResponse.status} ${await testingResponse.text()}`,
+      JSON.stringify({
+        event: "email_rejected",
+        idempotencyKey: payload.idempotencyKey,
+        sender: from,
+        recipient: env.ORDER_NOTIFICATION_EMAIL,
+        status: response.status,
+        providerResponse: responseBody,
+      }),
     );
     return false;
   } catch (error) {
-    console.error(`Resend request failed for ${payload.idempotencyKey}`, error);
+    console.error(
+      JSON.stringify({
+        event: "email_request_failed",
+        idempotencyKey: payload.idempotencyKey,
+        message: error instanceof Error ? error.message : String(error),
+      }),
+    );
     return false;
   }
 }
 
+function readableEventType(eventType: string) {
+  return eventType.charAt(0).toUpperCase() + eventType.slice(1);
+}
+
 export function sendNewOrderNotification(input: NewOrderEmail) {
   const total = `$${(input.totalCents / 100).toFixed(2)}`;
-  const itemName = input.orderType === "vendor" ? "case" : "bottle";
+  const itemName =
+    input.orderType === "customer" ? "bottle" : "case";
   const details = `${input.quantity} ${itemName}${input.quantity === 1 ? "" : "s"}`;
   const confirmation = input.confirmationUrl
     ? `<p><a href="${escapeHtml(input.confirmationUrl)}">Review and confirm this vendor order</a></p>`
@@ -101,21 +127,33 @@ export function sendNewOrderNotification(input: NewOrderEmail) {
   const confirmationText = input.confirmationUrl
     ? ` Confirm: ${input.confirmationUrl}`
     : "";
+  const eventDetails =
+    input.orderType === "event" && input.eventType && input.eventDate
+      ? `<p>Event: <strong>${escapeHtml(readableEventType(input.eventType))}</strong><br>
+          Event date: <strong>${input.eventDate.toISOString().slice(0, 10)}</strong></p>`
+      : "";
+  const eventDetailsText =
+    input.orderType === "event" && input.eventType && input.eventDate
+      ? ` Event: ${readableEventType(input.eventType)} on ${input.eventDate.toISOString().slice(0, 10)}.`
+      : "";
 
   return deliverEmail({
-    subject: "NEW ORDERS",
+    subject: input.orderType === "event" ? "NEW EVENT ORDER" : "NEW ORDERS",
     html: `
-      <h1><strong>NEW ORDERS</strong></h1>
+      <h1><strong>${input.orderType === "event" ? "NEW EVENT ORDER" : "NEW ORDERS"}</strong></h1>
       <p><strong>${escapeHtml(input.customerName)}</strong>
       (${escapeHtml(input.customerEmail)}) placed a paid order.</p>
       <p>Location: <strong>${escapeHtml(input.locationName)}</strong></p>
       <p>Quantity: <strong>${details}</strong></p>
       <p>Total: <strong>${total}</strong></p>
+      ${eventDetails}
       ${confirmation}
     `,
     text:
-      `NEW ORDERS\n${input.customerName} (${input.customerEmail}) placed a paid order. ` +
+      `${input.orderType === "event" ? "NEW EVENT ORDER" : "NEW ORDERS"}\n` +
+      `${input.customerName} (${input.customerEmail}) placed a paid order. ` +
       `Location: ${input.locationName}. Quantity: ${details}. Total: ${total}.` +
+      eventDetailsText +
       confirmationText,
     idempotencyKey: `new-order/${input.orderType}/${input.orderId}`,
   });
@@ -165,5 +203,15 @@ export function sendMonthlySummaryEmail(input: {
     `,
     text: `SUMMARY\n${input.periodLabel}\n${textRows}`,
     idempotencyKey: `monthly-summary/${input.reportMonth}`,
+  });
+}
+
+export function sendEmailConfigurationCheck() {
+  const stamp = new Date().toISOString();
+  return deliverEmail({
+    subject: "ORIT TEJ EMAIL TEST",
+    html: `<h1>Orit Tej email test</h1><p>Resend accepted this test at ${escapeHtml(stamp)}.</p>`,
+    text: `Orit Tej email test. Resend accepted this test at ${stamp}.`,
+    idempotencyKey: `email-check/${stamp}`,
   });
 }

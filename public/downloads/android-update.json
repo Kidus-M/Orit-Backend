@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "versionCode": 11,
-  "versionName": "0.0.11",
-  "minimumSupportedVersionCode": 11,
-  "apkUrl": "/downloads/orit-tej-android-0.0.11-11.apk",
-  "sha256": "e707f0871142446183598a3075e477e52225661a285e6149d24c7df459a6d7cd",
-  "sizeBytes": 69647748,
+  "versionCode": 12,
+  "versionName": "0.0.12",
+  "minimumSupportedVersionCode": 12,
+  "apkUrl": "/downloads/orit-tej-android-0.0.12-12.apk",
+  "sha256": "315793d2d1bfd177e4ad90be030595550103c430c2717b68fa59525d8f2472a5",
+  "sizeBytes": 70533016,
   "releaseNotes": [
-    "Added customer selection for admin-published pickup locations",
-    "Connected vendor accounts and case ordering to admin-managed locations",
-    "Improved one-time vendor onboarding"
+    "Added member-only event case ordering with event details and pickup QR",
+    "Added per-location transportation fees and out-of-stock location blocking",
+    "Added a No Membership signup option while securely saving payment details"
   ],
-  "publishedAt": "2026-08-01T22:38:40.797Z"
+  "publishedAt": "2026-08-03T08:21:59.900Z"
 }

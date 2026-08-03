@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
@@ -6,6 +6,7 @@ import { prepareDatabase } from "@/lib/db/prepare";
 import {
   locationStaff,
   locations,
+  memberships,
   messages,
   orders,
   paymentMethods,
@@ -18,21 +19,38 @@ import { ApiError, handleRoute, json } from "@/lib/server/http";
 import { chargeSavedPaymentMethod } from "@/lib/server/payments";
 import { createPickupCredential } from "@/lib/server/pickup";
 
-const bodySchema = z.object({
+const personalOrderSchema = z.object({
+  orderType: z.literal("personal").optional(),
   locationId: z.string().uuid(),
   quantity: z.number().int().min(1).max(12),
 });
 
+const eventOrderSchema = z.object({
+  orderType: z.literal("event"),
+  locationId: z.string().uuid(),
+  quantity: z.number().int().min(2).max(4),
+  eventType: z.enum(["birthday", "baptism", "graduation", "wedding"]),
+  eventDate: z.coerce.date(),
+});
+
+const bodySchema = z.union([eventOrderSchema, personalOrderSchema]);
 const orderStatusSchema = z.enum(["pending"]).optional();
+const eventCasePriceCents = 15000;
+const eventPickupDelayDays = 3;
 
 const safeOrderFields = {
   id: orders.id,
   locationId: orders.locationId,
   quantity: orders.quantity,
+  orderType: orders.orderType,
+  eventType: orders.eventType,
+  eventDate: orders.eventDate,
   unitPriceCents: orders.unitPriceCents,
+  transportationFeeCents: orders.transportationFeeCents,
   totalCents: orders.totalCents,
   paid: orders.paid,
   status: orders.status,
+  pickupReadyAt: orders.pickupReadyAt,
   completedAt: orders.completedAt,
   createdAt: orders.createdAt,
 };
@@ -73,8 +91,9 @@ export async function POST(request: Request) {
     await prepareDatabase();
     const member = await requireAuth(request, ["member"]);
     const input = bodySchema.parse(await request.json());
+    const isEvent = input.orderType === "event";
     const db = getDb();
-
+    const now = new Date();
 
     const [paymentMethod] = await db
       .select({ id: paymentMethods.id })
@@ -91,17 +110,61 @@ export async function POST(request: Request) {
       )
       .limit(1);
     if (!location) throw new ApiError(404, "Pickup location not found");
-    if (!location.inStock) {
+
+    if (isEvent) {
+      const [membership] = await db
+        .select({ id: memberships.id })
+        .from(memberships)
+        .where(
+          and(
+            eq(memberships.userId, member.id),
+            eq(memberships.status, "active"),
+            isNull(memberships.endedAt),
+            gt(memberships.currentPeriodEnd, now),
+          ),
+        )
+        .limit(1);
+      if (!membership) {
+        throw new ApiError(403, "Event orders are available to active members");
+      }
+
+      const earliestEventDay = Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() + eventPickupDelayDays,
+      );
+      const selectedEventDay = Date.UTC(
+        input.eventDate.getUTCFullYear(),
+        input.eventDate.getUTCMonth(),
+        input.eventDate.getUTCDate(),
+      );
+      if (selectedEventDay < earliestEventDay) {
+        throw new ApiError(
+          400,
+          "Choose an event date at least 3 days from today",
+        );
+      }
+    } else if (!location.inStock) {
       throw new ApiError(409, "This location is currently out of stock");
     }
 
-    const totalCents = location.bottlePriceCents * input.quantity;
+    const unitPriceCents = isEvent
+      ? eventCasePriceCents
+      : location.bottlePriceCents;
+    const transportationFeeCents = isEvent
+      ? location.transportationFeeCents
+      : 0;
+    const totalCents =
+      unitPriceCents * input.quantity + transportationFeeCents;
     const charge = await chargeSavedPaymentMethod({
       amountCents: totalCents,
       memberId: member.id,
-      kind: "order",
+      kind: isEvent ? "event_order" : "order",
     });
     const pickup = createPickupCredential();
+    const pickupReadyAt = isEvent
+      ? new Date(now.getTime() + eventPickupDelayDays * 24 * 60 * 60 * 1000)
+      : null;
 
     const [order] = await db
       .insert(orders)
@@ -109,18 +172,23 @@ export async function POST(request: Request) {
         memberId: member.id,
         locationId: location.id,
         quantity: input.quantity,
-        unitPriceCents: location.bottlePriceCents,
+        orderType: isEvent ? "event" : "personal",
+        eventType: isEvent ? input.eventType : null,
+        eventDate: isEvent ? input.eventDate : null,
+        unitPriceCents,
+        transportationFeeCents,
         totalCents,
         paid: true,
         pickupTokenHash: pickup.tokenHash,
         pickupTokenExpiresAt: pickup.expiresAt,
+        pickupReadyAt,
       })
       .returning(safeOrderFields);
 
     await db.insert(payments).values({
       memberId: member.id,
       orderId: order.id,
-      kind: "order",
+      kind: isEvent ? "event_order" : "order",
       amountCents: totalCents,
       status: charge.status,
       providerReference: charge.providerReference,
@@ -142,14 +210,18 @@ export async function POST(request: Request) {
     ];
 
     if (recipientIds.length > 0) {
+      const itemName = isEvent ? "case" : "bottle";
       await db.insert(messages).values(
         recipientIds.map((recipientUserId) => ({
           recipientUserId,
           type: "new_order",
-          title: "New paid pickup order",
-          body: `${member.firstName} ordered ${input.quantity} bottle${input.quantity === 1 ? "" : "s"}.`,
+          title: isEvent ? "New paid event order" : "New paid pickup order",
+          body: `${member.firstName} ordered ${input.quantity} ${itemName}${input.quantity === 1 ? "" : "s"}.`,
           metadata: {
             orderId: order.id,
+            orderType: order.orderType,
+            eventType: order.eventType,
+            eventDate: order.eventDate?.toISOString() ?? null,
             customerName: member.firstName,
             customerEmail: member.email,
             quantity: input.quantity,
@@ -162,12 +234,14 @@ export async function POST(request: Request) {
 
     const emailNotificationSent = await sendNewOrderNotification({
       orderId: order.id,
-      orderType: "customer",
+      orderType: isEvent ? "event" : "customer",
       customerName: member.firstName,
       customerEmail: member.email,
       quantity: order.quantity,
       totalCents: order.totalCents,
       locationName: location.name,
+      eventType: order.eventType ?? undefined,
+      eventDate: order.eventDate ?? undefined,
     });
 
     return json(

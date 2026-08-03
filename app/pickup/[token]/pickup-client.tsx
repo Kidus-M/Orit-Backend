@@ -8,6 +8,10 @@ type PickupOrder = {
   name: string;
   email: string;
   quantity: number;
+  orderType: "personal" | "event";
+  eventType: string | null;
+  eventDate: string | null;
+  pickupReadyAt: string | null;
   paid: boolean;
   locationName: string;
   status: string;
@@ -30,6 +34,10 @@ async function postJson(path: string, body: Record<string, string>) {
     throw new Error(result.error ?? "Unable to verify this pickup");
   }
   return result;
+}
+
+function titleCase(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 export function PickupClient({ token }: { token: string }) {
@@ -80,6 +88,7 @@ export function PickupClient({ token }: { token: string }) {
 
   const enteringCode = state === "code" || state === "verifying";
   const viewingOrder = state === "ready" || state === "completing";
+  const isEvent = order?.orderType === "event";
 
   return (
     <main className="pickup-shell">
@@ -130,7 +139,9 @@ export function PickupClient({ token }: { token: string }) {
         {order && viewingOrder ? (
           <>
             <h1>Pickup verification</h1>
-            <div className="paid-pill">Paid order</div>
+            <div className="paid-pill">
+              {isEvent ? "Paid event order" : "Paid order"}
+            </div>
             <dl className="order-details">
               <div>
                 <dt>Name</dt>
@@ -143,9 +154,27 @@ export function PickupClient({ token }: { token: string }) {
               <div>
                 <dt>Quantity</dt>
                 <dd>
-                  {order.quantity} bottle{order.quantity === 1 ? "" : "s"}
+                  {order.quantity} {isEvent ? "case" : "bottle"}
+                  {order.quantity === 1 ? "" : "s"}
                 </dd>
               </div>
+              {isEvent && order.eventType ? (
+                <div>
+                  <dt>Event</dt>
+                  <dd>{titleCase(order.eventType)}</dd>
+                </div>
+              ) : null}
+              {isEvent && order.eventDate ? (
+                <div>
+                  <dt>Event date</dt>
+                  <dd>
+                    {new Intl.DateTimeFormat("en-US", {
+                      dateStyle: "long",
+                      timeZone: "UTC",
+                    }).format(new Date(order.eventDate))}
+                  </dd>
+                </div>
+              ) : null}
             </dl>
             <p className="location-label">{order.locationName}</p>
             <button

@@ -1,4 +1,4 @@
-﻿import { and, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
@@ -48,14 +48,20 @@ export async function POST(request: Request) {
       );
     }
 
+    const itemName = authorized.orderType === "event" ? "case" : "bottle";
     await sendMessage({
       recipientUserId: authorized.memberId,
       type: "order_completed",
-      title: "Wine order completed",
-      body: `Your order for ${authorized.quantity} bottle${authorized.quantity === 1 ? "" : "s"} was picked up.`,
+      title:
+        authorized.orderType === "event"
+          ? "Event order completed"
+          : "Wine order completed",
+      body: `Your order for ${authorized.quantity} ${itemName}${authorized.quantity === 1 ? "" : "s"} was picked up.`,
       metadata: {
         orderId: authorized.orderId,
         quantity: authorized.quantity,
+        orderType: authorized.orderType,
+        eventType: authorized.eventType,
         completedAt: now.toISOString(),
       },
     });

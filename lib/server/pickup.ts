@@ -104,6 +104,10 @@ export async function authorizePickup(
       status: orders.status,
       paid: orders.paid,
       quantity: orders.quantity,
+      orderType: orders.orderType,
+      eventType: orders.eventType,
+      eventDate: orders.eventDate,
+      pickupReadyAt: orders.pickupReadyAt,
       totalCents: orders.totalCents,
       expiresAt: orders.pickupTokenExpiresAt,
       customerName: users.firstName,
@@ -167,6 +171,13 @@ export async function authorizePickup(
   }
   if (!result.paid) {
     throw new ApiError(409, "This order has not been paid");
+  }
+  if (
+    result.orderType === "event" &&
+    result.pickupReadyAt &&
+    result.pickupReadyAt > new Date()
+  ) {
+    throw new ApiError(409, "Pickup will be ready after 3 days");
   }
 
   const [activeMembership] = await db
