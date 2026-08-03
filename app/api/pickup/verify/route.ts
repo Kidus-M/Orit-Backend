@@ -28,8 +28,6 @@ export async function POST(request: Request) {
         email: order.customerEmail,
         quantity: order.quantity,
         orderType: order.orderType,
-        eventType: order.eventType,
-        eventDate: order.eventDate,
         pickupReadyAt: order.pickupReadyAt,
         paid: order.paid,
         locationName: order.locationName,

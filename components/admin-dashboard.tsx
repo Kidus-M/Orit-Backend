@@ -31,8 +31,6 @@ type Order = {
   locationName: string;
   quantity: number;
   orderType: "personal" | "event";
-  eventType: string | null;
-  eventDate: string | null;
   transportationFeeCents: number;
   totalCents: number;
   paid: boolean;
@@ -442,7 +440,6 @@ export function AdminDashboard() {
                       <td>{order.locationName}</td>
                       <td>
                         {order.orderType === "event" ? "Event" : "Personal"}
-                        {order.eventType ? <small>{order.eventType}</small> : null}
                       </td>
                       <td>
                         {order.quantity} {order.orderType === "event" ? "cases" : "bottles"}

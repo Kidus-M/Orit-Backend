@@ -55,8 +55,6 @@ export async function GET(request: Request) {
           locationName: locations.name,
           quantity: orders.quantity,
           orderType: orders.orderType,
-          eventType: orders.eventType,
-          eventDate: orders.eventDate,
           transportationFeeCents: orders.transportationFeeCents,
           totalCents: orders.totalCents,
           paid: orders.paid,

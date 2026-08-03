@@ -61,7 +61,6 @@ export async function POST(request: Request) {
         orderId: authorized.orderId,
         quantity: authorized.quantity,
         orderType: authorized.orderType,
-        eventType: authorized.eventType,
         completedAt: now.toISOString(),
       },
     });

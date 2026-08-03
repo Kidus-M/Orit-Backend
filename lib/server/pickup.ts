@@ -105,8 +105,6 @@ export async function authorizePickup(
       paid: orders.paid,
       quantity: orders.quantity,
       orderType: orders.orderType,
-      eventType: orders.eventType,
-      eventDate: orders.eventDate,
       pickupReadyAt: orders.pickupReadyAt,
       totalCents: orders.totalCents,
       expiresAt: orders.pickupTokenExpiresAt,

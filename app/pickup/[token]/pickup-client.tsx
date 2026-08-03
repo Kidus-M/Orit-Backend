@@ -9,8 +9,6 @@ type PickupOrder = {
   email: string;
   quantity: number;
   orderType: "personal" | "event";
-  eventType: string | null;
-  eventDate: string | null;
   pickupReadyAt: string | null;
   paid: boolean;
   locationName: string;
@@ -36,9 +34,6 @@ async function postJson(path: string, body: Record<string, string>) {
   return result;
 }
 
-function titleCase(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
 
 export function PickupClient({ token }: { token: string }) {
   const [serviceCode, setServiceCode] = useState("");
@@ -158,23 +153,6 @@ export function PickupClient({ token }: { token: string }) {
                   {order.quantity === 1 ? "" : "s"}
                 </dd>
               </div>
-              {isEvent && order.eventType ? (
-                <div>
-                  <dt>Event</dt>
-                  <dd>{titleCase(order.eventType)}</dd>
-                </div>
-              ) : null}
-              {isEvent && order.eventDate ? (
-                <div>
-                  <dt>Event date</dt>
-                  <dd>
-                    {new Intl.DateTimeFormat("en-US", {
-                      dateStyle: "long",
-                      timeZone: "UTC",
-                    }).format(new Date(order.eventDate))}
-                  </dd>
-                </div>
-              ) : null}
             </dl>
             <p className="location-label">{order.locationName}</p>
             <button

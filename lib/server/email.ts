@@ -9,8 +9,6 @@ export type NewOrderEmail = {
   totalCents: number;
   locationName: string;
   confirmationUrl?: string;
-  eventType?: string;
-  eventDate?: Date;
 };
 
 export type MonthlyVendorSummaryRow = {
@@ -112,9 +110,6 @@ async function deliverEmail(payload: EmailPayload) {
   }
 }
 
-function readableEventType(eventType: string) {
-  return eventType.charAt(0).toUpperCase() + eventType.slice(1);
-}
 
 export function sendNewOrderNotification(input: NewOrderEmail) {
   const total = `$${(input.totalCents / 100).toFixed(2)}`;
@@ -127,16 +122,6 @@ export function sendNewOrderNotification(input: NewOrderEmail) {
   const confirmationText = input.confirmationUrl
     ? ` Confirm: ${input.confirmationUrl}`
     : "";
-  const eventDetails =
-    input.orderType === "event" && input.eventType && input.eventDate
-      ? `<p>Event: <strong>${escapeHtml(readableEventType(input.eventType))}</strong><br>
-          Event date: <strong>${input.eventDate.toISOString().slice(0, 10)}</strong></p>`
-      : "";
-  const eventDetailsText =
-    input.orderType === "event" && input.eventType && input.eventDate
-      ? ` Event: ${readableEventType(input.eventType)} on ${input.eventDate.toISOString().slice(0, 10)}.`
-      : "";
-
   return deliverEmail({
     subject: input.orderType === "event" ? "NEW EVENT ORDER" : "NEW ORDERS",
     html: `
@@ -146,14 +131,12 @@ export function sendNewOrderNotification(input: NewOrderEmail) {
       <p>Location: <strong>${escapeHtml(input.locationName)}</strong></p>
       <p>Quantity: <strong>${details}</strong></p>
       <p>Total: <strong>${total}</strong></p>
-      ${eventDetails}
       ${confirmation}
     `,
     text:
       `${input.orderType === "event" ? "NEW EVENT ORDER" : "NEW ORDERS"}\n` +
       `${input.customerName} (${input.customerEmail}) placed a paid order. ` +
       `Location: ${input.locationName}. Quantity: ${details}. Total: ${total}.` +
-      eventDetailsText +
       confirmationText,
     idempotencyKey: `new-order/${input.orderType}/${input.orderId}`,
   });

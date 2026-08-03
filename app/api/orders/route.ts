@@ -22,15 +22,13 @@ import { createPickupCredential } from "@/lib/server/pickup";
 const personalOrderSchema = z.object({
   orderType: z.literal("personal").optional(),
   locationId: z.string().uuid(),
-  quantity: z.number().int().min(1).max(12),
+  quantity: z.number().int().min(1).max(6),
 });
 
 const eventOrderSchema = z.object({
   orderType: z.literal("event"),
   locationId: z.string().uuid(),
   quantity: z.number().int().min(2).max(4),
-  eventType: z.enum(["birthday", "baptism", "graduation", "wedding"]),
-  eventDate: z.coerce.date(),
 });
 
 const bodySchema = z.union([eventOrderSchema, personalOrderSchema]);
@@ -43,8 +41,6 @@ const safeOrderFields = {
   locationId: orders.locationId,
   quantity: orders.quantity,
   orderType: orders.orderType,
-  eventType: orders.eventType,
-  eventDate: orders.eventDate,
   unitPriceCents: orders.unitPriceCents,
   transportationFeeCents: orders.transportationFeeCents,
   totalCents: orders.totalCents,
@@ -127,23 +123,6 @@ export async function POST(request: Request) {
       if (!membership) {
         throw new ApiError(403, "Event orders are available to active members");
       }
-
-      const earliestEventDay = Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate() + eventPickupDelayDays,
-      );
-      const selectedEventDay = Date.UTC(
-        input.eventDate.getUTCFullYear(),
-        input.eventDate.getUTCMonth(),
-        input.eventDate.getUTCDate(),
-      );
-      if (selectedEventDay < earliestEventDay) {
-        throw new ApiError(
-          400,
-          "Choose an event date at least 3 days from today",
-        );
-      }
     } else if (!location.inStock) {
       throw new ApiError(409, "This location is currently out of stock");
     }
@@ -173,8 +152,6 @@ export async function POST(request: Request) {
         locationId: location.id,
         quantity: input.quantity,
         orderType: isEvent ? "event" : "personal",
-        eventType: isEvent ? input.eventType : null,
-        eventDate: isEvent ? input.eventDate : null,
         unitPriceCents,
         transportationFeeCents,
         totalCents,
@@ -220,8 +197,6 @@ export async function POST(request: Request) {
           metadata: {
             orderId: order.id,
             orderType: order.orderType,
-            eventType: order.eventType,
-            eventDate: order.eventDate?.toISOString() ?? null,
             customerName: member.firstName,
             customerEmail: member.email,
             quantity: input.quantity,
@@ -240,8 +215,6 @@ export async function POST(request: Request) {
       quantity: order.quantity,
       totalCents: order.totalCents,
       locationName: location.name,
-      eventType: order.eventType ?? undefined,
-      eventDate: order.eventDate ?? undefined,
     });
 
     return json(

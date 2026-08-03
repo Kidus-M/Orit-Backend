@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "versionCode": 12,
-  "versionName": "0.0.12",
-  "minimumSupportedVersionCode": 12,
-  "apkUrl": "/downloads/orit-tej-android-0.0.12-12.apk",
-  "sha256": "315793d2d1bfd177e4ad90be030595550103c430c2717b68fa59525d8f2472a5",
-  "sizeBytes": 70533016,
+  "versionCode": 13,
+  "versionName": "0.0.13",
+  "minimumSupportedVersionCode": 13,
+  "apkUrl": "/downloads/orit-tej-android-0.0.13-13.apk",
+  "sha256": "2797dfc50e1720ead24859424c2416736aec8ca28af8469062aa3486855c2de3",
+  "sizeBytes": 77003638,
   "releaseNotes": [
-    "Added member-only event case ordering with event details and pickup QR",
-    "Added per-location transportation fees and out-of-stock location blocking",
-    "Added a No Membership signup option while securely saving payment details"
+    "Limited personal orders to 6 bottles and vendor orders to 30 cases",
+    "Simplified member event ordering and corrected case labels",
+    "Added Shorebird in-app update support"
   ],
-  "publishedAt": "2026-08-03T08:21:59.900Z"
+  "publishedAt": "2026-08-03T11:22:18.241Z"
 }

@@ -13,8 +13,6 @@ const orderFields = {
   customerEmail: users.email,
   quantity: orders.quantity,
   orderType: orders.orderType,
-  eventType: orders.eventType,
-  eventDate: orders.eventDate,
   pickupReadyAt: orders.pickupReadyAt,
   paid: orders.paid,
   status: orders.status,
