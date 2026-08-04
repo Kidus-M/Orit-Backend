@@ -300,7 +300,9 @@ export const monthlySummaryDeliveries = pgTable(
           vendorName: string;
           vendorEmail: string;
           casesOrdered: number;
+          casesTotalCents: number;
           customerBottlesSold: number;
+          customerBottlesTotalCents: number;
         }>
       >()
       .notNull()

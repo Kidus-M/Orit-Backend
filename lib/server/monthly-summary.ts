@@ -51,6 +51,7 @@ export async function buildMonthlyVendorSummary(now = new Date()) {
       .select({
         vendorId: vendorOrders.vendorId,
         quantity: sql<number>`coalesce(sum(${vendorOrders.quantity}), 0)::int`,
+        totalCents: sql<number>`coalesce(sum(${vendorOrders.totalCents}), 0)::int`,
       })
       .from(vendorOrders)
       .where(
@@ -66,6 +67,7 @@ export async function buildMonthlyVendorSummary(now = new Date()) {
       .select({
         vendorId: locations.vendorId,
         quantity: sql<number>`coalesce(sum(${orders.quantity}), 0)::int`,
+        totalCents: sql<number>`coalesce(sum(${orders.totalCents}), 0)::int`,
       })
       .from(orders)
       .innerJoin(locations, eq(locations.id, orders.locationId))
@@ -83,20 +85,38 @@ export async function buildMonthlyVendorSummary(now = new Date()) {
   ]);
 
   const casesByVendor = new Map(
-    caseRows.map((row) => [row.vendorId, Number(row.quantity)]),
+    caseRows.map((row) => [
+      row.vendorId,
+      {
+        quantity: Number(row.quantity),
+        totalCents: Number(row.totalCents),
+      },
+    ]),
   );
   const bottlesByVendor = new Map(
     bottleRows
       .filter((row) => row.vendorId)
-      .map((row) => [row.vendorId!, Number(row.quantity)]),
+      .map((row) => [
+        row.vendorId!,
+        {
+          quantity: Number(row.quantity),
+          totalCents: Number(row.totalCents),
+        },
+      ]),
   );
-  const rows: MonthlyVendorSummaryRow[] = vendorRows.map((vendor) => ({
-    vendorId: vendor.id,
-    vendorName: vendor.name,
-    vendorEmail: vendor.email,
-    casesOrdered: casesByVendor.get(vendor.id) ?? 0,
-    customerBottlesSold: bottlesByVendor.get(vendor.id) ?? 0,
-  }));
+  const rows: MonthlyVendorSummaryRow[] = vendorRows.map((vendor) => {
+    const cases = casesByVendor.get(vendor.id);
+    const bottles = bottlesByVendor.get(vendor.id);
+    return {
+      vendorId: vendor.id,
+      vendorName: vendor.name,
+      vendorEmail: vendor.email,
+      casesOrdered: cases?.quantity ?? 0,
+      casesTotalCents: cases?.totalCents ?? 0,
+      customerBottlesSold: bottles?.quantity ?? 0,
+      customerBottlesTotalCents: bottles?.totalCents ?? 0,
+    };
+  });
 
   return { reportMonth, start, end, rows };
 }

@@ -16,7 +16,9 @@ export type MonthlyVendorSummaryRow = {
   vendorName: string;
   vendorEmail: string;
   casesOrdered: number;
+  casesTotalCents: number;
   customerBottlesSold: number;
+  customerBottlesTotalCents: number;
 };
 
 type EmailPayload = {
@@ -147,13 +149,48 @@ export function sendMonthlySummaryEmail(input: {
   periodLabel: string;
   rows: MonthlyVendorSummaryRow[];
 }) {
+  const formatTotal = (cents: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(cents / 100);
+  const cellStyle = "border:1px solid #777;padding:10px";
   const tableRows = input.rows
     .map(
-      (row) => `
+      (row, index) => `
+        ${
+          index === 0
+            ? ""
+            : `<tr>
+                <td rowspan="4" style="${cellStyle};vertical-align:top">
+                  <strong>${escapeHtml(row.vendorName)}</strong><br>
+                  <small>${escapeHtml(row.vendorEmail)}</small>
+                </td>
+                <th align="left" style="${cellStyle}">Cases</th>
+                <th align="left" style="${cellStyle}">Total</th>
+              </tr>`
+        }
         <tr>
-          <td>${escapeHtml(row.vendorName)}<br><small>${escapeHtml(row.vendorEmail)}</small></td>
-          <td>${row.casesOrdered}</td>
-          <td>${row.customerBottlesSold}</td>
+          ${
+            index === 0
+              ? `<td rowspan="3" style="${cellStyle};vertical-align:top">
+                  <strong>${escapeHtml(row.vendorName)}</strong><br>
+                  <small>${escapeHtml(row.vendorEmail)}</small>
+                </td>`
+              : ""
+          }
+          <td align="right" style="${cellStyle}">${row.casesOrdered}</td>
+          <td align="right" style="${cellStyle}">${formatTotal(row.casesTotalCents)}</td>
+        </tr>
+        <tr>
+          <th align="left" style="${cellStyle}">Bottles</th>
+          <th align="left" style="${cellStyle}">Total</th>
+        </tr>
+        <tr>
+          <td align="right" style="${cellStyle}">${row.customerBottlesSold}</td>
+          <td align="right" style="${cellStyle}">${formatTotal(row.customerBottlesTotalCents)}</td>
         </tr>`,
     )
     .join("");
@@ -162,8 +199,9 @@ export function sendMonthlySummaryEmail(input: {
         .map(
           (row) =>
             `${row.vendorName} (${row.vendorEmail}): ` +
-            `${row.casesOrdered} cases received; ` +
-            `${row.customerBottlesSold} bottles sold to customers`,
+            `${row.casesOrdered} cases received (${formatTotal(row.casesTotalCents)} total); ` +
+            `${row.customerBottlesSold} bottles sold to customers ` +
+            `(${formatTotal(row.customerBottlesTotalCents)} total)`,
         )
         .join("\n")
     : "No vendors were active during this period.";
@@ -173,15 +211,15 @@ export function sendMonthlySummaryEmail(input: {
     html: `
       <h1><strong>SUMMARY</strong></h1>
       <p>${escapeHtml(input.periodLabel)}</p>
-      <table style="width:100%;border-collapse:collapse" cellpadding="10" border="1">
+      <table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif" cellpadding="0" cellspacing="0">
         <thead>
           <tr>
-            <th align="left">Vendor</th>
-            <th align="left">Cases received</th>
-            <th align="left">Bottles sold to customers</th>
+            <th align="left" style="${cellStyle}">Vendor</th>
+            <th align="left" style="${cellStyle}">Cases</th>
+            <th align="left" style="${cellStyle}">Total</th>
           </tr>
         </thead>
-        <tbody>${tableRows || '<tr><td colspan="3">No vendor activity this month.</td></tr>'}</tbody>
+        <tbody>${tableRows || `<tr><td colspan="3" style="${cellStyle}">No vendor activity this month.</td></tr>`}</tbody>
       </table>
     `,
     text: `SUMMARY\n${input.periodLabel}\n${textRows}`,
