@@ -46,7 +46,7 @@ export default function AboutPage() {
           <section className="section story-collage">
             <div className="story-collage__heading" data-reveal>
               <h2 className="display-heading">
-                It started at the table
+                It started at the table...
               </h2>
             </div>
             <div className="story-collage__primary image-frame" data-reveal>
