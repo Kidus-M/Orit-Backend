@@ -123,9 +123,9 @@ export function sendNewOrderNotification(input: NewOrderEmail) {
     ? ` Confirm: ${input.confirmationUrl}`
     : "";
   return deliverEmail({
-    subject: input.orderType === "event" ? "NEW EVENT ORDER" : "NEW ORDERS",
+    subject: input.orderType === "event" ? "NEW EVENT" : "NEW ORDER",
     html: `
-      <h1><strong>${input.orderType === "event" ? "NEW EVENT ORDER" : "NEW ORDERS"}</strong></h1>
+      <h1><strong>${input.orderType === "event" ? "NEW EVENT" : "NEW ORDER"}</strong></h1>
       <p><strong>${escapeHtml(input.customerName)}</strong>
       (${escapeHtml(input.customerEmail)}) placed a paid order.</p>
       <p>Location: <strong>${escapeHtml(input.locationName)}</strong></p>
@@ -134,7 +134,7 @@ export function sendNewOrderNotification(input: NewOrderEmail) {
       ${confirmation}
     `,
     text:
-      `${input.orderType === "event" ? "NEW EVENT ORDER" : "NEW ORDERS"}\n` +
+      `${input.orderType === "event" ? "NEW EVENT" : "NEW ORDER"}\n` +
       `${input.customerName} (${input.customerEmail}) placed a paid order. ` +
       `Location: ${input.locationName}. Quantity: ${details}. Total: ${total}.` +
       confirmationText,
