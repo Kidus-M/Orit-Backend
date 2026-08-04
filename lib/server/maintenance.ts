@@ -1,4 +1,4 @@
-﻿import { and, eq, isNull, lte } from "drizzle-orm";
+import { and, eq, isNull, lte } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import {
@@ -7,6 +7,7 @@ import {
   memberships,
   paymentMethods,
   payments,
+  users,
 } from "@/lib/db/schema";
 import { addMonthsClamped } from "@/lib/server/dates";
 import { sendMessage } from "@/lib/server/messages";
@@ -17,6 +18,27 @@ export type MaintenanceSummary = {
   renewedMemberships: number;
   failedMemberships: number;
 };
+
+export async function getRenewalCandidates(now = new Date()) {
+  return getDb()
+    .select({
+      membership: memberships,
+      plan: membershipPlans,
+      paymentMethodId: paymentMethods.id,
+    })
+    .from(memberships)
+    .innerJoin(membershipPlans, eq(memberships.planId, membershipPlans.id))
+    .innerJoin(users, eq(memberships.userId, users.id))
+    .leftJoin(paymentMethods, eq(memberships.userId, paymentMethods.userId))
+    .where(
+      and(
+        isNull(users.deletedAt),
+        isNull(memberships.endedAt),
+        eq(memberships.autoRenew, true),
+        lte(memberships.currentPeriodEnd, now),
+      ),
+    );
+}
 
 export async function runMaintenance(now = new Date()): Promise<MaintenanceSummary> {
   const db = getDb();
@@ -32,22 +54,7 @@ export async function runMaintenance(now = new Date()): Promise<MaintenanceSumma
     )
     .returning({ id: complimentaryBenefits.id });
 
-  const dueMemberships = await db
-    .select({
-      membership: memberships,
-      plan: membershipPlans,
-      paymentMethodId: paymentMethods.id,
-    })
-    .from(memberships)
-    .innerJoin(membershipPlans, eq(memberships.planId, membershipPlans.id))
-    .leftJoin(paymentMethods, eq(memberships.userId, paymentMethods.userId))
-    .where(
-      and(
-        isNull(memberships.endedAt),
-        eq(memberships.autoRenew, true),
-        lte(memberships.currentPeriodEnd, now),
-      ),
-    );
+  const dueMemberships = await getRenewalCandidates(now);
 
   let renewedMemberships = 0;
   let failedMemberships = 0;

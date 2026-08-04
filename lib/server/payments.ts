@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
-import { paymentMethods } from "@/lib/db/schema";
+import { paymentMethods, users } from "@/lib/db/schema";
 import { getEnv } from "@/lib/env";
 import { ApiError } from "@/lib/server/http";
 import { getStripe } from "@/lib/server/stripe";
@@ -16,6 +16,16 @@ export async function chargeSavedPaymentMethod(input: {
   memberId: string;
   kind: "membership" | "order" | "event_order" | "vendor_order";
 }): Promise<PaymentCharge> {
+  const [chargeableAccount] = await getDb()
+    .select({ id: users.id })
+    .from(users)
+    .where(and(eq(users.id, input.memberId), isNull(users.deletedAt)))
+    .limit(1);
+
+  if (!chargeableAccount) {
+    throw new ApiError(409, "This account cannot be charged");
+  }
+
   const env = getEnv();
 
   if (env.PAYMENT_MODE === "mock") {

@@ -1,9 +1,10 @@
-﻿import { eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
-import { sessions, users } from "@/lib/db/schema";
+import { users } from "@/lib/db/schema";
+import { deleteAccountSafely } from "@/lib/server/account-deletion";
 import { requireAuth } from "@/lib/server/auth";
 import { handleRoute, json } from "@/lib/server/http";
 
@@ -38,16 +39,7 @@ export async function DELETE(request: Request) {
   return handleRoute(async () => {
     await prepareDatabase();
     const user = await requireAuth(request);
-    const now = new Date();
-    await getDb()
-      .update(users)
-      .set({
-        email: `deleted-${user.id}@invalid.local`,
-        deletedAt: now,
-        updatedAt: now,
-      })
-      .where(eq(users.id, user.id));
-    await getDb().delete(sessions).where(eq(sessions.userId, user.id));
+    await deleteAccountSafely(user.id);
     return new Response(null, { status: 204 });
   });
 }

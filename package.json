@@ -16,6 +16,7 @@
     "stripe:check": "tsx scripts/check-stripe.ts",
     "resend:check": "tsx scripts/check-resend.ts",
     "admin:check": "tsx scripts/check-admin-controls.ts",
+    "account-deletion:check": "tsx scripts/check-account-deletion.ts",
     "check": "npm run lint && tsc --noEmit",
     "release:android": "tsx scripts/release-android.ts",
     "generate:menu-qr": "tsx scripts/generate-menu-qr.ts",
