@@ -52,7 +52,13 @@ img { object-fit: cover; }
 }
 .brand-lockup { display: inline-flex; align-items: center; gap: 12px; }
 .brand-lockup > span:last-child { display: grid; }
-.brand-lockup strong { font-size: 1.04rem; letter-spacing: -0.02em; }
+.brand-lockup strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.42rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
 .brand-lockup small {
   margin-top: 2px; color: rgba(33, 28, 24, 0.67);
   font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
@@ -269,25 +275,47 @@ img { object-fit: cover; }
 }
 
 .story-collage {
-  display: grid; grid-template-columns: .82fr 1fr;
-  gap: 55px 8vw; align-items: center;
+  display: grid;
+  grid-template-columns: .82fr 1fr;
+  column-gap: 8vw;
+  row-gap: 26px;
+  align-items: start;
 }
-.story-collage__primary { min-height: 690px; }
+.story-collage__primary {
+  grid-column: 1;
+  grid-row: 2;
+  min-height: 0;
+  aspect-ratio: 3 / 2;
+}
 .story-collage__primary img,
 .story-collage__secondary img {
   object-fit: contain;
 }
+.story-collage__primary img { object-fit: cover; }
+.story-collage__copy {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
 .story-collage__copy p { color: var(--muted); line-height: 1.7; }
+.story-collage__copy .lead {
+  margin: 0;
+  font-size: clamp(1rem, 1.35vw, 1.2rem);
+}
+.story-collage__copy .lead + .lead { margin-top: 28px; }
 .story-hero__kicker {
   width: min(940px, 100%);
   margin-right: auto;
   margin-left: auto;
   text-align: center;
 }
-.story-collage__heading { text-align: center; }
-.story-collage__heading .kicker {
-  width: 100%;
-  text-align: center;
+.story-collage__heading {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: left;
+}
+.story-collage__heading .display-heading {
+  color: var(--wine);
+  font-size: clamp(2.35rem, 3.8vw, 4.25rem);
 }
 .story-collage blockquote {
   margin: 38px 0 0; border-left: 2px solid var(--honey);
@@ -295,8 +323,11 @@ img { object-fit: cover; }
   font-size: 1.5rem; line-height: 1.45;
 }
 .story-collage__special {
+  grid-column: 1;
+  grid-row: 3;
   align-self: center;
   max-width: 620px;
+  margin-top: 29px;
 }
 .story-collage__special h2 {
   margin-bottom: 24px;
@@ -310,7 +341,12 @@ img { object-fit: cover; }
 .story-collage__special p {
   margin: 0;
 }
-.story-collage__secondary { min-height: 410px; grid-column: 2; }
+.story-collage__secondary {
+  min-height: 410px;
+  grid-column: 2;
+  grid-row: 3;
+  margin-top: 29px;
+}
 .timeline-section { background: var(--wine); color: white; }
 .timeline-section__heading {
   display: flex;
@@ -631,7 +667,16 @@ button:disabled { cursor: wait; opacity: .65; }
   .gallery-preview__images { min-height: 630px; padding: 0 24px 55px; }
   .section-heading { grid-template-columns: 1fr; gap: 26px; }
   .phone-stage { min-height: 660px; }
-  .story-collage__secondary { grid-column: auto; }
+  .story-collage__heading,
+  .story-collage__primary,
+  .story-collage__copy,
+  .story-collage__special,
+  .story-collage__secondary {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .story-collage__special,
+  .story-collage__secondary { margin-top: 0; }
   .store-grid { grid-template-columns: 1fr; }
   .gallery-grid { grid-auto-rows: 230px; }
   .gallery-card, .gallery-card--wide, .gallery-card--tall, .gallery-card--standard {
@@ -662,7 +707,10 @@ button:disabled { cursor: wait; opacity: .65; }
   .gallery-preview__images { min-height: 470px; gap: 9px; }
   .page-hero { min-height: 540px; padding: 135px 22px 65px; }
   .page-hero h1 { font-size: clamp(3.4rem,17vw,5rem); }
-  .story-collage__primary { min-height: 500px; }
+  .story-collage__primary { min-height: 0; }
+  .story-collage__heading .display-heading {
+    font-size: clamp(1.85rem, 9vw, 2.65rem);
+  }
   .timeline article { grid-template-columns: 1fr; }
   .store-card { min-height: 360px; border-radius: 22px; }
   .store-card__footer { align-items: flex-start; flex-direction: column; gap: 7px; }
@@ -724,6 +772,9 @@ button:disabled { cursor: wait; opacity: .65; }
   border: 0;
   border-radius: 0;
   box-shadow: none;
+  filter:
+    drop-shadow(0 0 0.75px rgba(59, 16, 29, 0.95))
+    drop-shadow(0 2px 2px rgba(59, 16, 29, 0.34));
   object-fit: contain;
 }
 .company-logo--footer {

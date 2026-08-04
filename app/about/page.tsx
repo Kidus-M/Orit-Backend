@@ -35,12 +35,6 @@ export default function AboutPage() {
         <main id="main-content">
           <section className="page-hero page-hero--wine page-hero--centered">
             <div>
-              {/* <p
-                className="kicker kicker--light story-hero__kicker"
-                data-page-intro
-              >
-                Our story
-              </p> */}
               <h1 data-page-intro>A recipe carried to a generation.</h1>
               <p data-page-intro>
                 Orit Tej began with memory, hospitality, and a family recipe
@@ -50,6 +44,11 @@ export default function AboutPage() {
           </section>
 
           <section className="section story-collage">
+            <div className="story-collage__heading" data-reveal>
+              <h2 className="display-heading">
+                It started at the family table.
+              </h2>
+            </div>
             <div className="story-collage__primary image-frame" data-reveal>
               <Image
                 src="/family-pic.jpg"
@@ -59,24 +58,27 @@ export default function AboutPage() {
               />
             </div>
             <div className="story-collage__copy" data-reveal>
-              <div className="story-collage__heading">
-                <p className="kicker">Made to gather around</p>
-                <h2 className="display-heading">
-                  It started at the family table.
-                </h2>
-              </div>
               <p className="lead">
-                In 1983, Sam and Fi came to California from Ethiopia. Soon
-                after, they opened a family owned restaurant in San Francisco
-                and began making Tej from a recipe born from culture and
-                dedication.
+                Very similar to many loving stories, Sam and Fi first arrived in
+                California in 1983 from Ethiopia. Rather than searching for work,
+                they created their own work by starting a family owned Ethiopian
+                Restaurant in San Francisco. After several years, Sam and Fi
+                decided that they wanted to give something more special to the
+                community. Amongst their hand full of small possessions they had
+                brought from Ethiopia, there was a family recipe for Tej. Slowly
+                and tirelessly they handcrafted their Tej to perfection, only
+                serving it to family and close friends. The response was so
+                overwhelming that in 1987 Sam and Fi finally mustered the courage
+                to introduce their Tej to the rest of the community.
               </p>
               <p className="lead">
-                The wine was first shared with relatives and friends. When it
-                was introduced publicly in 1987, the response made one thing
-                clear, this tradition deserved a wider table!
+                Throughout the years, Sam and Fi have continued to carefully
+                handcraft each and every barrel of Orit Tej, using nothing but
+                their hands, their passion, and natural ingredients. Having
+                established their winery in Solano County, California, Sam and Fi
+                continue to produce the best quality Tej everyone deserves to
+                have.
               </p>
-              <blockquote>“We continue to make quality, not quantity.”</blockquote>
             </div>
             <div className="story-collage__special" data-reveal>
               <h2>What Makes Our Tej Special</h2>

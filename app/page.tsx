@@ -79,7 +79,7 @@ export default function Home() {
             <div className="quality-grid" data-stagger>
               <article>
                 <span className="quality-number">01</span>
-                <h3>Honey-led</h3>
+                <h3>Honey based</h3>
                 <p>All natural domestic honey.</p>
               </article>
               <article>
@@ -89,7 +89,7 @@ export default function Home() {
               </article>
               <article>
                 <span className="quality-number">03</span>
-                <h3>Made for food</h3>
+                <h3>Home made</h3>
                 <p>
                   Pairs with and complements foods that are rich in spices.
                 </p>

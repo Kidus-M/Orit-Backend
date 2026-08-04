@@ -83,6 +83,7 @@ Open `http://localhost:3000`. You can verify the API at `GET /api/health`.
 | `npm run db:studio` | Open Drizzle Studio. |
 | `npm run release:android` | Publish an APK and update the Android release manifest. |
 | `npm run generate:menu-qr` | Regenerate the permanent Wolf Den menu QR assets. |
+| `npm run generate:welcome-qr` | Regenerate the permanent Wolf Den welcome QR assets. |
 
 Only run `npm run db:generate` when the schema changes. Production deployments should apply the committed migrations with `npm run db:migrate`.
 
