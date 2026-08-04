@@ -35,7 +35,7 @@ export default function AboutPage() {
         <main id="main-content">
           <section className="page-hero page-hero--wine page-hero--centered">
             <div>
-              <h1 data-page-intro>A recipe carried to a generation.</h1>
+              <h1 data-page-intro>A recipe given to the next generation.</h1>
               <p data-page-intro>
                 Orit Tej began with memory, hospitality, and a family recipe
                 brought from Ethiopia to California.
@@ -46,7 +46,7 @@ export default function AboutPage() {
           <section className="section story-collage">
             <div className="story-collage__heading" data-reveal>
               <h2 className="display-heading">
-                It started at the family table.
+                It started at the table
               </h2>
             </div>
             <div className="story-collage__primary image-frame" data-reveal>
