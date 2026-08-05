@@ -1,4 +1,4 @@
-﻿import { and, eq, isNull, or } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import Stripe from "stripe";
 import { z } from "zod";
 
@@ -7,11 +7,15 @@ import { prepareDatabase } from "@/lib/db/prepare";
 import { membershipPlans, memberships, users } from "@/lib/db/schema";
 import { getEnv } from "@/lib/env";
 import { requireAuth } from "@/lib/server/auth";
+import {
+  isAtLeast21,
+  membershipRenewalConsentSchema,
+} from "@/lib/server/compliance";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
 import { ensureStripeCustomer, getStripe } from "@/lib/server/stripe";
 
-const bodySchema = z
-  .object({
+const bodySchema = membershipRenewalConsentSchema
+  .extend({
     planId: z.string().uuid().optional(),
     planCode: z.enum(["one_month", "three_month", "six_month"]).optional(),
   })
@@ -72,6 +76,15 @@ export async function POST(request: Request) {
       .where(eq(users.id, member.id))
       .limit(1);
     if (!userRecord) throw new ApiError(404, "Member not found");
+    if (
+      !userRecord.dateOfBirth ||
+      !isAtLeast21(userRecord.dateOfBirth)
+    ) {
+      throw new ApiError(
+        403,
+        "You must be 21 or older to purchase alcohol",
+      );
+    }
 
     const customerId = await ensureStripeCustomer(userRecord);
     if (!userRecord.stripeCustomerId) {

@@ -8,10 +8,16 @@ import {
   memberships,
   paymentMethods,
   payments,
+  userConsents,
   users,
 } from "@/lib/db/schema";
 import { getEnv } from "@/lib/env";
 import { requireAuth } from "@/lib/server/auth";
+import {
+  isAtLeast21,
+  MEMBERSHIP_RENEWAL_TERMS_VERSION,
+  membershipRenewalConsentSchema,
+} from "@/lib/server/compliance";
 import { addMonthsClamped } from "@/lib/server/dates";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
 import { chargeSavedPaymentMethod } from "@/lib/server/payments";
@@ -27,8 +33,8 @@ const paymentMethodSchema = z.object({
   billingZip: z.string().regex(/^\d{5}$/),
 });
 
-const bodySchema = z
-  .object({
+const bodySchema = membershipRenewalConsentSchema
+  .extend({
     planId: z.string().uuid().optional(),
     planCode: z.enum(["one_month", "three_month", "six_month"]).optional(),
     paymentIntentId: z.string().startsWith("pi_").optional(),
@@ -47,6 +53,21 @@ export async function POST(request: Request) {
     const input = bodySchema.parse(await request.json());
     const env = getEnv();
     const db = getDb();
+
+    const [eligibility] = await db
+      .select({ dateOfBirth: users.dateOfBirth })
+      .from(users)
+      .where(eq(users.id, user.id))
+      .limit(1);
+    if (
+      !eligibility?.dateOfBirth ||
+      !isAtLeast21(eligibility.dateOfBirth)
+    ) {
+      throw new ApiError(
+        403,
+        "You must be 21 or older to purchase alcohol",
+      );
+    }
 
     const [plan] = await db
       .select()
@@ -202,6 +223,21 @@ export async function POST(request: Request) {
       status: paymentStatus,
       providerReference,
     });
+    await db
+      .insert(userConsents)
+      .values({
+        userId: user.id,
+        consentType: "membership_auto_renew",
+        policyVersion: MEMBERSHIP_RENEWAL_TERMS_VERSION,
+        metadata: {
+          planId: plan.id,
+          planCode: plan.code,
+          priceCents: plan.priceCents,
+          durationMonths: plan.durationMonths,
+          source: "membership_purchase",
+        },
+      })
+      .onConflictDoNothing();
 
     await db
       .update(users)

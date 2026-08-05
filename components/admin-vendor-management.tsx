@@ -30,6 +30,10 @@ export type AdminLocation = {
   state: string;
   postalCode: string;
   hoursText: string;
+  abcLicenseType: string | null;
+  abcLicenseNumber: string | null;
+  responsibleOperator: string | null;
+  complianceApproved: boolean;
   bottlePriceCents: number;
   stockQuantity: number;
   casePriceCents: number;
@@ -148,6 +152,10 @@ export function AdminVendorManagement({
       state: String(form.get("state") ?? ""),
       postalCode: String(form.get("postalCode") ?? ""),
       hoursText: String(form.get("hoursText") ?? ""),
+      abcLicenseType: String(form.get("abcLicenseType") ?? "").trim(),
+      abcLicenseNumber: String(form.get("abcLicenseNumber") ?? "").trim(),
+      responsibleOperator: String(form.get("responsibleOperator") ?? "").trim(),
+      complianceApproved: form.get("complianceApproved") === "on",
       bottlePriceCents: Math.round(Number(form.get("bottlePrice")) * 100),
       stockQuantity: Math.round(Number(form.get("stockQuantity"))),
       casePriceCents: Math.round(Number(form.get("casePrice")) * 100),
@@ -387,6 +395,32 @@ export function AdminVendorManagement({
             />
           </label>
           <label>
+            California ABC license type
+            <input
+              name="abcLicenseType"
+              defaultValue={editing?.abcLicenseType ?? ""}
+              maxLength={80}
+              placeholder="Example: Type 20"
+            />
+          </label>
+          <label>
+            California ABC license number
+            <input
+              name="abcLicenseNumber"
+              defaultValue={editing?.abcLicenseNumber ?? ""}
+              maxLength={50}
+            />
+          </label>
+          <label className="admin-location-form__wide">
+            Responsible operator
+            <input
+              name="responsibleOperator"
+              defaultValue={editing?.responsibleOperator ?? ""}
+              maxLength={120}
+              placeholder="Business or licensee responsible for alcohol service"
+            />
+          </label>
+          <label>
             Bottle price
             <input
               name="bottlePrice"
@@ -442,6 +476,14 @@ export function AdminVendorManagement({
             />
           </label>
 
+          <label className="admin-check-field">
+            <input
+              name="complianceApproved"
+              type="checkbox"
+              defaultChecked={editing?.complianceApproved ?? false}
+            />
+            Compliance reviewed and approved
+          </label>
           <label className="admin-check-field">
             <input name="active" type="checkbox" defaultChecked={editing?.active ?? false} />
             Visible to customers

@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 
 import {
   boolean,
+  date,
   index,
   integer,
   jsonb,
@@ -45,8 +46,10 @@ export const users = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     role: text("role").notNull(),
     firstName: text("first_name").notNull(),
+    dateOfBirth: date("date_of_birth"),
     email: text("email").notNull(),
     storeName: text("store_name"),
+    abcLicenseNumber: text("abc_license_number"),
     passwordHash: text("password_hash"),
     stripeCustomerId: text("stripe_customer_id"),
     vendorInvitationId: uuid("vendor_invitation_id").references(
@@ -81,6 +84,39 @@ export const sessions = pgTable(
   (table) => [
     uniqueIndex("sessions_token_hash_unique").on(table.tokenHash),
     index("sessions_user_idx").on(table.userId),
+  ],
+);
+
+export const userConsents = pgTable(
+  "user_consents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    consentType: text("consent_type").notNull(),
+    policyVersion: text("policy_version").notNull(),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    metadata: jsonb("metadata")
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("user_consents_type_version_unique").on(
+      table.userId,
+      table.consentType,
+      table.policyVersion,
+    ),
+    index("user_consents_user_accepted_idx").on(
+      table.userId,
+      table.acceptedAt,
+    ),
   ],
 );
 
@@ -177,6 +213,12 @@ export const locations = pgTable(
     state: text("state").notNull(),
     postalCode: text("postal_code").notNull(),
     hoursText: text("hours_text").notNull(),
+    abcLicenseType: text("abc_license_type"),
+    abcLicenseNumber: text("abc_license_number"),
+    responsibleOperator: text("responsible_operator"),
+    complianceApproved: boolean("compliance_approved")
+      .notNull()
+      .default(false),
     bottlePriceCents: integer("bottle_price_cents").notNull().default(1898),
     stockQuantity: integer("stock_quantity").notNull().default(24),
     casePriceCents: integer("case_price_cents").notNull().default(8500),
@@ -244,6 +286,10 @@ export const orders = pgTable(
     pickupReadyAt: timestamp("pickup_ready_at", { withTimezone: true }),
     completedAt: timestamp("completed_at", { withTimezone: true }),
     completedByUserId: uuid("completed_by_user_id").references(() => users.id),
+    ageVerifiedAt: timestamp("age_verified_at", { withTimezone: true }),
+    ageVerificationStatementVersion: text(
+      "age_verification_statement_version",
+    ),
     ...timestamps,
   },
   (table) => [

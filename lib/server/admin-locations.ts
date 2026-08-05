@@ -10,9 +10,13 @@ export const locationValuesSchema = z.object({
   name: z.string().trim().min(1).max(120),
   addressLine1: z.string().trim().min(1).max(180),
   city: z.string().trim().min(1).max(100),
-  state: z.string().trim().min(2).max(60),
+  state: z.string().trim().min(2).max(60).transform((value) => value.toUpperCase()),
   postalCode: z.string().trim().min(3).max(20),
   hoursText: z.string().trim().min(1).max(240),
+  abcLicenseType: z.string().trim().max(80),
+  abcLicenseNumber: z.string().trim().max(50),
+  responsibleOperator: z.string().trim().max(120),
+  complianceApproved: z.boolean(),
   bottlePriceCents: z.number().int().min(0).max(1_000_000),
   stockQuantity: z.number().int().min(0).max(1_000_000),
   casePriceCents: z.number().int().min(0).max(10_000_000),
@@ -20,6 +24,34 @@ export const locationValuesSchema = z.object({
   active: z.boolean(),
   serviceCode: z.string().regex(/^\d{4}$/).optional(),
 });
+
+export function assertLocationCanBeActive(values: {
+  active: boolean;
+  state: string;
+  abcLicenseType: string | null;
+  abcLicenseNumber: string | null;
+  responsibleOperator: string | null;
+  complianceApproved: boolean;
+}) {
+  if (!values.active) return;
+  if (values.state.trim().toUpperCase() !== "CA") {
+    throw new ApiError(
+      400,
+      "Customer-visible pickup locations must be in California.",
+    );
+  }
+  if (
+    !values.complianceApproved ||
+    !values.abcLicenseType?.trim() ||
+    !values.abcLicenseNumber?.trim() ||
+    !values.responsibleOperator?.trim()
+  ) {
+    throw new ApiError(
+      400,
+      "Approve compliance and add the ABC license type, license number, and responsible operator before making this location visible.",
+    );
+  }
+}
 
 export async function requireVendor(vendorId: string | null) {
   if (!vendorId) return;
@@ -46,6 +78,7 @@ export async function deleteAdminLocation(locationId: string) {
       active: false,
       inStock: false,
       vendorId: null,
+      complianceApproved: false,
       deletedAt: now,
       updatedAt: now,
     })

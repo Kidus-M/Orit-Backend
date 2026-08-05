@@ -5,6 +5,7 @@ import { prepareDatabase } from "@/lib/db/prepare";
 import { locations } from "@/lib/db/schema";
 import { requireAdminCookie } from "@/lib/server/admin-auth";
 import {
+  assertLocationCanBeActive,
   locationValuesSchema,
   requireVendor,
 } from "@/lib/server/admin-locations";
@@ -22,6 +23,7 @@ export async function POST(request: Request) {
     await prepareDatabase();
     await requireAdminCookie(request);
     const input = createSchema.parse(await request.json());
+    assertLocationCanBeActive(input);
     await requireVendor(input.vendorId);
     const { serviceCode, stockQuantity, ...values } = input;
     const [location] = await getDb()

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
 import { orders } from "@/lib/db/schema";
+import { PICKUP_AGE_ATTESTATION_VERSION } from "@/lib/server/compliance";
 import { handleRoute, json } from "@/lib/server/http";
 import { sendMessage } from "@/lib/server/messages";
 import { authorizePickup } from "@/lib/server/pickup";
@@ -11,6 +12,7 @@ import { authorizePickup } from "@/lib/server/pickup";
 const bodySchema = z.object({
   token: z.string().min(32).max(100),
   serviceCode: z.string().regex(/^\d{4}$/),
+  ageVerified: z.literal(true),
 });
 
 export async function POST(request: Request) {
@@ -29,6 +31,8 @@ export async function POST(request: Request) {
       .set({
         status: "completed",
         completedAt: now,
+        ageVerifiedAt: now,
+        ageVerificationStatementVersion: PICKUP_AGE_ATTESTATION_VERSION,
         pickupTokenHash: null,
         pickupTokenExpiresAt: null,
         updatedAt: now,

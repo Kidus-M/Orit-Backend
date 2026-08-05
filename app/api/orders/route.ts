@@ -15,6 +15,7 @@ import {
   users,
 } from "@/lib/db/schema";
 import { requireAuth } from "@/lib/server/auth";
+import { isAtLeast21 } from "@/lib/server/compliance";
 import { sendNewOrderNotification } from "@/lib/server/email";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
 import { chargeSavedPaymentMethod } from "@/lib/server/payments";
@@ -92,6 +93,21 @@ export async function POST(request: Request) {
     const db = getDb();
     const now = new Date();
 
+    const [eligibility] = await db
+      .select({ dateOfBirth: users.dateOfBirth })
+      .from(users)
+      .where(eq(users.id, member.id))
+      .limit(1);
+    if (
+      !eligibility?.dateOfBirth ||
+      !isAtLeast21(eligibility.dateOfBirth, now)
+    ) {
+      throw new ApiError(
+        403,
+        "You must be 21 or older to purchase alcohol",
+      );
+    }
+
     const [paymentMethod] = await db
       .select({ id: paymentMethods.id })
       .from(paymentMethods)
@@ -106,6 +122,8 @@ export async function POST(request: Request) {
         and(
           eq(locations.id, input.locationId),
           eq(locations.active, true),
+          eq(locations.complianceApproved, true),
+          eq(locations.state, "CA"),
           isNull(locations.deletedAt),
         ),
       )

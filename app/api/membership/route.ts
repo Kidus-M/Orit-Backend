@@ -9,21 +9,25 @@ import {
   memberships,
   paymentMethods,
   payments,
+  userConsents,
   users,
 } from "@/lib/db/schema";
 import { requireAuth } from "@/lib/server/auth";
+import {
+  isAtLeast21,
+  MEMBERSHIP_RENEWAL_TERMS_VERSION,
+  membershipRenewalConsentSchema,
+} from "@/lib/server/compliance";
 import { addMonthsClamped } from "@/lib/server/dates";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
 import { chargeSavedPaymentMethod } from "@/lib/server/payments";
 
-const bodySchema = z.object({
-  planCode: z.enum([
-    "one_month",
-    "three_month",
-    "six_month",
-    "non_member",
-  ]),
-});
+const bodySchema = z.union([
+  z.object({ planCode: z.literal("non_member") }),
+  membershipRenewalConsentSchema.extend({
+    planCode: z.enum(["one_month", "three_month", "six_month"]),
+  }),
+]);
 
 const membershipFields = {
   id: memberships.id,
@@ -124,6 +128,21 @@ export async function PATCH(request: Request) {
       return json({ isMember: false, isNonMember: true, membership: null });
     }
 
+    const [eligibility] = await db
+      .select({ dateOfBirth: users.dateOfBirth })
+      .from(users)
+      .where(eq(users.id, member.id))
+      .limit(1);
+    if (
+      !eligibility?.dateOfBirth ||
+      !isAtLeast21(eligibility.dateOfBirth)
+    ) {
+      throw new ApiError(
+        403,
+        "You must be 21 or older to purchase alcohol",
+      );
+    }
+
     const [plan] = await db
       .select()
       .from(membershipPlans)
@@ -222,6 +241,21 @@ export async function PATCH(request: Request) {
       status: charge.status,
       providerReference: charge.providerReference,
     });
+    await db
+      .insert(userConsents)
+      .values({
+        userId: member.id,
+        consentType: "membership_auto_renew",
+        policyVersion: MEMBERSHIP_RENEWAL_TERMS_VERSION,
+        metadata: {
+          planId: plan.id,
+          planCode: plan.code,
+          priceCents: plan.priceCents,
+          durationMonths: plan.durationMonths,
+          source: "membership_change",
+        },
+      })
+      .onConflictDoNothing();
     await db
       .update(users)
       .set({ membershipOptOut: false, updatedAt: now })

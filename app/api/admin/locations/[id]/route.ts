@@ -6,6 +6,7 @@ import { prepareDatabase } from "@/lib/db/prepare";
 import { locations } from "@/lib/db/schema";
 import { requireAdminCookie } from "@/lib/server/admin-auth";
 import {
+  assertLocationCanBeActive,
   deleteAdminLocation,
   locationValuesSchema,
   requireVendor,
@@ -30,6 +31,28 @@ export async function PATCH(
     const { id } = await params;
     const locationId = z.string().uuid().parse(id);
     const input = updateSchema.parse(await request.json());
+    const [existing] = await getDb()
+      .select()
+      .from(locations)
+      .where(
+        and(eq(locations.id, locationId), isNull(locations.deletedAt)),
+      )
+      .limit(1);
+    if (!existing) throw new ApiError(404, "Location not found.");
+
+    assertLocationCanBeActive({
+      active: input.active ?? existing.active,
+      state: input.state ?? existing.state,
+      abcLicenseType:
+        input.abcLicenseType ?? existing.abcLicenseType,
+      abcLicenseNumber:
+        input.abcLicenseNumber ?? existing.abcLicenseNumber,
+      responsibleOperator:
+        input.responsibleOperator ?? existing.responsibleOperator,
+      complianceApproved:
+        input.complianceApproved ?? existing.complianceApproved,
+    });
+
     if (input.vendorId !== undefined) await requireVendor(input.vendorId);
     const { serviceCode, stockQuantity, ...values } = input;
     const [location] = await getDb()

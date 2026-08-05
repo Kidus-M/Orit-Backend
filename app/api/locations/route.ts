@@ -24,7 +24,12 @@ export async function GET() {
       })
       .from(locations)
       .where(
-        and(eq(locations.active, true), isNull(locations.deletedAt)),
+        and(
+          eq(locations.active, true),
+          eq(locations.complianceApproved, true),
+          eq(locations.state, "CA"),
+          isNull(locations.deletedAt),
+        ),
       )
       .orderBy(asc(locations.name));
     return json({ locations: result });

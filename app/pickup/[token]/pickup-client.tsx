@@ -16,7 +16,7 @@ type PickupOrder = {
   isMember: boolean;
 };
 
-async function postJson(path: string, body: Record<string, string>) {
+async function postJson(path: string, body: Record<string, string | boolean>) {
   const response = await fetch(path, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -42,6 +42,7 @@ export function PickupClient({ token }: { token: string }) {
     "code" | "verifying" | "ready" | "completing" | "completed"
   >("code");
   const [error, setError] = useState<string | null>(null);
+  const [ageVerified, setAgeVerified] = useState(false);
 
   async function verify(event: FormEvent) {
     event.preventDefault();
@@ -58,6 +59,7 @@ export function PickupClient({ token }: { token: string }) {
         serviceCode,
       });
       setOrder(result.order ?? null);
+      setAgeVerified(false);
       setState("ready");
     } catch (caught) {
       setError(
@@ -71,7 +73,11 @@ export function PickupClient({ token }: { token: string }) {
     setState("completing");
     setError(null);
     try {
-      await postJson("/api/pickup/complete", { token, serviceCode });
+      await postJson("/api/pickup/complete", {
+        token,
+        serviceCode,
+        ageVerified: true,
+      });
       setState("completed");
     } catch (caught) {
       setError(
@@ -155,11 +161,19 @@ export function PickupClient({ token }: { token: string }) {
               </div>
             </dl>
             <p className="location-label">{order.locationName}</p>
+            <label className="age-check">
+              <input
+                type="checkbox"
+                checked={ageVerified}
+                onChange={(event) => setAgeVerified(event.target.checked)}
+              />
+              <span>Buyer is over 21 years of age and ID presented.</span>
+            </label>
             <button
               type="button"
               className="complete-button"
               onClick={complete}
-              disabled={state === "completing"}
+              disabled={state === "completing" || !ageVerified}
             >
               {state === "completing" ? "Completing..." : "Complete"}
             </button>
