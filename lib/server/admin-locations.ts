@@ -5,6 +5,13 @@ import { getDb } from "@/lib/db/client";
 import { locations, users } from "@/lib/db/schema";
 import { ApiError } from "@/lib/server/http";
 
+export const LEYOU_LOCATION_ID =
+  "0f6fd071-46c6-4f2d-8e53-3d8e0895df98";
+
+export function isGrandfatheredLocation(locationId: string) {
+  return locationId === LEYOU_LOCATION_ID;
+}
+
 export const locationValuesSchema = z.object({
   vendorId: z.string().uuid().nullable(),
   name: z.string().trim().min(1).max(120),

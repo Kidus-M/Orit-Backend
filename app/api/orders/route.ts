@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, gte, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, gt, gte, isNull, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db/client";
@@ -14,6 +14,7 @@ import {
   payments,
   users,
 } from "@/lib/db/schema";
+import { LEYOU_LOCATION_ID } from "@/lib/server/admin-locations";
 import { requireAuth } from "@/lib/server/auth";
 import { isAtLeast21 } from "@/lib/server/compliance";
 import { sendNewOrderNotification } from "@/lib/server/email";
@@ -122,8 +123,13 @@ export async function POST(request: Request) {
         and(
           eq(locations.id, input.locationId),
           eq(locations.active, true),
-          eq(locations.complianceApproved, true),
-          eq(locations.state, "CA"),
+          or(
+            eq(locations.id, LEYOU_LOCATION_ID),
+            and(
+              eq(locations.complianceApproved, true),
+              eq(locations.state, "CA"),
+            ),
+          ),
           isNull(locations.deletedAt),
         ),
       )

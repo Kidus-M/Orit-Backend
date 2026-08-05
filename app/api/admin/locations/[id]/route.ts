@@ -8,6 +8,7 @@ import { requireAdminCookie } from "@/lib/server/admin-auth";
 import {
   assertLocationCanBeActive,
   deleteAdminLocation,
+  isGrandfatheredLocation,
   locationValuesSchema,
   requireVendor,
 } from "@/lib/server/admin-locations";
@@ -40,18 +41,18 @@ export async function PATCH(
       .limit(1);
     if (!existing) throw new ApiError(404, "Location not found.");
 
-    assertLocationCanBeActive({
-      active: input.active ?? existing.active,
-      state: input.state ?? existing.state,
-      abcLicenseType:
-        input.abcLicenseType ?? existing.abcLicenseType,
-      abcLicenseNumber:
-        input.abcLicenseNumber ?? existing.abcLicenseNumber,
-      responsibleOperator:
-        input.responsibleOperator ?? existing.responsibleOperator,
-      complianceApproved:
-        input.complianceApproved ?? existing.complianceApproved,
-    });
+    if (!isGrandfatheredLocation(locationId)) {
+      assertLocationCanBeActive({
+        active: input.active ?? existing.active,
+        state: input.state ?? existing.state,
+        abcLicenseType: input.abcLicenseType ?? existing.abcLicenseType,
+        abcLicenseNumber: input.abcLicenseNumber ?? existing.abcLicenseNumber,
+        responsibleOperator:
+          input.responsibleOperator ?? existing.responsibleOperator,
+        complianceApproved:
+          input.complianceApproved ?? existing.complianceApproved,
+      });
+    }
 
     if (input.vendorId !== undefined) await requireVendor(input.vendorId);
     const { serviceCode, stockQuantity, ...values } = input;

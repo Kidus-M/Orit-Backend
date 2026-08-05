@@ -1,9 +1,10 @@
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull, or } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
 import { locations } from "@/lib/db/schema";
 import { handleRoute, json } from "@/lib/server/http";
+import { LEYOU_LOCATION_ID } from "@/lib/server/admin-locations";
 
 export async function GET() {
   return handleRoute(async () => {
@@ -26,8 +27,13 @@ export async function GET() {
       .where(
         and(
           eq(locations.active, true),
-          eq(locations.complianceApproved, true),
-          eq(locations.state, "CA"),
+          or(
+            eq(locations.id, LEYOU_LOCATION_ID),
+            and(
+              eq(locations.complianceApproved, true),
+              eq(locations.state, "CA"),
+            ),
+          ),
           isNull(locations.deletedAt),
         ),
       )
