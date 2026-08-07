@@ -45,6 +45,7 @@ export async function requireAdminCookie(
       role: users.role,
       firstName: users.firstName,
       email: users.email,
+      dateOfBirth: users.dateOfBirth,
       storeName: users.storeName,
       isVendor: users.isVendor,
     })

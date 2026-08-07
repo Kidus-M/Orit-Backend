@@ -14,6 +14,7 @@ export type AuthenticatedUser = {
   role: UserRole;
   firstName: string;
   email: string;
+  dateOfBirth: string | null;
   storeName: string | null;
   isVendor: boolean;
 };
@@ -54,6 +55,7 @@ export async function requireAuth(
       role: users.role,
       firstName: users.firstName,
       email: users.email,
+      dateOfBirth: users.dateOfBirth,
       storeName: users.storeName,
       isVendor: users.isVendor,
     })
