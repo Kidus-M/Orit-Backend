@@ -1904,6 +1904,8 @@ button:disabled { cursor: wait; opacity: .65; }
 .club-public--policy { display: block; padding: 100px 24px 60px; background: var(--cream); }
 .club-public--policy::before { display: none; }
 .club-public--policy .club-public__panel { width: min(920px, 100%); margin: 0 auto; }
+.club-login-page { min-height: 100dvh; }
+.club-login-page .club-public__brand { display: none; }
 
 .club-text-button,
 .club-help-link {

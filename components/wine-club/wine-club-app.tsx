@@ -41,6 +41,7 @@ import {
   MembershipGift,
 } from "./club-orders";
 import { VendorOrder } from "./club-vendor";
+import { SiteHeader } from "@/components/site-header";
 
 const emptyMembership: MembershipState = {
   isMember: false,
@@ -137,7 +138,7 @@ export function WineClubApp({ initialView }: { initialView: string }) {
   if (!user) {
     if (initialView === "signup") return <ClubSignup navigate={navigate} onAuthenticated={routeAfterAuthentication} />;
     if (initialView === "privacy") return <PublicPrivacy navigate={navigate} />;
-    return <ClubLogin navigate={navigate} onAuthenticated={routeAfterAuthentication} />;
+    return <div className="club-login-page"><SiteHeader /><ClubLogin navigate={navigate} onAuthenticated={routeAfterAuthentication} /></div>;
   }
 
   const content = (() => {
