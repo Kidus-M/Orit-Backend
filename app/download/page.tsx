@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 
 import androidRelease from "@/public/downloads/android-update.json";
 import { ArrowRightIcon } from "@/components/arrow-right-icon";
 import {
   AndroidLogoIcon,
-  AppleLogoIcon,
+  DesktopLogoIcon,
 } from "@/components/device-platform-icons";
 import { MarketingShell } from "@/components/marketing-shell";
 import { PageTransition } from "@/components/page-transition";
@@ -13,7 +14,7 @@ import { PageTransition } from "@/components/page-transition";
 export const metadata: Metadata = {
   title: "Wine Club",
   description:
-    "Download the Orit Tej wine club app for Android and preview the planned iPhone release.",
+    "Download the Orit Tej Android app or access Wine Club membership and benefits on desktop.",
 };
 
 const features = [
@@ -126,23 +127,31 @@ export default function DownloadPage() {
                     <strong>Direct download</strong>
                   </div>
                 </article>
-                <article className="store-card store-card--ios">
+                <article className="store-card store-card--desktop">
                   <div className="store-card__top">
-                    <div className="store-card__icon">
-                      <AppleLogoIcon />
+                    <div className="store-card__icon store-card__icon--desktop">
+                      <DesktopLogoIcon />
                     </div>
-                    <span className="status-pill">Planned</span>
+                    <span className="status-pill">Ready</span>
                   </div>
                   <div className="store-card__copy">
-                    <p className="eyebrow">iPhone</p>
-                    <h3>Download for iOS</h3>
+                    <p className="eyebrow">Desktop</p>
+                    <h3>Sign up</h3>
                     <p>
-                      The App Store version is planned for a later release.
+                      Sign up here to access Wine Club membership and benefits
+                      for desktop and non-Android users.
                     </p>
+                    <Link
+                      className="button button--wine store-card__download"
+                      href="/club/signup"
+                    >
+                      Sign up
+                      <ArrowRightIcon />
+                    </Link>
                   </div>
                   <div className="store-card__footer">
                     <span>Release channel</span>
-                    <strong>Apple App Store</strong>
+                    <strong>Direct login</strong>
                   </div>
                 </article>
               </div>

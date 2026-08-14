@@ -6,7 +6,7 @@ import { and, isNull } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
 import { locationStaff, locations, users } from "@/lib/db/schema";
-import { createSession } from "@/lib/server/auth";
+import { createSession, createSessionCookie } from "@/lib/server/auth";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
 import { hashPassword } from "@/lib/server/passwords";
 import { fourDigitPinSchema } from "@/lib/server/pins";
@@ -66,7 +66,15 @@ export async function POST(request: Request) {
     });
     const session = await createSession(user.id);
 
-    return json({ user, session }, { status: 201 });
+    return json(
+      { user, session },
+      {
+        status: 201,
+        headers: {
+          "set-cookie": createSessionCookie(request, session.token, session.expiresAt),
+        },
+      },
+    );
   });
 }
 

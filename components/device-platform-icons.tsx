@@ -36,3 +36,27 @@ export function AppleLogoIcon() {
     </svg>
   );
 }
+
+export function DesktopLogoIcon() {
+  return (
+    <svg
+      className="device-logo"
+      viewBox="0 0 48 48"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <rect x="5" y="7" width="38" height="27" rx="3" fill="currentColor" />
+      <rect
+        x="9"
+        y="11"
+        width="30"
+        height="19"
+        rx="1"
+        fill="var(--device-icon-cutout, #ffcc20)"
+      />
+      <path d="M20 34h8l1.5 5H18.5l1.5-5Z" fill="currentColor" />
+      <rect x="14" y="39" width="20" height="3" rx="1.5" fill="currentColor" />
+    </svg>
+  );
+}

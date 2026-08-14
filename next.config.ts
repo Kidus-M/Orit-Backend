@@ -4,6 +4,17 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        source: "/club/:path*",
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow, noarchive, nosnippet",
+          },
+          { key: "Referrer-Policy", value: "same-origin" },
+          { key: "Cache-Control", value: "no-store, max-age=0" },
+        ],
+      },
+      {
         source: "/pickup/:path*",
         headers: [
           {

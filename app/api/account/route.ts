@@ -5,7 +5,7 @@ import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
 import { userConsents, users } from "@/lib/db/schema";
 import { deleteAccountSafely } from "@/lib/server/account-deletion";
-import { requireAuth } from "@/lib/server/auth";
+import { clearSessionCookie, requireAuth } from "@/lib/server/auth";
 import {
   adultBirthDateSchema,
   PRIVACY_POLICY_VERSION,
@@ -84,6 +84,9 @@ export async function DELETE(request: Request) {
     await prepareDatabase();
     const user = await requireAuth(request);
     await deleteAccountSafely(user.id);
-    return new Response(null, { status: 204 });
+    return new Response(null, {
+      status: 204,
+      headers: { "set-cookie": clearSessionCookie(request) },
+    });
   });
 }

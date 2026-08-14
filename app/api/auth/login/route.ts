@@ -4,7 +4,7 @@ import { z } from "zod";
 import { getDb } from "@/lib/db/client";
 import { prepareDatabase } from "@/lib/db/prepare";
 import { users } from "@/lib/db/schema";
-import { createSession } from "@/lib/server/auth";
+import { createSession, createSessionCookie } from "@/lib/server/auth";
 import { ApiError, handleRoute, json } from "@/lib/server/http";
 import {
   assertLoginAllowed,
@@ -43,16 +43,19 @@ export async function POST(request: Request) {
     }
 
     const session = await createSession(user.id);
-    return json({
-      user: {
-        id: user.id,
-        role: user.role,
-        firstName: user.firstName,
-        email: user.email,
-        storeName: user.storeName,
-        isVendor: user.isVendor,
+    return json(
+      {
+        user: {
+          id: user.id,
+          role: user.role,
+          firstName: user.firstName,
+          email: user.email,
+          storeName: user.storeName,
+          isVendor: user.isVendor,
+        },
+        session,
       },
-      session,
-    });
+      { headers: { "set-cookie": createSessionCookie(request, session.token, session.expiresAt) } },
+    );
   });
 }

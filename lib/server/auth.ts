@@ -19,6 +19,66 @@ export type AuthenticatedUser = {
   isVendor: boolean;
 };
 
+export const SESSION_COOKIE_NAME = "orit_session";
+
+function readCookie(request: Request, name: string) {
+  const cookie = request.headers.get("cookie");
+  if (!cookie) return null;
+
+  for (const part of cookie.split(";")) {
+    const [rawName, ...rawValue] = part.trim().split("=");
+    if (rawName === name) {
+      try {
+        return decodeURIComponent(rawValue.join("="));
+      } catch {
+        return null;
+      }
+    }
+  }
+  return null;
+}
+
+export function getSessionToken(request: Request) {
+  const bearer = request.headers
+    .get("authorization")
+    ?.replace(/^Bearer\s+/i, "")
+    .trim();
+  return bearer || readCookie(request, SESSION_COOKIE_NAME);
+}
+
+export function createSessionCookie(
+  request: Request,
+  token: string,
+  expiresAt: Date,
+) {
+  const secure = new URL(request.url).protocol === "https:";
+  return [
+    `${SESSION_COOKIE_NAME}=${encodeURIComponent(token)}`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Strict",
+    secure ? "Secure" : "",
+    `Expires=${expiresAt.toUTCString()}`,
+  ]
+    .filter(Boolean)
+    .join("; ");
+}
+
+export function clearSessionCookie(request: Request) {
+  const secure = new URL(request.url).protocol === "https:";
+  return [
+    `${SESSION_COOKIE_NAME}=`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Strict",
+    secure ? "Secure" : "",
+    "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+    "Max-Age=0",
+  ]
+    .filter(Boolean)
+    .join("; ");
+}
+
 export function hashSessionToken(token: string) {
   return createHash("sha256")
     .update(`${getEnv().SESSION_TOKEN_PEPPER}:${token}`)
@@ -43,12 +103,8 @@ export async function requireAuth(
   request: Request,
   allowedRoles?: UserRole[],
 ): Promise<AuthenticatedUser> {
-  const header = request.headers.get("authorization");
-  if (!header?.startsWith("Bearer ")) {
-    throw new ApiError(401, "Missing bearer token");
-  }
-
-  const token = header.slice("Bearer ".length).trim();
+  const token = getSessionToken(request);
+  if (!token) throw new ApiError(401, "Missing session");
   const [result] = await getDb()
     .select({
       id: users.id,

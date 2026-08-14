@@ -1,9 +1,15 @@
 import { z } from "zod";
 
-export const PRIVACY_POLICY_VERSION = "2026-08-05";
-export const VENDOR_COMPLIANCE_VERSION = "2026-08-05";
-export const MEMBERSHIP_RENEWAL_TERMS_VERSION = "2026-08-05";
-export const PICKUP_AGE_ATTESTATION_VERSION = "2026-08-05";
+export {
+  MEMBERSHIP_RENEWAL_TERMS_VERSION,
+  PICKUP_AGE_ATTESTATION_VERSION,
+  PRIVACY_POLICY_VERSION,
+  VENDOR_COMPLIANCE_VERSION,
+} from "@/lib/compliance-versions";
+import {
+  MEMBERSHIP_RENEWAL_TERMS_VERSION,
+  PRIVACY_POLICY_VERSION,
+} from "@/lib/compliance-versions";
 
 function parseIsoBirthDate(value: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
