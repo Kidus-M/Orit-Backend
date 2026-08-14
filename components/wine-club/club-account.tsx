@@ -67,7 +67,7 @@ export function AgeDetails({ onUpdated }: { onUpdated: () => Promise<void> }) {
     event.preventDefault();
     const dateOfBirth = String(new FormData(event.currentTarget).get("dateOfBirth"));
     if (!isAtLeast21(dateOfBirth)) {
-      setError("You must be 21 or older to purchase alcohol.");
+      setError("You must be 21yrs or older to purchase alcohol.");
       return;
     }
     setBusy(true); setError(undefined);

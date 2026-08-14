@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     ) {
       throw new ApiError(
         403,
-        "You must be 21 or older to purchase alcohol",
+        "You must be 21yrs or older to purchase alcohol",
       );
     }
 

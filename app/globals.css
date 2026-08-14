@@ -1867,10 +1867,10 @@ button:disabled { cursor: wait; opacity: .65; }
 }
 .club-public::before {
   grid-area: 1 / 1;
-  align-self: end;
+  align-self: center;
   width: min(82%, 390px);
   aspect-ratio: 1;
-  margin: 0 auto 5vh;
+  margin: auto;
   background: url("/orit-tej-bee.png") center / contain no-repeat;
   content: "";
   opacity: 0.14;
@@ -1897,6 +1897,10 @@ button:disabled { cursor: wait; opacity: .65; }
 .club-public__panel--compact { max-width: 500px; }
 .club-public__panel--wide { max-width: 800px; }
 .club-public__panel > h1 { font-size: clamp(2.4rem, 5vw, 4.2rem); }
+.club-public__panel > h1,
+.club-public__panel > .club-text-button {
+  color: var(--wine-deep);
+}
 .club-public__panel > .club-form,
 .club-public__panel > .club-choice-stack,
 .club-public__panel > .club-compliance-list { margin-top: 32px; }
@@ -1906,6 +1910,29 @@ button:disabled { cursor: wait; opacity: .65; }
 .club-public--policy .club-public__panel { width: min(920px, 100%); margin: 0 auto; }
 .club-login-page { min-height: 100dvh; }
 .club-login-page .club-public__brand { display: none; }
+.club-public__panel > .club-policy + .club-check { margin-top: 22px; }
+.club-public__panel > .club-policy + .club-check + .club-button {
+  display: flex;
+  width: max-content;
+  margin: 22px auto 0;
+}
+.club-public--consent {
+  height: 100dvh;
+  overflow: hidden;
+}
+.club-public--consent .club-public__panel {
+  display: flex;
+  height: calc(100dvh - 48px);
+  max-height: calc(100dvh - 48px);
+  flex-direction: column;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+.club-public--consent .club-policy {
+  min-height: 0;
+  max-height: none;
+  flex: 1;
+}
 
 .club-text-button,
 .club-help-link {
@@ -2221,6 +2248,12 @@ button:disabled { cursor: wait; opacity: .65; }
   .club-public__brand { position: absolute; top: 22px; left: 22px; }
   .club-public__panel { width: min(620px, 100%); margin: 0 auto; padding: 28px 24px; }
   .club-public--policy { padding-top: 92px; }
+  .club-public--consent { padding-bottom: 18px; }
+  .club-public--consent .club-public__panel {
+    height: calc(100dvh - 112px);
+    max-height: calc(100dvh - 112px);
+    margin: 0 auto;
+  }
 }
 
 @media (max-width: 580px) {

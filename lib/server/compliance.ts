@@ -64,7 +64,7 @@ export const adultBirthDateSchema = z
     message: "Enter a valid birthdate",
   })
   .refine((value) => isAtLeast21(value), {
-    message: "You must be 21 or older to purchase alcohol",
+    message: "You must be 21yrs or older to purchase alcohol",
   });
 
 export const privacyConsentSchema = z.object({

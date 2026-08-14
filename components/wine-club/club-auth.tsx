@@ -85,7 +85,7 @@ export function ClubSignup({ navigate, onAuthenticated }: { navigate: Navigate; 
   const [type, setType] = useState<"customer" | "vendor">();
 
   if (!privacyAccepted) {
-    return <PublicPanel title="Privacy Policy" summary="Effective August 5, 2026" wide><PrivacyPolicyContent /><label className="club-check"><input type="checkbox" checked={privacyChecked} onChange={(event) => setPrivacyChecked(event.target.checked)} /><span>I have read and agree to the Orit Tej Privacy Policy.</span></label><button className="club-button club-button--green" type="button" disabled={!privacyChecked} onClick={() => setPrivacyAccepted(true)}>Agree and Continue<ArrowIcon /></button></PublicPanel>;
+    return <PublicPanel title="Privacy Policy" summary="Effective August 5, 2026" wide policy><PrivacyPolicyContent /><label className="club-check"><input type="checkbox" checked={privacyChecked} onChange={(event) => setPrivacyChecked(event.target.checked)} /><span>I have read and agree to the Orit Tej Privacy Policy.</span></label><button className="club-button club-button--green" type="button" disabled={!privacyChecked} onClick={() => setPrivacyAccepted(true)}>Agree and Continue<ArrowIcon /></button></PublicPanel>;
   }
 
   if (type === "customer") {
@@ -122,7 +122,7 @@ function CustomerSignup({ navigate, onAuthenticated, onBack }: { navigate: Navig
     const form = new FormData(event.currentTarget);
     const dateOfBirth = String(form.get("dateOfBirth"));
     const pin = String(form.get("pin"));
-    if (!isAtLeast21(dateOfBirth)) return setError("You must be 21 or older to purchase alcohol.");
+    if (!isAtLeast21(dateOfBirth)) return setError("You must be 21yrs or older to purchase alcohol.");
     if (pin !== form.get("confirmPin")) return setError("PINs do not match.");
 
     setBusy(true);
@@ -198,7 +198,7 @@ function VendorSignup({ onAuthenticated, onBack }: { onAuthenticated: () => Prom
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const dateOfBirth = String(form.get("dateOfBirth"));
-    if (!isAtLeast21(dateOfBirth)) return setError("You must be 21 or older to purchase alcohol.");
+    if (!isAtLeast21(dateOfBirth)) return setError("You must be 21yrs or older to purchase alcohol.");
     setError(undefined);
     setDetails(Object.fromEntries(Array.from(form.entries()).map(([key, value]) => [key, String(value)])));
     setStep("compliance");
@@ -269,9 +269,9 @@ function VendorSignup({ onAuthenticated, onBack }: { onAuthenticated: () => Prom
   );
 }
 
-export function PublicPanel({ eyebrow, title, summary, children, onBack, compact, wide }: { eyebrow?: string; title?: string; summary?: string; children: React.ReactNode; onBack?: () => void; compact?: boolean; wide?: boolean }) {
+export function PublicPanel({ eyebrow, title, summary, children, onBack, compact, wide, policy }: { eyebrow?: string; title?: string; summary?: string; children: React.ReactNode; onBack?: () => void; compact?: boolean; wide?: boolean; policy?: boolean }) {
   return (
-    <main id="main-content" className="club-public">
+    <main id="main-content" className={`club-public ${policy ? "club-public--consent" : ""}`}>
       <Link className="club-public__brand" href="/"><Image src="/orit-tej-bee.png" alt="" width={56} height={56} priority /><span><strong>Orit Tej</strong><small>Wine Club</small></span></Link>
       <section className={`club-public__panel ${compact ? "club-public__panel--compact" : ""} ${wide ? "club-public__panel--wide" : ""}`}>
         {onBack ? <button className="club-back" type="button" onClick={onBack}>← Back</button> : null}
