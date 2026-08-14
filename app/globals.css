@@ -1815,7 +1815,17 @@ button:disabled { cursor: wait; opacity: .65; }
 
 .club-form { display: grid; gap: 18px; }
 .club-form--narrow { max-width: 560px; }
-.club-form__split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.club-form__split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 14px;
+}
+.club-form__split .club-field > span {
+  display: flex;
+  min-height: 2.25em;
+  align-items: flex-end;
+}
 .club-field { display: grid; gap: 8px; }
 .club-field > span {
   color: var(--wine-deep);
@@ -2261,6 +2271,7 @@ button:disabled { cursor: wait; opacity: .65; }
   .club-public__panel > h1 { font-size: clamp(2.1rem, 12vw, 3.1rem); }
   .club-section__body { margin-top: 28px; }
   .club-form__split { grid-template-columns: 1fr; }
+  .club-form__split .club-field > span { min-height: 0; }
   .club-choice { grid-template-columns: 48px minmax(0, 1fr) 18px; padding: 14px; }
   .club-choice__icon { width: 44px; }
   .club-centered-choices { min-height: 390px; }
