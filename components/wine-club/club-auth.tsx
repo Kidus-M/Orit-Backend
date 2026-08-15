@@ -264,7 +264,7 @@ function VendorSignup({ onAuthenticated, onBack }: { onAuthenticated: () => Prom
         ))}
       </div>
       <ErrorMessage message={error} />
-      <button className="club-button club-button--green" type="button" disabled={!allChecked || busy} onClick={register}>{busy ? "Creating account…" : "Continue"}<ArrowIcon /></button>
+      <button className="club-button club-button--green club-button--centered" type="button" disabled={!allChecked || busy} onClick={register}>{busy ? "Creating account…" : "Continue"}<ArrowIcon /></button>
     </PublicPanel>
   );
 }

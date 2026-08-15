@@ -38,7 +38,7 @@ export function VendorOrder() {
     finally { setBusy(false); }
   }
 
-  if (submitted) return <ClubSection title="THANK YOU!" summary="Your order has been submitted and will be delivered within 3 days."><button className="club-button club-button--green" type="button" onClick={() => { setSubmitted(false); setQuantity(1); }}>Done</button></ClubSection>;
+  if (submitted) return <ClubSection title="THANK YOU!" summary="Your order has been submitted and will be delivered within 3 days." centered><button className="club-button club-button--green" type="button" onClick={() => { setSubmitted(false); setQuantity(1); }}>Done</button></ClubSection>;
   if (!access) return <ClubSection title="Order Cases">{error ? <p className="club-error" role="alert">{error}</p> : <div className="club-loading">Loading vendor ordering…</div>}</ClubSection>;
   if (!access.isVendor) return <ClubSection title="SORRY!"><div className="club-empty"><strong>Page reserved for vendors.</strong></div></ClubSection>;
   if (!access.hasPaymentMethod) return <ClubSection title="Payment"><StripePayment purpose="setup" buttonLabel="Next" onSuccess={load} /></ClubSection>;

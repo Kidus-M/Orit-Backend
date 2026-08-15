@@ -1771,6 +1771,13 @@ button:disabled { cursor: wait; opacity: .65; }
   line-height: 1.6;
 }
 .club-section__body { display: grid; gap: 22px; margin-top: clamp(30px, 5vw, 48px); }
+.club-section--centered > h1,
+.club-section--centered > .club-section__summary {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+.club-section--centered .club-section__body { justify-items: center; }
 .club-eyebrow {
   margin: 0;
   color: var(--wine);
@@ -1812,6 +1819,7 @@ button:disabled { cursor: wait; opacity: .65; }
 .club-button--green { background: var(--green); color: white; box-shadow: 0 10px 24px rgba(37, 132, 64, 0.18); }
 .club-button--green:not(:disabled):hover { background: var(--green-dark); }
 .club-button--quiet { border-color: var(--line); background: white; color: var(--wine); }
+.club-button--centered { width: max-content; margin: 22px auto 0; }
 
 .club-form { display: grid; gap: 18px; }
 .club-form--narrow { max-width: 560px; }

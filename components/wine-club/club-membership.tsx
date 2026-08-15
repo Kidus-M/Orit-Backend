@@ -146,6 +146,6 @@ export function MembershipBenefits() {
   return <section className="club-benefits-list"><div className="club-benefits-list__title"><GiftIcon /><h2>Membership Benefits</h2></div>{benefits.map((benefit) => <p key={benefit}><span><CheckIcon /></span>{benefit}</p>)}</section>;
 }
 
-export function ClubSection({ eyebrow, title, summary, children, onBack }: { eyebrow?: string; title?: string; summary?: string; children: React.ReactNode; onBack?: () => void }) {
-  return <section className="club-section">{onBack ? <button className="club-back" type="button" onClick={onBack}>← Back</button> : null}{eyebrow ? <p className="club-eyebrow">{eyebrow}</p> : null}{title ? <h1>{title}</h1> : null}{summary ? <p className="club-section__summary">{summary}</p> : null}<div className="club-section__body">{children}</div></section>;
+export function ClubSection({ eyebrow, title, summary, children, onBack, centered }: { eyebrow?: string; title?: string; summary?: string; children: React.ReactNode; onBack?: () => void; centered?: boolean }) {
+  return <section className={`club-section ${centered ? "club-section--centered" : ""}`}>{onBack ? <button className="club-back" type="button" onClick={onBack}>← Back</button> : null}{eyebrow ? <p className="club-eyebrow">{eyebrow}</p> : null}{title ? <h1>{title}</h1> : null}{summary ? <p className="club-section__summary">{summary}</p> : null}<div className="club-section__body">{children}</div></section>;
 }
